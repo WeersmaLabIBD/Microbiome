@@ -1,5 +1,5 @@
 
-Metagenimics protocol 
+Metagenomics protocol 
 ===================
 
 #Creator: Arnau Vich
