@@ -33,8 +33,10 @@ mkdir ./$SAMPLE_ID/humann2/
 mkdir ./$SAMPLE_ID/DUDes/
 ```
 
-2.QC step: Currently our samples are sequenced in the Broad, so the the BAM files are already QCed by removing low quality reads and trimming adapters
---------------------------------------------------------------------------------------------------------------------------------------------------------
+2.QC step: 
+---------------
+
+Currently our samples are sequenced in the Broad, so the the BAM files are already QCed by removing low quality reads and trimming adapters
 
 Convert BAM to FASTQ with PICARD:
 ```
