@@ -1,6 +1,7 @@
 Small intestine project 
 ========================
 *Creator: Arnau Vich | Paula Sureda*
+
 *Year: 2017*
 
 1. Raw pathaways, first, we filter the stratified pathways, keeping the information for the overall pathway. 
