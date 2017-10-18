@@ -53,7 +53,7 @@ rm tmp1.txt
 4. Metadata and summary statistics in R
 ----------------------------------------
 ```{R}
- #Filter metadata script: https://github.com/ArnauVich/Project_Intestinal_Microbiome/blob/master/Function%20Scripts/filter_metadata_function.R
+ #Filter metadata script: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/Filter_metadata.R
  #Filter Min RD > 10 M reads (remove 30 samples)
  phenos=read.table("../phenotypes.txt", header = T, sep = "\t",check.names = F, as.is = T, row.names = 1)
  filter_metadata(phenos, 3, 10000000,100)
@@ -65,7 +65,7 @@ remove=stomas$V1
 final_phenos=phenos[!row.names(phenos)%in%remove,]
 
 ## Summary statistics
-# Script: https://github.com/ArnauVich/Project_Intestinal_Microbiome/blob/master/Function%20Scripts/summary_statistics_metadata_function.R
+# Script: https://github.com/WeersmaLabIBD/General_Tools/blob/master/Metadata_summary.R
 
 cat_table$name=row.names(final_phenos)
 cat_table$cat=final_phenos$cohort
@@ -84,7 +84,7 @@ samples_to_keep=row.names(final_phenos)
 ------------------------------------
 
 ```{r}
-#Use script: https://github.com/ArnauVich/my_metagenomic_scripts/blob/master/normalization.R
+#Use script: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/normalize_data.R
 #Import pathway data
 path_IBD=read.table("../1.1.Cleaned_tables/IBD_humann2_unstrat_clean.txt", header = T, sep = "\t",check.names = F, as.is = T, row.names = 1)
 path_IBD=path_IBD[,colnames(path_IBD)%in%samples_to_keep]
