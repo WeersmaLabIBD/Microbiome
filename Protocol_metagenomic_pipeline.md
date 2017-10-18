@@ -6,7 +6,7 @@ Metagenomics protocol
 
 #Year: 2016
 
-1.Load tools and set variables for SLURM enviorament / Boxy cluster UMCG
+1.Load tools and set variables for SLURM environment / Boxy cluster UMCG
 -------------------------------------------------------------------------
 
 ```
