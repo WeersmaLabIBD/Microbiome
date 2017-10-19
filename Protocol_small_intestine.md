@@ -87,4 +87,24 @@ my_path=read.table("I", header = T, sep = "\t",check.names = F, as.is = T, row.n
 my_path=normalize(my_path, samples.in.rows = T, to.abundance = F, transform = "log", move.log = "min")
 write.table(tax, file = "2.Taxa/fil_trans_taxa.txt", sep = "\t", quote = F)
 ```
+6. Reorder data frames
+-----------------------
 
+```{R}
+phenos <- phenos[ order(row.names(phenos)), ]
+tax <- tax[ order(row.names(tax)), ]
+my_path=as.data.frame(t(my_path))
+my_path <- my_path[ order(row.names(my_path)), ]
+```
+
+7. Logistic regression
+-----------------------
+
+```{R}
+Script: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/2_steps_logistic_regression.R
+minimum_phenos=phenos[,which(names(phenos) %in% c("Group","Sex","BMI","TotalReads","AgeAtFecalSampling","PPI","antibiotics_merged"))]
+logistic_regression(minimum_phenos,tax,1)
+logistic_regression(minimum_phenos,my_path,1)
+logistic_regression(phenos,tax,1)
+logistic_regression(phenos,my_path,1)
+```
