@@ -266,6 +266,20 @@ Pathways
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config All_filtered_path_pheno.txt ./Model_2_All_path
 ```
+**Without extra filtering**
+```{bash}
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -i model_2_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_2_LLD
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -i model_2_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_2_MIBS
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -i model_2_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_2_IBD
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -i model_2_taxa.read.config All_filtered_taxonomy_pheno.txt ./Model_2_All
+
+
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -i model_2_paths.read.config MIBS_filtered_path_pheno.txt ./Model_2_MIBS_path
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -i model_2_paths.read.config IBD_filtered_path_pheno.txt ./Model_2_IBD_path
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
+/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -i model_2_paths.read.config All_filtered_path_pheno.txt ./Model_2_All_path
+
+```
 
 8.Merge results in a table
 ----------------------------
