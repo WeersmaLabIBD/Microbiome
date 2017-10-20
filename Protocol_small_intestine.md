@@ -4,7 +4,7 @@ Small intestine project
 
 *Year: 2017*
 
-1. Raw pathaways, first, we filter the stratified pathways, keeping the information for the overall pathway. 
+1.Raw pathaways, first, we filter the stratified pathways, keeping the information for the overall pathway. 
 ------------------------------------------------------------------------------------------------------------
 ```{bash}
 less IBD_humann2_pathways_uniref90_082017.txt | head -1 >> IBD_unstrat.tsv
@@ -14,7 +14,7 @@ less IBD_humann2_pathways_uniref90_082017.txt | grep -v "|" >> IBD_unstrat.tsv
 
 
 
-2. Clean headers (terminal/bash)
+2.Clean headers (terminal/bash)
 --------------------------------
 
 ```{bash}
@@ -29,7 +29,7 @@ awk 'NR==FNR{d[$1]=$2;next}FNR==1{for(i=1;i<=NF;i++)$i=d[$i]?d[$i]:$i}7'  ~/Desk
 rm tmp1.txt
 ```
 
-3. Filter based on metadata 
+3.Filter based on metadata 
 ---------------------------
 
 Conditions: >10 M sequenced reads x sample (remove 24 samples): total samples 514
@@ -44,7 +44,7 @@ Keep names to filter taxa and pathways
 samples_to_keep=row.names(phenos)
 ```
 
-4. Filter taxa and pathways
+4.Filter taxa and pathways
 ---------------------------
 
 Filter taxa min rel abundance (0.005 % ) and bacteria present on at least 10% of the samples 
@@ -69,7 +69,7 @@ my_path[is.nan(my_path)] = 0
 filtering_taxonomy(my_path,0.0000005,10)
 ```
 
-5. Normalize data
+5.Normalize data
 ------------------
 
 Arsine square root transformation of taxonomy data 
@@ -87,7 +87,7 @@ my_path=read.table("I", header = T, sep = "\t",check.names = F, as.is = T, row.n
 my_path=normalize(my_path, samples.in.rows = T, to.abundance = F, transform = "log", move.log = "min")
 write.table(tax, file = "2.Taxa/fil_trans_taxa.txt", sep = "\t", quote = F)
 ```
-6. Reorder data frames
+6.Reorder data frames
 -----------------------
 
 ```{R}
@@ -97,7 +97,7 @@ my_path=as.data.frame(t(my_path))
 my_path <- my_path[ order(row.names(my_path)), ]
 ```
 
-7. Logistic regression
+7.Logistic regression
 -----------------------
 
 ```{R}
