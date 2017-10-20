@@ -369,3 +369,66 @@ colnames(beta_blockers)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1
 colnames(metformin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
 colnames(statin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
 ```
+
+10.Plot heatmap
+-----------------
+
+```
+test=ACE_inhibitor[ACE_inhibitor$`4_all_qval`<0.05,]
+
+test=test[complete.cases(test$`4_all_coef`), ]
+test$col_all="none"
+test$col_IBD="none"
+test$col_LLD="none"
+test$col_MIBS="none"
+test[is.na(test)] <- 0
+
+test[test$`4_all_coef`>0, ]$col_all= 0.1
+test[test$`4_all_coef`>0 & test$`4_all_qval` < 0.05, ]$col_all= 1
+test[test$`4_all_coef`>0 & test$`4_all_qval` < 0.001, ]$col_all= 2
+test[test$`4_all_coef`>0 & test$`4_all_qval` < 0.0001, ]$col_all= 3
+test[test$`4_all_coef`<0, ]$col_all= -0.1
+test[test$`4_all_coef`<0 & test$`4_all_qval` < 0.05, ]$col_all= -1
+test[test$`4_all_coef`<0 & test$`4_all_qval` < 0.001, ]$col_all= -2
+test[test$`4_all_coef`<0 & test$`4_all_qval` < 0.0001, ]$col_all= -3
+
+test[test$`2_IBD_coef`>0, ]$col_IBD= 0.1
+test[test$`2_IBD_coef`>0 & test$`2_IBD_qval` < 0.05, ]$col_IBD= 1
+test[test$`2_IBD_coef`>0 & test$`2_IBD_qval` < 0.001, ]$col_IBD= 2
+test[test$`2_IBD_coef`>0 & test$`2_IBD_qval` < 0.0001, ]$col_IBD= 3
+test[test$`2_IBD_coef`<0, ]$col_IBD= -0.1
+test[test$`2_IBD_coef`<0 & test$`2_IBD_qval` < 0.05, ]$col_IBD= -1
+test[test$`2_IBD_coef`<0 & test$`2_IBD_qval` < 0.001, ]$col_IBD= -2
+test[test$`2_IBD_coef`<0 & test$`2_IBD_qval` < 0.0001, ]$col_IBD= -3
+
+test[test$`1_LLD_coef`>0, ]$col_LLD= 0.1
+test[test$`1_LLD_coef`>0 & test$`1_LLD_qval` < 0.05, ]$col_LLD= 1
+test[test$`1_LLD_coef`>0 & test$`1_LLD_qval` < 0.001, ]$col_LLD= 2
+test[test$`1_LLD_coef`>0 & test$`1_LLD_qval` < 0.0001, ]$col_LLD= 3
+test[test$`1_LLD_coef`<0, ]$col_LLD= -0.1
+test[test$`1_LLD_coef`<0 & test$`1_LLD_qval` < 0.05, ]$col_LLD= -1
+test[test$`1_LLD_coef`<0 & test$`1_LLD_qval` < 0.001, ]$col_LLD= -2
+test[test$`1_LLD_coef`<0 & test$`1_LLD_qval` < 0.0001, ]$col_LLD= -3
+
+
+test[test$`3_MIBS_coef`>0, ]$col_MIBS= 0.1
+test[test$`3_MIBS_coef`>0 & test$`3_MIBS_qval` < 0.05, ]$col_MIBS= 1
+test[test$`3_MIBS_coef`>0 & test$`3_MIBS_qval` < 0.001, ]$col_MIBS= 2
+test[test$`3_MIBS_coef`>0 & test$`3_MIBS_qval` < 0.0001, ]$col_MIBS= 3
+test[test$`3_MIBS_coef`<0, ]$col_MIBS= -0.1
+test[test$`3_MIBS_coef`<0 & test$`3_MIBS_qval` < 0.05, ]$col_MIBS= -1
+test[test$`3_MIBS_coef`<0 & test$`3_MIBS_qval` < 0.001, ]$col_MIBS= -2
+test[test$`3_MIBS_coef`<0 & test$`3_MIBS_qval` < 0.0001, ]$col_MIBS= -3
+
+test2=test[,9:12]
+test2$bact=row.names(test2)
+rownames(test2)=NULL
+test3=melt(test2, id.vars="bact")
+test3$value[test3$value=="none"] <- 0
+
+ggplot(test3,aes(variable,bact, fill=value)) + geom_tile(aes(fill=as.numeric(value)), colour="white") + scale_fill_gradient2(low="#456BB3", high = "#F26A55", mid = "white", midpoint = 0) + theme_bw()
+```
+
+
+
+
