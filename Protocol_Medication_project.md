@@ -299,3 +299,59 @@ setwd("../Model_2_All_tax/")
 }
  write.table(output,"../Model_2_all_taxa.txt", sep = "\t", quote = F, row.names = T)
 ```
+
+9.Merge results per drug
+-----------------------------
+
+```
+drug_list=c("ACE_inhibitor","NSAID","PPI","SSRI_antidepressant","angII_receptor_antagonist","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","metformin","statin")
+path="./"
+flag=1
+
+for (i in drug_list){
+	file.names = dir(path,pattern=i)
+	for (a in 1:length(file.names)){
+		if (flag==1){
+			output=read.table(file.names[a], sep = "\t", row.names = 2, header=T)
+			output=output[,c(3,7)]
+			colnames(output) <- paste( sub('.txt','',basename(file.names[a]),fixed=TRUE), colnames(output), sep = "_")
+         	flag=2
+		} else{
+			result = read.table(file.names[a], sep="\t", row.names = 2, header = T)
+			result=result[,c(3,7)]
+			colnames(result) <- paste( sub('.txt','',basename(file.names[a]),fixed=TRUE), colnames(result), sep = "_")
+			output = merge (output,result, by="row.names", all=T) 
+			row.names(output)=output$Row.names
+			output$Row.names=NULL
+		}
+	}
+	assign(i,output)
+	rm(output)
+	rm(result)
+	flag=1
+} 
+ACE_inhibitor=as.data.frame(ACE_inhibitor)
+NSAID=as.data.frame(NSAID)
+PPI=as.data.frame(PPI)
+SSRI_antidepressant=as.data.frame(SSRI_antidepressant)
+angII_receptor_antagonist=as.data.frame(angII_receptor_antagonist)
+anti_histamine=as.data.frame(anti_histamine)
+antibiotics_mergedr=as.data.frame(antibiotics_merged)
+benzodiazepine_derivatives_related=as.data.frame(benzodiazepine_derivatives_related)
+beta_blockers=as.data.frame(beta_blockers)
+metformin=as.data.frame(metformin)
+statin=as.data.frame(statin)
+
+
+colnames(ACE_inhibitor)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(NSAID)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(PPI)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(SSRI_antidepressant)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(angII_receptor_antagonist)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(anti_histamine)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(antibiotics_merged)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(benzodiazepine_derivatives_related)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(beta_blockers)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(metformin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+colnames(statin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
+```
