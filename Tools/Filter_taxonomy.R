@@ -1,6 +1,9 @@
 
 ## Taxonomy Analysis Function ##
 
+# Creator: Arnau Vich | Paula Sureda
+# Year: 2017
+
 #Input files
 #1.Taxonomy_table
 #2.Abundance_value: value for filtering by relative abundance mean
