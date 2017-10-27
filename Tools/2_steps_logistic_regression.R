@@ -123,7 +123,7 @@ logistic_regression <- function(metadata_input, taxonomy_table, column_number) {
 
   for (aa in 1:nrow(combination_list)){
 
-    new_metadata <- metadata_input[metadata_input[,1]==combination_list[aa,1] | metadata_input[,1] == combination_list[aa,2],]
+    new_metadata <- metadata_input[metadata_input[,column_number]==combination_list[aa,1] | metadata_input[,column_number] == combination_list[aa,2],]
 
     ##Remove columns with only one level
     new_metadata1 <- new_metadata[, sapply(new_metadata, function(col) length(unique(col))) > 1]
