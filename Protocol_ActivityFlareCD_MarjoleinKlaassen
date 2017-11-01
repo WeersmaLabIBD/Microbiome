@@ -1,3 +1,14 @@
+### New strategy plan discussed with Ranko
+# To do: 31-10-2017, 12:04
+## 1. Strain diversity nog invoegen (Ranko, hoe met NA zero inflation?).
+
+
+
+
+
+
+
+
 #### _______________________________________________________________________________
 
 ## Setting my working Directory.  
@@ -253,7 +264,7 @@ TaxaCDIIa = TaxaCDIIa[,c(1, 6, 2:5, 8:330)]
 write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 
 ### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
-Maaslin('LinBeforein1Yr.tsv','Taxa analysis 2a ',strInputConfig = '7.MetaCycInFlareNot.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','Taxa analysis 2a ',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 
 
 
@@ -328,7 +339,7 @@ Maaslin('LinAfterin1Yr.tsv','Taxa analysis 2b',strInputConfig = '2bTaxa.read.con
 
 
 
-## _________________________________________________________________________________________________
+## ____________________________________________________________________________
 ##### Pathways
 ## Importing Valerie's Phenotype file.
 db = read.csv("VALFLO.csv", header = T, sep = ";")
@@ -365,8 +376,6 @@ colSums(MetacycProp)
 ## 0 en 1 aan te leveren. 
 MetacycProp= MetacycProp/100
 colSums(MetacycProp)
-
-
 
 ## zorgen dat de kolommen dezelfde naam hebben voor het mergen
 MetacycProp = as.data.frame(t(MetacycProp))
@@ -440,15 +449,6 @@ for (i in 1:nrow(MetaCycCD)){
     MetaCycCD$TimePrevVT[i] = MetaCycCD$TimePrevVT[i]
 }
 
-## Er zijn dubbele punten in de kolomnamen. Hier kan MaAslin niet mee werken
-## Nu wil ik dus alle ':' vervangen door '_'.
-names(MetaCycVTFin) = gsub(x = names(MetaCycVTFin), pattern = ":", replacement = "_") 
-names(MetaCycVTFin) = gsub(x = names(MetaCycVTFin), pattern = " ", replacement = "_") 
-names(MetaCycVTFin) = gsub(x = names(MetaCycVTFin), pattern = "-", replacement = "_") 
-names(MetaCycVTFin) = gsub(x = names(MetaCycVTFin), pattern = ")", replacement = "_") 
-names(MetaCycVTFin) = gsub(x = names(MetaCycVTFin), pattern = "/", replacement = "_")
-MetaCycVTTidy = make.names(colnames(MetaCycVTFin), unique = TRUE)
-colnames(MetaCycVTFin) = MetaCycVTTidy 
 
 
 ### Filtering out species that are abundant in <5% of patients
@@ -466,6 +466,15 @@ MetaCycVT = MetaCycCD[,c(1:11)]
 MetaCycVT = merge(MetaCycVT, MCFilter2, by= "UMCGIBDDNAID", all = FALSE)
 
 
+## Er zijn dubbele punten in de kolomnamen. Hier kan MaAslin niet mee werken
+## Nu wil ik dus alle ':' vervangen door '_'.
+names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = ":", replacement = "_") 
+names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = " ", replacement = "_") 
+names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = "-", replacement = "_") 
+names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = ")", replacement = "_") 
+names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = "/", replacement = "_")
+MetaCycVTTidy = make.names(colnames(MetaCycVT), unique = TRUE)
+colnames(MetaCycVT) = MetaCycVTTidy 
 
 
 
@@ -543,7 +552,7 @@ MCInFlareNot = MCInFlareNot[,c(1, 9, 2:5, 10:665)]
 write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 
 ## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
-Maaslin('InFlareNot.tsv','1.MetaCyc analysis 1',strInputConfig = '1.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','1.MetaCyc analysis 1',strInputConfig = '1.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 
 
 
@@ -604,7 +613,7 @@ MCCDIIa = MCCDIIa[,c(1, 6, 2:5, 8:663)]
 write.table(MCCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 
 ### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
-Maaslin('LinBeforein1Yr.tsv','MetaCyc analysis 2a ',strInputConfig = '7.MetaCycInFlareNot.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','MetaCyc analysis 2a ',strInputConfig = '2a.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 
 
 
@@ -660,7 +669,23 @@ MCLinAfterIIb$TimePrevVT = as.numeric(as.character(MCLinAfterIIb$TimePrevVT))
 MCLinAfterIIb = MCLinAfterIIb[,c(1, 6, 2:5, 9:664)]
 write.table(MCLinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ##2b 
-Maaslin('LinAfterin1Yr.tsv','MetaCyc analysis 2b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinAfterin1Yr.tsv','MetaCyc analysis 2b',strInputConfig = '2b.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -872,7 +897,7 @@ VFInFlareNot = VFInFlareNot[,c(1, 9, 2:5, 10:936)]
 write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 
 ## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
-Maaslin('InFlareNot.tsv','1.VirFac analysis 1',strInputConfig = '1.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','1.VirFac analysis 1',strInputConfig = '1.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
@@ -933,7 +958,7 @@ VF_CDIIa = VF_CDIIa[,c(1, 6, 2:5, 8:934)]
 write.table(VF_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 
 ### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
-Maaslin('LinBeforein1Yr.tsv','Vir Fac analysis 2a ',strInputConfig = '7.MetaCycInFlareNot.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','Vir Fac analysis 2a ',strInputConfig = '2a.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
@@ -989,7 +1014,7 @@ VF_LinAfterIIb$TimePrevVT = as.numeric(as.character(VF_LinAfterIIb$TimePrevVT))
 VF_LinAfterIIb = VF_LinAfterIIb[,c(1, 6, 2:5, 9:935)]
 write.table(VF_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ##2b 
-Maaslin('LinAfterin1Yr.tsv','Vir Fac analysis 2b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinAfterin1Yr.tsv','Vir Fac analysis 2b',strInputConfig = '2b.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
@@ -1211,7 +1236,7 @@ GR_InFlareNot = GR_InFlareNot[,c(1, 9, 2:5, 10:67)]
 write.table(GR_InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 
 ## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
-Maaslin('InFlareNot.tsv','1.GR analysis 1',strInputConfig = '1.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','GR analysis 1',strInputConfig = '1.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
@@ -1272,7 +1297,7 @@ GR_CDIIa = GR_CDIIa[,c(1, 6, 2:5, 8:65)]
 write.table(GR_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 
 ### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
-Maaslin('LinBeforein1Yr.tsv','GR analysis 2a ',strInputConfig = '7.MetaCycInFlareNot.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','GR analysis 2a ',strInputConfig = '2a.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
@@ -1328,7 +1353,348 @@ GR_LinAfterIIb$TimePrevVT = as.numeric(as.character(GR_LinAfterIIb$TimePrevVT))
 GR_LinAfterIIb = GR_LinAfterIIb[,c(1, 6, 2:5, 9:66)]
 write.table(GR_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ##2b 
-Maaslin('LinAfterin1Yr.tsv','GR analysis 2b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinAfterin1Yr.tsv','GR analysis 2b',strInputConfig = '2b.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## _______________________________________________________________________________-
+## Strain Diversity
+## Importing Valerie's Phenotype file.
+db = read.csv("VALFLO.csv", header = T, sep = ";")
+db = as.data.frame(db)
+
+## Importing my metadata file (time relative to a flare).
+VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
+VT = as.data.frame(VT)
+
+## Merging Valerie's file with my file, to filter the patients who have
+## no metagenomic sequencing data available. 
+FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
+FinalVT=as.data.frame(FinalVT)
+FinalVT = FinalVT[,c("Sex", "WGSProjectID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
+FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+
+
+## Importing Kraken metagenomic sequencing file 'Strain Diversity'. 
+## This file is imported from Arnau.
+StrainDiversity = read.delim("StrainDiversity.txt", header = T, sep = "\t")
+rownames(StrainDiversity) <- StrainDiversity[,1]
+StrainDiversity = StrainDiversity[,c(2:2077)]
+StrainDiversity=as.data.frame(t(StrainDiversity))
+
+StrainDiversity["WGSProjectID"] = row.names(StrainDiversity)
+StrainDiversity = StrainDiversity[,c(141, 1:140)]
+
+StrainDiversityVT = merge (FinalVT, StrainDiversity, by = "WGSProjectID", all = FALSE)
+SD_VT = StrainDiversityVT
+
+## Converting all negative numbers (patient is in a flare multiple days) into 
+## zero's (meaning that all patients in a flare are stated as just 'in a flare' =
+## 0 days until last flare and 0 days until next flare)
+SD_VT = cbind(SD_VT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=SD_VT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, SD_VT[,8:ncol(SD_VT)])
+
+SD_VT$TimeEndPreviousExacerbation = as.numeric(as.character(SD_VT$TimeEndPreviousExacerbation))
+SD_VT$TimeToStartNextExacerbation = as.numeric(as.character(SD_VT$TimeToStartNextExacerbation))
+
+for (i in 1:nrow(SD_VT)) {
+  if (SD_VT$TimeEndPreviousExacerbation[i] < 0 & !is.na(SD_VT$TimeEndPreviousExacerbation[i])) {
+    SD_VT$TimePrevVT[i] = 0
+    SD_VT$TimeNextNegtoZer[i] = 0
+  } else {
+    SD_VT$TimePrevVT[i] = SD_VT$TimeEndPreviousExacerbation[i]
+    SD_VT$TimeNextNegtoZer[i] = SD_VT$TimeToStartNextExacerbation[i]
+  }
+}
+
+## Making 'days to the next flare' all zero. 
+SD_VT = cbind(SD_VT[,1:9], "TimeNextVT"=NA, SD_VT[,10:ncol(SD_VT)])
+for (i in 1:nrow(SD_VT)) {
+  if (SD_VT$TimeNextNegtoZer[i] > 0 & !is.na(SD_VT$TimeNextNegtoZer[i])) {
+    SD_VT$TimeNextVT[i] = ((SD_VT$TimeNextNegtoZer[i])*-1)
+  }
+  else {
+    SD_VT$TimeNextVT[i] = SD_VT$TimeNextNegtoZer[i]
+  }
+}
+
+SD_CD = SD_VT[SD_VT$DiagnosisCurrent == 'CD',]
+SD_CD = SD_CD[,c(1:5, 7, 10, 11:154)]
+
+# When PPI use is not documented in patient, it is agreed that we report 'no PPI use'.
+for (i in 1:nrow(SD_CD)){
+  if (is.na(SD_CD$MedicationPPI[i])){
+    SD_CD$MedicationPPI[i] = "no"
+  } else 
+    SD_CD$MedicationPPI[i] = SD_CD$MedicationPPI[i]
+}
+
+# When Antibiotic use is not documented in patient, it is agreed that we report 'no ab use'. 
+for (i in 1:nrow(SD_CD)){
+  if (is.na(SD_CD$AntibioticsWithin3MonthsPriorToSampling[i])){
+    SD_CD$AntibioticsWithin3MonthsPriorToSampling[i] = "no"
+  } else 
+    SD_CD$AntibioticsWithin3MonthsPriorToSampling[i] = SD_CD$AntibioticsWithin3MonthsPriorToSampling[i]
+}
+
+# Zorgen dat het helemaal klopt, dan alle NextVT die 0 zijn, dan ook PrevVT hebben die nul is.
+for (i in 1:nrow(SD_CD)){
+  if (!is.na(SD_CD$TimePrevVT[i]) & SD_CD$TimePrevVT[i] == 0 ){
+    SD_CD$TimeNextVT[i] = 0
+  } else 
+    SD_CD$TimeNextVT[i] = SD_CD$TimeNextVT[i]
+}
+
+for (i in 1:nrow(SD_CD)){
+  if (!is.na(SD_CD$TimeNextVT[i]) & SD_CD$TimeNextVT[i] == 0 ){
+    SD_CD$TimePrevVT[i] = 0
+  } else 
+    SD_CD$TimePrevVT[i] = SD_CD$TimePrevVT[i]
+}
+
+
+### Filtering out strains that are abundant in <5% of patients
+SD_Filter = SD_CD[,c(1, 12: 151)]
+SD_Filter2 = SD_Filter[,-1]
+rownames(SD_Filter2) = SD_Filter[,1]
+SD_Filter2 = as.data.frame(t(SD_Filter2))
+SD_Filter2["NumberofNAs"] = rowSums(is.na(SD_Filter2))
+SD_Filter2 = SD_Filter2[,c(248, 1:247)]
+SD_Filter2 = SD_Filter2[SD_Filter2$NumberofNAs < 235,]
+SD_Filter2 = SD_Filter2[,c(2:248)]
+SD_Filter2 = as.data.frame(t(SD_Filter2))
+SD_Filter2["WGSProjectID"] = row.names(SD_Filter2)
+SD_Filter2 = SD_Filter2[,c(105, 1:104)]
+
+
+SD_VT = SD_CD[,c(1:11)]
+SD_VT = merge(SD_VT, SD_Filter2, by= "WGSProjectID", all = FALSE)
+
+
+## Er zijn spaties in de kolomnamen. Hier kan MaAslin niet mee werken
+## Nu wil ik dus alle ':' vervangen door '_'.
+names(SD_VT) = gsub(x = names(SD_VT), pattern = " ", replacement = "_") 
+
+
+
+
+## 0 means that the species of which the heterozygosity is being calculated, is present in 
+##the sample. However, the specific strain is not.
+## NA means that the species of which the heterozygosity is being calculated, 
+##is not present in the sample. Therefore it's heterozygosity can not be computed and 
+## a NA results.
+
+
+
+
+
+
+
+
+###### Analysis 1: categorical comparison of gut metagenome, in patients who have >1 yr quiescent
+###### disease, versus patients in a flare
+###### So, we want to filter out patient who have prev/next flare <1 yr. 
+
+SD_InFlareNot = SD_VT
+SD_InFlareNot$TimeNextVT[SD_InFlareNot$TimeNextVT > (-365) & SD_InFlareNot$TimeNextVT < 0] = NA
+SD_InFlareNot$TimePrevVT[SD_InFlareNot$TimePrevVT > 0 & SD_InFlareNot$TimePrevVT < 365] = NA
+
+## Remove patients that have NA in both Prev/Next <1 yr flare
+SD_InFlareNot<-SD_InFlareNot[!with(SD_InFlareNot,is.na(SD_InFlareNot$TimeNextVT)& is.na(SD_InFlareNot$TimePrevVT)),]
+
+## Creating new column 'in flare/ not in flare >1 yr'
+SD_InFlareNot = cbind(SD_InFlareNot[,1:7], "TempColFlare"=NA, SD_InFlareNot[,8:ncol(SD_InFlareNot)])
+
+## Giving value to new column 'in flare/ not in flare >1 yr'
+for (i in 1:nrow(SD_InFlareNot)){
+  if (is.na(SD_InFlareNot$TimeNextVT[i])) {
+    SD_InFlareNot$TempColFlare[i]= "None"
+    SD_InFlareNot$TimeNextVT[i] = "None"
+  } else if (is.na(SD_InFlareNot$TimePrevVT[i])){
+    SD_InFlareNot$TimePrevVT[i] = "None"
+  } else if (SD_InFlareNot$TimeNextVT[i]< 0) {
+    SD_InFlareNot$TempColFlare[i] = "before a flare"
+  } else {
+    SD_InFlareNot$TempColFlare[i] = "during a flare"
+  }
+}
+#
+for (i in 1:nrow(SD_InFlareNot)){
+  if (SD_InFlareNot$TimeNextVT[i] =="None"){
+    SD_InFlareNot$TempColFlare[i] = "after a flare"
+  } else if (SD_InFlareNot$TimePrevVT[i] =="None"){
+    SD_InFlareNot$TempColFlare[i] = "before a flare"
+  } else if (SD_InFlareNot$TimeNextVT[i] == 0){
+    SD_InFlareNot$TempColFlare[i] = "during a flare"
+  } else if ((SD_InFlareNot$TimeNextVT[i] != "None") & (SD_InFlareNot$TimePrevVT[i] != "None")){ 
+    if (as.numeric(SD_InFlareNot$TimeNextVT[i]) + as.numeric(SD_InFlareNot$TimePrevVT[i]) > 0){
+      SD_InFlareNot$TempColFlare[i] = "before a flare"
+    } else {
+      SD_InFlareNot$TempColFlare[i] = "after a flare"
+    }
+  }
+}
+
+# Creating new column 'InFlareNot'
+SD_InFlareNot = cbind(SD_InFlareNot[,1:8], "InFlareNot"=NA, SD_InFlareNot[,9:ncol(SD_InFlareNot)])
+
+# Give value to rows in this column: in flare/not in flare
+for (i in 1:nrow(SD_InFlareNot)){
+  if (SD_InFlareNot$TempColFlare[i] == "before a flare"){
+    SD_InFlareNot$InFlareNot[i] = "Not in a flare"
+  } else 
+    SD_InFlareNot$TempColFlare[i] = SD_InFlareNot$TempColFlare[i]
+}
+#
+for (i in 1:nrow(SD_InFlareNot)){
+  if (SD_InFlareNot$TempColFlare[i] == "after a flare"){
+    SD_InFlareNot$InFlareNot[i] = "Not in a flare"
+  } else 
+    SD_InFlareNot$TempColFlare[i] = SD_InFlareNot$TempColFlare[i]
+}
+#
+for (i in 1:nrow(SD_InFlareNot)){
+  if (SD_InFlareNot$TempColFlare[i] == "during a flare"){
+    SD_InFlareNot$InFlareNot[i] = "In a flare"
+  } else 
+    SD_InFlareNot$TempColFlare[i] = SD_InFlareNot$TempColFlare[i]
+}
+
+SD_InFlareNot = SD_InFlareNot[,c(1, 9, 2:5, 10:117)]
+write.table(SD_InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+
+## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
+Maaslin('InFlareNot.tsv','SD analysis 1',strInputConfig = '1.SD.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+
+
+
+
+
+
+
+
+############## Linear analysis 2a
+### (Patients who have next flare < 1 year) - (time until next flare). 
+SD_CDIIa = SD_VT
+SD_CDIIa$TimeNextVT[SD_CDIIa$TimeNextVT< (-365)]<-NA
+SD_CDIIa$TimePrevVT[SD_CDIIa$TimePrevVT> 365]<-NA
+#
+SD_CDIIa<-SD_CDIIa[!with(SD_CDIIa,is.na(SD_CDIIa$TimeNextVT)& is.na(SD_CDIIa$TimePrevVT)),]
+#
+SD_CDIIa = cbind(SD_CDIIa[,1:7], "LinBefore"=NA, SD_CDIIa[,8:ncol(SD_CDIIa)])
+SD_CDIIa$LinBefore = as.numeric(as.character(SD_CDIIa$LinBefore))
+
+
+for (i in 1:nrow(SD_CDIIa)){
+  if (is.na(SD_CDIIa$TimeNextVT[i])) {
+    SD_CDIIa$LinBefore[i]= "None"
+    SD_CDIIa$TimeNextVT[i] = "None"
+  } else if (is.na(SD_CDIIa$TimePrevVT[i])){
+    SD_CDIIa$TimePrevVT[i] = "None"
+  } else if (SD_CDIIa$TimeNextVT[i]< 0) {
+    SD_CDIIa$LinBefore[i] = "before a flare"
+  } else {
+    SD_CDIIa$LinBefore[i] = "during a flare"
+  }
+}
+
+for (i in 1:nrow(SD_CDIIa)){
+  if (SD_CDIIa$TimeNextVT[i] =="None"){
+    SD_CDIIa$LinBefore[i] = "after a flare"
+  } else if (SD_CDIIa$TimePrevVT[i] =="None"){
+    SD_CDIIa$LinBefore[i] = "before a flare"
+  } else if (SD_CDIIa$TimeNextVT[i] == 0){
+    SD_CDIIa$LinBefore[i] = "during a flare"
+  } else if ((SD_CDIIa$TimeNextVT[i] != "None") & (SD_CDIIa$TimePrevVT[i] != "None")){ 
+    if (as.numeric(SD_CDIIa$TimeNextVT[i]) + as.numeric(SD_CDIIa$TimePrevVT[i]) > 0){
+      SD_CDIIa$LinBefore[i] = "before a flare"
+    } else {
+      SD_CDIIa$LinBefore[i] = "after a flare"
+    }
+  }
+}
+
+SD_CDIIa = SD_CDIIa[SD_CDIIa$LinBefore!= "after a flare",]
+SD_CDIIa = SD_CDIIa[SD_CDIIa$LinBefore!= "during a flare",]
+
+SD_CDIIa = SD_CDIIa[,c(1:5, 7:116)]
+SD_CDIIa$TimeNextVT = as.numeric(as.character(SD_CDIIa$TimeNextVT))
+
+#
+SD_CDIIa = SD_CDIIa[,c(1, 6, 2:5, 8:115)]
+write.table(SD_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
+
+### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
+Maaslin('LinBeforein1Yr.tsv','SD analysis 2a ',strInputConfig = '2a.SD.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+
+
+
+
+
+
+
+##### Analyses 2b: (Patients who had last flare < 1 year) - (time since last flare). 
+SD_LinAfterIIb = SD_VT
+#
+SD_LinAfterIIb$TimeNextVT[SD_LinAfterIIb$TimeNextVT< (-365)]<-NA
+SD_LinAfterIIb$TimePrevVT[SD_LinAfterIIb$TimePrevVT> 365]<-NA
+#
+SD_LinAfterIIb<-SD_LinAfterIIb[!with(SD_LinAfterIIb,is.na(SD_LinAfterIIb$TimeNextVT)& is.na(SD_LinAfterIIb$TimePrevVT)),]
+#
+SD_LinAfterIIb = cbind(SD_LinAfterIIb[,1:7], "LinAfter"=NA, SD_LinAfterIIb[,8:ncol(SD_LinAfterIIb)])
+SD_LinAfterIIb$LinAfter = as.numeric(as.character(SD_LinAfterIIb$LinAfter))
+
+
+for (i in 1:nrow(SD_LinAfterIIb)){
+  if (is.na(SD_LinAfterIIb$TimeNextVT[i])) {
+    SD_LinAfterIIb$LinAfter[i]= "None"
+    SD_LinAfterIIb$TimeNextVT[i] = "None"
+  } else if (is.na(SD_LinAfterIIb$TimePrevVT[i])){
+    SD_LinAfterIIb$TimePrevVT[i] = "None"
+  } else if (SD_LinAfterIIb$TimeNextVT[i]< 0) {
+    SD_LinAfterIIb$LinAfter[i] = "before a flare"
+  } else {
+    SD_LinAfterIIb$LinAfter[i] = "during a flare"
+  }
+}
+
+for (i in 1:nrow(SD_LinAfterIIb)){
+  if (SD_LinAfterIIb$TimeNextVT[i] =="None"){
+    SD_LinAfterIIb$LinAfter[i] = "after a flare"
+  } else if (SD_LinAfterIIb$TimePrevVT[i] =="None"){
+    SD_LinAfterIIb$LinAfter[i] = "before a flare"
+  } else if (SD_LinAfterIIb$TimeNextVT[i] == 0){
+    SD_LinAfterIIb$LinAfter[i] = "during a flare"
+  } else if ((SD_LinAfterIIb$TimeNextVT[i] != "None") & (SD_LinAfterIIb$TimePrevVT[i] != "None")){ 
+    if (as.numeric(SD_LinAfterIIb$TimeNextVT[i]) + as.numeric(SD_LinAfterIIb$TimePrevVT[i]) > 0){
+      SD_LinAfterIIb$LinAfter[i] = "before a flare"
+    } else {
+      SD_LinAfterIIb$LinAfter[i] = "after a flare"
+    }
+  }
+}
+
+SD_LinAfterIIb = SD_LinAfterIIb[SD_LinAfterIIb$LinAfter!= "before a flare",]
+SD_LinAfterIIb = SD_LinAfterIIb[SD_LinAfterIIb$LinAfter!= "during a flare",]
+SD_LinAfterIIb$TimePrevVT = as.numeric(as.character(SD_LinAfterIIb$TimePrevVT))
+
+SD_LinAfterIIb = SD_LinAfterIIb[,c(1, 6, 2:5, 9:116)]
+write.table(SD_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
+##2b 
+Maaslin('LinAfterin1Yr.tsv','SD analysis 2b',strInputConfig = '2b.SD.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 
 
 
