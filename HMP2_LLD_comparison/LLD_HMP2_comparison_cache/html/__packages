@@ -1,0 +1,12 @@
+base
+fastqcr
+gdata
+ggplot2
+tidyr
+stringi
+permute
+lattice
+vegan
+gplots
+futile.logger
+VennDiagram
