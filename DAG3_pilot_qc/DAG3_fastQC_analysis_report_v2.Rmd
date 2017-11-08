@@ -1,0 +1,527 @@
+---
+title: "DAG3 QC report"
+output:
+  html_document:
+    css: DAG3.css
+  pdf_document: default
+  word_document: default
+---
+
+```{r set-options, echo=FALSE, cache=FALSE,results='hide',warning=FALSE,comment=FALSE,include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, results = 'hide', fig.width=12, fig.height=5, cache = TRUE)
+library(fastqcr)
+library(gdata)
+library(ggplot2)
+library(tidyr)
+library(stringi)
+library(grid)
+library(knitr)
+library(kableExtra)
+library(vegan)
+
+# misc helper functions
+nzmean <- function(a){
+  mean(a[a!=0])
+}
+
+##Function to calculate nº of 0
+zsum <- function(a){
+  sum (a==0)
+}
+
+##Function to calculate nº of non-0
+nsum <- function(a){
+  sum (a!=0)
+}
+
+```
+
+## DAG3 Pilot (200 samples), QC report part II - bioinformatics QC vs Lab QC
+- By: Ranko Gacesa, 05/10/2017
+
+***
+- FastQC was performed on 200 raw reads received from Novogene
+- Results were linked to taxonomy reports (Arnau)
+- Results were also compared to lab reports from UMCG and Novogene to identify potential issues
+
+***
+```{r cache = TRUE,results='hide',message=FALSE,echo = FALSE}
+# load libs & setwd
+# note: uses gdata for excel files, fastqcr for fastQC files
+setwd("/home/rgacesa/UMCG/Projects/DAG3_pilot_QC/DAG3_pilot_QC_git/")
+# load fastQC results
+samplePath = "./results_qc/"
+# load excel files (Nanodrop & sample metadata)
+sBox <- read.xls("./samples/pilot_samples_boxes.xlsx",sheet = 1)
+sConc <- read.csv("./samples/pilot_samples_table.csv")
+
+# merge metadata
+sMeta <- merge(sBox,sConc,by = "sample")
+# cleanup 
+# - convert data to proper types
+sMeta$sample <- as.character(sMeta$sample)
+sMeta$UMCG.BoxNR <- as.factor(as.character(sMeta$UMCG.BoxNR))
+# - get rid of useless columns
+
+# load fastQC results
+qc <- qc_aggregate(samplePath)
+write.csv(file = "./samples/multiqc.csv",x = qc)
+# -> transform long -> wide for qc (to allow merge)
+qcWide <- spread(qc,module,status)
+# -> fix sample names to confer with tables
+qcWide$sample <- stri_sub(qcWide$sample,2,-7)
+#  ->  average across paired ends
+qcWideA <- qcWide
+qcWideA$sample <- stri_sub(qcWideA$sample,1,-3)
+qcWideA <- qcWideA[,1:5]
+qcWideA$tot.seq <- as.numeric(qcWideA$tot.seq)
+qcWideA$seq.length <- as.numeric(qcWideA$seq.length)
+qcWideA$pct.gc <- as.numeric(qcWideA$pct.gc)
+qcWideA$pct.dup <- as.numeric(qcWideA$pct.dup)
+qcWideA <- aggregate(data=qcWideA,FUN = mean,.~sample)
+qcWideA2 <- aggregate(data=qcWideA,FUN = sum,.~sample)
+qcWideA$tot.seq <- qcWideA2$tot.seq
+
+# make merged metadata & qc dataframe
+qcMeta <- merge(qcWideA,sMeta,by="sample")
+qcMeta$tot.seq.corr <- (100.0-qcMeta$pct.dup)/100.0*qcMeta$tot.seq
+
+# cleanup
+qcMeta$seq.length <- NULL
+qcMeta$UMCG.boxPosition <- NULL
+qcMeta$UMCG.BoxNR <- NULL
+qcMeta$UMCG.BoxNameNR <- NULL
+qcMeta$UMCG.box <- NULL
+qcMeta$X <- NULL
+qcMeta$sample.NR <- NULL
+qcMeta$UMCG.BoxName <- NULL
+qcMeta$novo.ID <- NULL
+qcMeta$UMCG.boxNr <- as.factor(as.character(qcMeta$UMCG.boxNr))
+
+# define "problematic" samples
+qcMeta$problematic <- as.numeric(0)
+qcMeta[qcMeta$pct.dup > 30.0 | qcMeta$pct.gc <= 47 | qcMeta$pct.gc >= 57.5,]$problematic <- 1
+qcMeta[(qcMeta$pct.dup > 30.0) & (qcMeta$pct.gc <= 47 | qcMeta$pct.gc >= 57.5),]$problematic <- 2
+qcMeta$novo.Conclusion3 <- as.character(qcMeta$novo.Conclusion2)
+
+qcMeta[as.numeric(as.character(qcMeta$problematic)) >= 1,]$novo.Conclusion3 <- "UMCG_QC:Problematic"
+
+qcMetaProblematic <- qcMeta[qcMeta$problematic >= 1,]
+qcMeta$problematic <- as.factor(as.character(qcMeta$problematic))
+qcMetaProblematic$problematic <- as.factor(as.character(qcMetaProblematic$problematic))
+
+# prepare taxonomy data
+# ---------------------------------------
+taxa_pilot=read.table("../Samples/pilot_metaphlan.txt", sep = "\t", row.names = 1, header = T, check.names = F)
+taxa_pilot2=as.data.frame(t(taxa_pilot))
+
+# remove strains
+s_species=taxa_pilot2[,grep("t__",colnames(taxa_pilot2),invert = TRUE)]
+# remove genera
+s_genera = s_species[,grep('s__',colnames(s_species),invert = TRUE)]
+# remove families
+s_family = s_genera[,grep('g__',colnames(s_genera),invert = TRUE)]
+# remove orders
+s_order = s_family[,grep('f__',colnames(s_family),invert = TRUE)]
+# remove classes
+s_class = s_order[,grep('o__',colnames(s_order),invert = TRUE)]
+#remove phyla
+s_phyla = s_class[,grep('c__',colnames(s_class),invert = TRUE)]
+
+# grab species
+s_species=s_species[,grep("s__",colnames(s_species))]
+# grab genera
+s_genera=s_genera[,grep("g__",colnames(s_genera))]
+# grab families
+s_family=s_family[,grep("f__",colnames(s_family))]
+# grab orders
+s_order=s_order[,grep("o__",colnames(s_order))]
+# grab classes
+s_class=s_class[,grep("c__",colnames(s_class))]
+# grab phyla
+s_phyla=s_phyla[,grep("p__",colnames(s_phyla))]
+
+# count taxonomy stuff per sample
+# ---------------------------------------------------
+s_taxnr <- data.frame(cbind(row.names(s_species), apply(X = s_species,MARGIN = 1,FUN = nsum), 
+                            apply(X = s_genera,MARGIN = 1,FUN = nsum),
+                            apply(X = s_family,MARGIN = 1,FUN = nsum),
+                            apply(X = s_order,MARGIN = 1,FUN = nsum),
+                            apply(X = s_class,MARGIN = 1,FUN = nsum),
+                            apply(X = s_phyla,MARGIN = 1,FUN = nsum)))
+# add diversity measures
+s_taxnr <- cbind(s_taxnr,diversity(s_species,index="shannon"))
+colnames(s_taxnr) <- c("sample","NrSpecies","NrGenera","NrFamilies","NrOrders","NrClasses","NrPhyla","Shannon")
+s_taxnr$NrSpecies <- as.numeric(as.character(s_taxnr$NrSpecies))
+s_taxnr$NrGenera <- as.numeric(as.character(s_taxnr$NrGenera))
+s_taxnr$NrFamilies <- as.numeric(as.character(s_taxnr$NrFamilies))
+s_taxnr$NrClasses <- as.numeric(as.character(s_taxnr$NrClasses))
+s_taxnr$NrOrders <- as.numeric(as.character(s_taxnr$NrOrders))
+s_taxnr$NrPhyla <- as.numeric(as.character(s_taxnr$NrPhyla))
+
+# merge with big meta table
+# ---------------------------------------------------
+s_taxnr$sample <- stri_sub(s_taxnr$sample,2,-1)
+qcMetaTax <- merge(s_taxnr,qcMeta,by="sample")
+
+# --------------- BRAY CURTIS!!!
+# -> get B-C distance
+beta <- vegdist((s_species), method="bray")
+# -> do PCA
+my_pcoa <- as.data.frame(cmdscale(beta, k = 5))
+# add it to bit dataset
+my_pcoa$sample <- row.names(my_pcoa)
+colnames (my_pcoa) <- c("Bray_Curtis_PC1","Bray_Curtis_PC2","Bray_Curtis_PC3","Bray_Curtis_PC4","Bray_Curtis_PC5","sample")
+my_pcoa$sample <- stri_sub(my_pcoa$sample,2,-1)
+qcMetaTaxBC <- merge(my_pcoa,qcMetaTax)
+
+# --- read all fastqc one by one, calculate mean and median quality
+allqcfiles <- list.files(samplePath,pattern = "*fastqc.zip")
+# grab files one by one, calculate mean quality
+mqs <- data.frame(sample=character(),mean.q=numeric())
+for (i in allqcfiles) {
+  print(i)
+  tmp <- paste(samplePath,i,sep="/")  
+  tmpqc <- qc_read(tmp)
+  meanq <- sum(tmpqc$per_sequence_quality_scores$Quality*tmpqc$per_sequence_quality_scores$Count)/sum(tmpqc$per_sequence_quality_scores$Count)
+  mqs <- rbind(mqs,c(i,meanq))
+  colnames(mqs) <- c("sample","q.mean")
+  mqs$sample <- as.character(mqs$sample)
+  mqs$q.mean <- as.numeric(as.character(mqs$q.mean))
+}
+mqs$sample <- stri_sub(mqs$sample,2,-14)
+mqsa <- aggregate(data=mqs,FUN = mean,.~sample)
+qcMeta <- merge(mqsa,qcMetaTaxBC,by="sample")
+# ---------------------------------------------
+#  ----- PLOTS -------------------------------
+# ---------------------------------------------
+#1st: diagnosing problematic samples
+```
+## Identification of 'problematic' samples
+
+### How to define a 'bad' (metagenomic) sequencing run?
+
+***
+
+- Low DNA concentration?
+- DNA contamination?
+- 'Bad' result of diagnostic gel run?
+- Low number of reads?
+- High level of read duplication?
+- Unusually low or high GC content?
+- Low microbiome diversity?
+- ...
+
+***
+
+### For purposes of this analysis, 'problematic' samples were defined as:
+
+- samples with high sequence duplication (>=30% of total reads are duplicate)
+- and/or GC content considerably different from rest of samples (<= 47% or >= 57.5%)
+
+```{r echo = FALSE}
+ggplot(data=qcMeta,aes(y=pct.dup,x=pct.gc,color=problematic,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=3) + ggtitle("FastQC, Duplication VS GC content") +
+  geom_hline(yintercept = 30, linetype="dotted") + geom_vline(xintercept = 47.5, linetype="dotted") + geom_vline(xintercept = 57.5, linetype="dotted")
+```
+
+***
+
+```{r results='markup',echo = FALSE}
+qcMetaProblematicF <- qcMetaProblematic
+qcMetaProblematicF$novo.Conclusion <- NULL
+qcMetaProblematicF$UMCG.DNAmassSent <- NULL
+qcMetaProblematicF$UMCG.260.280 <- NULL
+qcMetaProblematicF$UMCG.boxNr <- NULL
+qcMetaProblematicF$novo.Vol <- NULL
+qcMetaProblematicF$novo.DNAmass <- NULL
+qcMetaProblematicF$novo.gelNote <- NULL
+qcMetaProblematicF$problematic <- NULL
+qcMetaProblematicF$novo.Conclusion3 <- NULL
+rownames(qcMetaProblematicF) <- NULL
+kable(qcMetaProblematicF, "html",digits = 1) %>% kable_styling(bootstrap_options = c("striped", "hover"), full_width = F)
+```
+
+***
+
+# LAB QC (Novogene) 
+
+***
+- Sanity checks of Novogene QC follows:
+
+```{r echo = FALSE, results='hide'}
+# check Novogene QC
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=novo.Conclusion,color=novo.Conclusion3,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Novogene QC: DNA concentration")
+ggplot(data=qcMeta,aes(x=novo.DNAmass,y=novo.Conclusion,color=novo.Conclusion3,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Novogene QC: DNA mass")
+ggplot(data=qcMeta,aes(y=novo.gelNote,x=novo.Conclusion,color=novo.Conclusion3,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Novogene QC: gel-based diagnosis")
+ggplot(data=qcMeta,aes(y=novo.DNAmass,x=novo.C_ng_ul,color=novo.Conclusion3,shape=problematic,)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Novogene QC: DNA mass (for lib.prep) VS DNA concentration (Qubit 2.0)")
+```
+
+***
+
+# LAB QC (Novogene) 
+
+***
+- what they think they got from us:
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=novo.DNAmass,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=30) + ggtitle("Distribution of DNA mass received by Novogene")
+```
+
+
+***
+
+# LAB QC (UMCG)
+
+## Our DNA concentration
+
+***
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=UMCG.DNAmassSent,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=30) + ggtitle("Distribution of DNA mass sent by UMCG")
+
+```
+
+# LAB QC (UMCG)
+
+## Batch effects testing (lab parameters): 
+
+***
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=UMCG.C_ng_ul,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: UMCG Concentration VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=novo.C_ng_ul,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: Novo Concentration VS Boxes")
+#ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=UMCG.DNAmassSent,color=novo.Conclusion)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: Boxes")
+#ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=novo.DNAmass,color=novo.Conclusion)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: Boxes")
+```
+
+## UMCG: Box 24 seems to be problematic (all samples were labelled as Failed or Hold by Novogene)
+- Box 24: extraction volume was 200 ul, rest of boxes were done with 100 ul
+- different protocol? 
+
+***
+
+## Batch effects testing (FastQC results): 
+
+***
+
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: FastQC Reads VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: FastQC Reads (deduplicated) VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=pct.dup,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: FastQC Duplication VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: FastQC GC VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=q.mean,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("Batch effects test: FastQC Mean quality of sample VS Boxes")
+
+```
+
+***
+
+## Batch effects testing (Taxonomy results): 
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.05,width = 0.05,size=2.5) + ggtitle("Batch effects test: Taxonomy:NR Species Reads VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=NrFamilies,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.25,width = 0.25,size=2.5) + ggtitle("Batch effects test: Taxonomy:NR Families Reads VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=NrPhyla,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.25,width = 0.25,size=2.5) + ggtitle("Batch effects test: Taxonomy:NR Phyla Reads VS Boxes")
+
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.05,width = 0.05,size=2.5) + ggtitle("Batch effects test: Taxonomy:Shannon Reads VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.05,width = 0.05,size=2.5) + ggtitle("Batch effects test: Taxonomy:Bray-Curtis VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=Bray_Curtis_PC2,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.05,width = 0.05,size=2.5) + ggtitle("Batch effects test: Taxonomy:Bray-Curtis Reads VS Boxes")
+ggplot(data=qcMeta,aes(x=UMCG.boxNr,y=UMCG.260.280,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.05,width = 0.05,size=2.5) + ggtitle("Boxes, UMCG 260/280")
+
+```
+
+***
+
+
+## UMCG QC (Nanodrop) vs Novogene QC (Qubit2): 
+
+- comparison of measurements at UMCG to Novogene report
+
+***
+
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=novo.C_ng_ul,color=novo.Conclusion3,shape=problematic)) + geom_jitter(height=0.05,width = 0.05,size=2.5) + ggtitle("UMCG DNA conc vs Novogene DNA conc**")
+#ggplot(data=qcMeta,aes(x=UMCG.DNAmassSent,y=novo.C_ng_ul,color=novo.Conclusion2)) + geom_jitter(height=0.15,width = 0.15,size=2.5) + ggtitle("UMCG vs Novogene QC")
+ggplot(data=qcMeta,aes(x=UMCG.DNAmassSent,y=novo.DNAmass,color=novo.Conclusion3,color=novo.Conclusion3,shape=problematic)) + geom_jitter(height=0.05,width = 0.05,size=2.5) + ggtitle("UMCG mass sent vs Novogene mass used for lib prep**")
+```
+
+***
+
+# Post-sequencing QC (FastQC)
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=q.mean,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=30) + ggtitle("Distribution of mean sequencing quality of samples")
+#ggplot(data=qcMeta,aes(x=q.mean,fill=novo.Conclusion2,col=I("black"))) + geom_histogram(bins=30) + ggtitle("Distribution of mean sequencing quality of samples, Variant 2")
+ggplot(data=qcMeta,aes(x=pct.dup,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=30) + ggtitle("FastQC: Read Duplication distribution")
+ggplot(data=qcMeta,aes(x=pct.gc,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=20) + ggtitle("FastQC: Distribution of GC content")
+ggplot(data=qcMeta,aes(x=tot.seq,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=20) + ggtitle("FastQC: Distribution of read NR")
+ggplot(data=qcMeta,aes(x=tot.seq.corr,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=20) + ggtitle("FastQC: Distribution of read NR, corrected for duplication")
+```
+
+***
+
+# FastQC parameters for Novogene QC groups: 
+
+***
+
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=novo.Conclusion2,y=tot.seq,color=novo.Conclusion)) + ggtitle("FastQC Reads vs Novogene QC") + geom_jitter(width = 0.2,height = 0.2) + geom_boxplot(alpha=0.4,outlier.alpha = 0.0)
+ggplot(data=qcMeta,aes(x=novo.Conclusion2,y=tot.seq.corr,color=novo.Conclusion)) + ggtitle("FastQC Reads (deduplicated) vs Novogene QC") + geom_jitter(width = 0.2,height = 0.2) + geom_boxplot(alpha=0.4,outlier.alpha = 0.0)
+ggplot(data=qcMeta,aes(x=novo.Conclusion2,y=pct.gc,color=novo.Conclusion)) + ggtitle("FastQC GC vs Novogene QC") + geom_jitter(width = 0.2,height = 0.2) + geom_boxplot(alpha=0.4,outlier.alpha = 0.0)
+ggplot(data=qcMeta,aes(x=novo.Conclusion2,y=pct.dup,color=novo.Conclusion)) + ggtitle("FastQC Duplication vs Novogene QC") + geom_jitter(width = 0.2,height = 0.2) + geom_boxplot(alpha=0.4,outlier.alpha = 0.0)
+ggplot(data=qcMeta,aes(x=novo.Conclusion2,y=q.mean,color=novo.Conclusion)) + ggtitle("FastQC Mean Quality vs Novogene QC**") + geom_jitter(width = 0.2,height = 0.2) + geom_boxplot(alpha=0.4,outlier.alpha = 0.0)
+
+
+```
+
+***
+
+# FastQC parameters VS DNA concentration (UMCG Nanodrop)
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=pct.dup,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Duplication VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC GC VS Novo Conc") #+
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Reads VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Reads (corr) VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=UMCG.C_ng_ul,y=q.mean,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Quality VS DNA Conc (Novogene)")
+
+```
+
+***
+
+# FastQC parameters VS DNA concentration (Novogene Qubit2)
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+
+# fastqc results, round 2
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=pct.dup,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Duplication VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC GC VS Novo Conc") #+
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Reads VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC Reads (dedup) VS DNA Conc (Novogene)")
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=q.mean,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.015,width = 0.15,size=2.5) + ggtitle("FastQC Quality VS DNA Conc (Novogene)**")
+ggplot(data=qcMeta,aes(x=novo.DNAmass,y=q.mean,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.015,width = 0.15,size=2.5) + ggtitle("FastQC Quality VS DNA mass (Novogene)**")
+
+
+```
+
+***
+
+# FastQC plots (different FastQC parameters)
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(y=pct.dup,x=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Duplication VS NR of Reads")
+ggplot(data=qcMeta,aes(y=pct.dup,x=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Duplication VS NR of Reads (deduplicated)")
+ggplot(data=qcMeta,aes(y=pct.gc,x=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, GC content VS NR of Reads")
+ggplot(data=qcMeta,aes(y=pct.dup,x=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Duplication VS GC content")
+ggplot(data=qcMeta,aes(y=pct.dup,x=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Duplication VS GC content")
+#ggplot(data=qcMeta,aes(y=q.mean,x=tot.seq,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Quality VS NR Reads")
+ggplot(data=qcMeta,aes(y=q.mean,x=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Quality VS NR Reads (deduplicated)")
+ggplot(data=qcMeta,aes(y=q.mean,x=pct.dup,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Quality VS Duplication")
+ggplot(data=qcMeta,aes(y=q.mean,x=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_jitter(height = 0.15,width = 0.15,size=2.5) + ggtitle("FastQC, Quality VS GC")
+
+
+```
+
+***
+
+# Taxonomy 
+- QC results were related to taxonomy mapping of samples (Arnau's data)
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=NrSpecies,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=30) + ggtitle("Taxonomy: Distribution of NR of Species detected")
+ggplot(data=qcMeta,aes(x=NrGenera,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=20) + ggtitle("Taxonomy: Distribution of NR of Genera detected")
+ggplot(data=qcMeta,aes(x=NrFamilies,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=15) + ggtitle("Taxonomy: Distribution of NR of Families detected")
+ggplot(data=qcMeta,aes(x=NrClasses,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=10) + ggtitle("Taxonomy: Distribution of NR of Classes detected")
+ggplot(data=qcMeta,aes(x=NrOrders,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=10) + ggtitle("Taxonomy: Distribution of NR of Orders detected")
+ggplot(data=qcMeta,aes(x=NrPhyla,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=5) + ggtitle("Taxonomy: Distribution of NR of Phyla detected")
+ggplot(data=qcMeta,aes(x=Shannon,fill=novo.Conclusion,col=I("black"))) + geom_histogram(bins=15) + ggtitle("Taxonomy: Distribution of Shannon diversity")
+
+ggplot(data=qcMeta,aes(x=NrGenera,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Different classifications*")
+ggplot(data=qcMeta,aes(x=NrFamilies,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Different classifications*")
+ggplot(data=qcMeta,aes(x=NrFamilies,y=NrGenera,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Different classifications*")
+ggplot(data=qcMetaTaxBC,aes(x=Bray_Curtis_PC1,y=Bray_Curtis_PC2,color=novo.Conclusion3,shape=problematic)) + geom_point(size=3) + ggtitle("Bray-Curtis PCA analysis (PC2 vs PC1)")
+
+```
+
+
+***
+
+# Taxonomy: Taxonomy (Species & Diversity) VS FastQC measurements
+
+***
+
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=q.mean,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS FastQC mean quality")
+ggplot(data=qcMeta,aes(x=q.mean,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS FastQC mean quality")
+#ggplot(data=qcMeta,aes(x=q.mean,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS Bray-Curtis, PC 1")
+
+ggplot(data=qcMeta,aes(x=pct.gc,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS FastQC GC")
+ggplot(data=qcMeta,aes(x=pct.gc,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS FastQC GC")
+
+ggplot(data=qcMeta,aes(x=pct.dup,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS Read Duplication")
+ggplot(data=qcMeta,aes(x=pct.dup,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS Read Duplication")
+
+ggplot(data=qcMeta,aes(x=tot.seq,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS NR Reads *")
+ggplot(data=qcMeta,aes(x=tot.seq.corr,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS NR Reads (deduplicated) **")
+ggplot(data=qcMeta,aes(x=tot.seq,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS NR Reads")
+ggplot(data=qcMeta,aes(x=tot.seq.corr,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS NR Reads (deduplicated)")
+ggplot(data=qcMeta,aes(x=tot.seq,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Bray-Curtis PCA, PC 1 VS NR Reads")
+ggplot(data=qcMeta,aes(x=tot.seq.corr,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Bray-Curtis PCA, PC 1 VS NR Reads (deduplicated)")
+
+```
+
+***
+
+# Taxonomy: Taxonomy (Species & Diversity) VS Lab measurements
+
+***
+
+```{r echo = FALSE, results='hide'}
+
+ggplot(data=qcMeta,aes(x=novo.DNAmass,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS Novogene DNAmass")
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS Novogene DNAmass")
+ggplot(data=qcMeta,aes(x=novo.C_ng_ul,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Bray-Curtis PCA analysis (PC1 vs Novogene DNA mass)")
+
+ggplot(data=qcMeta,aes(x=UMCG.DNAmassSent,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS UMCG DNAmass")
+ggplot(data=qcMeta,aes(x=UMCG.DNAmassSent,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS UMCG DNAmass")
+
+
+```
+
+
+***
+
+# 260/280 measurements
+
+*** 
+```{r echo = FALSE, results='hide'}
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=UMCG.C_ng_ul,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: UMCG DNA concentration VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=NrSpecies,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: NR Species VS UMCG 260/280")
+#ggsave(g,filename = "DAG3_pilot_species_vs_UMCG_260_280.jpg")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=Shannon,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Shannon VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=Bray_Curtis_PC1,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Bray-Curtis PC1 VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=Bray_Curtis_PC2,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("Taxonomy: Bray-Curtis PC2 VS UMCG 260/280")
+# QC
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=novo.DNAmass,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("QC: Novogene DNA mass VS UMCG 260/280")
+# FastQC
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=tot.seq.corr,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("FastQC: NR reads (deduplicated) VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=pct.dup,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("FastQC: Read duplication rate VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=pct.gc,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("FastQC: GC content VS UMCG 260/280")
+ggplot(data=qcMeta,aes(x=UMCG.260.280,y=q.mean,color=novo.Conclusion,shape=problematic)) + geom_point(size=3) + ggtitle("FastQC: Mean read quality VS UMCG 260/280")
+
+```
+
+***
