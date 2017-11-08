@@ -1,0 +1,201 @@
+sample.NR,novo.ID,sample,novo.C_ng_ul,novo.Vol,novo.DNAmass,novo.Conclusion,novo.gelNote,novo.Conclusion2
+80,TD170806624,7020000650318,12.6,20,0.252,Fail,Fragments＜500bp,expected success = 60%
+75,TD170806619,7020000815820,9.7,22,0.213,Fail,Obvious dense banding below 500bp,expected success = 60%
+35,TD170806679,7020000702011,10.5,22,0.231,Fail,Obvious dense banding below 500bp,expected success = 60%
+75,TD170806719,7020000637719,9.64,24,0.2314,Fail,Obvious dense banding below 500bp,expected success = 60%
+78,TD170806722,7020001105937,10.8,22,0.2376,Fail,Obvious dense banding below 500bp,expected success = 60%
+61,TD170806705,7020000751437,10.4,23,0.2392,Fail,Obvious dense banding below 500bp,expected success = 60%
+26,TD170806670,7020001181732,11.4,23,0.2622,Fail,Obvious dense banding below 500bp,expected success = 60%
+76,TD170806620,7020000689715,12.1,22,0.266,Fail,Obvious dense banding below 500bp,expected success = 60%
+18,TD170806662,7020000777317,12.6,24,0.3024,Fail,Obvious dense banding below 500bp,expected success = 60%
+92,TD170806736,7020001125410,14.5,21,0.3045,Fail,Obvious dense banding below 500bp,expected success = 60%
+8,TD170806652,7020001146036,14.28,24,0.3427,Fail,Obvious dense banding below 500bp,expected success = 60%
+5,TD170806649,7020000767731,15.4,24,0.3696,Fail,Obvious dense banding below 500bp,expected success = 60%
+48,TD170806592,7020000624229,18.9,20,0.378,Fail,Obvious dense banding below 500bp,expected success = 60%
+89,TD170806733,7020000811123,15.4,25,0.385,Fail,Obvious dense banding below 500bp,expected success = 60%
+80,TD170806724,7020001183826,16.1,24,0.3864,Fail,Obvious dense banding below 500bp,expected success = 60%
+11,TD170806655,7020000635115,17.32,25,0.433,Fail,Obvious dense banding below 500bp,expected success = 60%
+64,TD170806708,7020000594021,19.3,23,0.4439,Fail,Obvious dense banding below 500bp,expected success = 60%
+1,TD170806645,7020000631027,19.52,23,0.449,Fail,Obvious dense banding below 500bp,expected success = 60%
+65,TD170806709,7020000532520,18.24,25,0.456,Fail,Obvious dense banding below 500bp,expected success = 60%
+42,TD170806586,7020001149520,22.4,21,0.47,Fail,Obvious dense banding below 500bp,expected success = 60%
+19,TD170806663,7020001144238,19.4,26,0.5044,Fail,Obvious dense banding below 500bp,expected success = 60%
+86,TD170806730,7020000833434,27.4,24,0.6576,Fail,Obvious dense banding below 500bp,expected success = 60%
+53,TD170806597,7020000552326,9.54,23,0.219,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+18,TD170806562,7020000660010,11,20,0.22,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+71,TD170806615,7020000842120,12.6,22,0.277,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+100,TD170806644,7020000874731,13.3,22,0.293,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+91,TD170806635,7020001122910,18.1,22,0.398,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+66,TD170806610,7020001133717,26.1,23,0.6,Fail,"Obvious dense banding below 500bp,Slightly impure",expected success = 60%
+8,TD170806552,7020000554920,3.38,20,0.068,Fail,"Below 500bp there are dense banding,Insufficient",resend recommended
+23,TD170806567,7020000742714,4.04,20,0.081,Fail,"Below 500bp there are dense banding,Insufficient",resend recommended
+9,TD170806553,7020000427533,4.9,20,0.098,Fail,"Below 500bp there are dense banding,Insufficient",resend recommended
+41,TD170806585,7020001184233,5.5,18,0.099,Fail,"Below 500bp there are dense banding,Insufficient",resend recommended
+12,TD170806556,7020000878623,4.12,20,0.082,Fail,"Below 500bp there are dense banding,Slightly impure,Insufficient",resend recommended
+21,TD170806565,7020000565324,1.33,20,0.027,Fail,Fragments＜500bp,resend recommended
+17,TD170806561,7020000560613,2.84,18,0.051,Fail,Fragments＜500bp,resend recommended
+1,TD170806545,7020000724028,2.8,20,0.056,Fail,Fragments＜500bp,resend recommended
+24,TD170806568,7020001344210,3.4,20,0.068,Fail,Fragments＜500bp,resend recommended
+78,TD170806622,7020001028515,4.92,15,0.074,Fail,Fragments＜500bp,resend recommended
+35,TD170806579,7020000774217,4,20,0.08,Fail,Fragments＜500bp,resend recommended
+93,TD170806637,7020000650425,4.94,20,0.099,Fail,Fragments＜500bp,resend recommended
+90,TD170806634,7020001171816,6.86,22,0.151,Fail,Fragments＜500bp,resend recommended
+3,TD170806547,7020000429832,2.4,20,0.048,Fail,"Fragments＜500bp,Slightly impure",resend recommended
+16,TD170806560,7020001031118,3.02,20,0.06,Fail,"Fragments＜500bp,Slightly impure",resend recommended
+4,TD170806548,7020000791817,5.62,19,0.107,Fail,"Fragments＜500bp,Slightly impure",resend recommended
+27,TD170806671,7020000609410,2.06,21,0.0433,Fail,Insufficient,resend recommended
+98,TD170806742,7020001167626,3.34,19,0.0635,Fail,Insufficient,resend recommended
+96,TD170806740,7020000658826,3.42,19,0.065,Fail,Insufficient,resend recommended
+94,TD170806738,7020001163215,3.48,19,0.0661,Fail,Insufficient,resend recommended
+100,TD170806744,7020001147131,3.5,19,0.0665,Fail,Insufficient,resend recommended
+97,TD170806741,7020001285924,4.26,19,0.0809,Fail,Insufficient,resend recommended
+90,TD170806734,7020001093925,4.32,20,0.0864,Fail,Insufficient,resend recommended
+87,TD170806731,7020001095939,4.46,20,0.0892,Fail,Insufficient,resend recommended
+99,TD170806743,7020000702414,4.92,19,0.0935,Fail,Insufficient,resend recommended
+95,TD170806739,7020001123022,5.26,18,0.0947,Fail,Insufficient,resend recommended
+14,TD170806558,7020000469121,1.76,20,0.035,Fail,Obvious dense banding below 500bp,resend recommended
+7,TD170806551,7020000862632,2.1,20,0.042,Fail,Obvious dense banding below 500bp,resend recommended
+11,TD170806555,7020000396310,3.16,18,0.057,Fail,Obvious dense banding below 500bp,resend recommended
+40,TD170806584,7020000868930,3.18,19,0.06,Fail,Obvious dense banding below 500bp,resend recommended
+6,TD170806550,7020000862534,3.36,20,0.067,Fail,Obvious dense banding below 500bp,resend recommended
+10,TD170806554,7020000900134,3.8,19,0.072,Fail,Obvious dense banding below 500bp,resend recommended
+13,TD170806557,7020000790239,3.94,19,0.075,Fail,Obvious dense banding below 500bp,resend recommended
+57,TD170806601,7020001069527,4.28,18,0.077,Fail,Obvious dense banding below 500bp,resend recommended
+72,TD170806616,7020001176017,4.4,21,0.092,Fail,Obvious dense banding below 500bp,resend recommended
+33,TD170806577,7020001192226,5.18,18,0.093,Fail,Obvious dense banding below 500bp,resend recommended
+41,TD170806685,7020000615112,5.46,19,0.1037,Fail,Obvious dense banding below 500bp,resend recommended
+48,TD170806692,7020001136530,5.48,19,0.1041,Fail,Obvious dense banding below 500bp,resend recommended
+46,TD170806690,7020001187638,5.32,20,0.1064,Fail,Obvious dense banding below 500bp,resend recommended
+38,TD170806582,7020000637639,5.86,19,0.111,Fail,Obvious dense banding below 500bp,resend recommended
+10,TD170806654,7020000402033,5.3,21,0.1113,Fail,Obvious dense banding below 500bp,resend recommended
+84,TD170806728,7020000707724,5.74,20,0.1148,Fail,Obvious dense banding below 500bp,resend recommended
+17,TD170806661,7020000811339,5.74,20,0.1148,Fail,Obvious dense banding below 500bp,resend recommended
+92,TD170806636,7020001155124,5.88,20,0.118,Fail,Obvious dense banding below 500bp,resend recommended
+55,TD170806599,7020000863738,6.62,18,0.119,Fail,Obvious dense banding below 500bp,resend recommended
+85,TD170806629,7020001190132,5.86,21,0.123,Fail,Obvious dense banding below 500bp,resend recommended
+93,TD170806737,7020001048830,6.32,21,0.1327,Fail,Obvious dense banding below 500bp,resend recommended
+38,TD170806682,7020000846432,5.54,24,0.133,Fail,Obvious dense banding below 500bp,resend recommended
+2,TD170806646,7020001287633,6.68,20,0.1336,Fail,Obvious dense banding below 500bp,resend recommended
+49,TD170806693,7020001114014,6.28,22,0.1382,Fail,Obvious dense banding below 500bp,resend recommended
+52,TD170806696,7020000511010,6.96,20,0.1392,Fail,Obvious dense banding below 500bp,resend recommended
+76,TD170806720,7020001328431,6.64,21,0.1394,Fail,Obvious dense banding below 500bp,resend recommended
+54,TD170806698,7020000861420,6.7,21,0.1407,Fail,Obvious dense banding below 500bp,resend recommended
+12,TD170806656,7020001146027,6.84,21,0.1436,Fail,Obvious dense banding below 500bp,resend recommended
+58,TD170806702,7020000720332,6.34,23,0.1458,Fail,Obvious dense banding below 500bp,resend recommended
+69,TD170806613,7020001135720,7.64,20,0.153,Fail,Obvious dense banding below 500bp,resend recommended
+49,TD170806593,7020000827830,7.08,22,0.156,Fail,Obvious dense banding below 500bp,resend recommended
+60,TD170806704,7020000842139,7.04,23,0.1619,Fail,Obvious dense banding below 500bp,resend recommended
+77,TD170806721,7020000701829,7.76,21,0.163,Fail,Obvious dense banding below 500bp,resend recommended
+44,TD170806688,7020001116814,7.24,23,0.1665,Fail,Obvious dense banding below 500bp,resend recommended
+84,TD170806628,7020001106433,8.48,20,0.17,Fail,Obvious dense banding below 500bp,resend recommended
+89,TD170806633,7020001137510,8.62,20,0.172,Fail,Obvious dense banding below 500bp,resend recommended
+73,TD170806617,7020000828917,8.04,22,0.177,Fail,Obvious dense banding below 500bp,resend recommended
+70,TD170806714,7020000424934,7.38,24,0.1771,Fail,Obvious dense banding below 500bp,resend recommended
+88,TD170806632,7020000618230,9.04,20,0.181,Fail,Obvious dense banding below 500bp,resend recommended
+45,TD170806589,7020001117811,9.04,21,0.19,Fail,Obvious dense banding below 500bp,resend recommended
+36,TD170806680,7020001106120,8.38,23,0.1927,Fail,Obvious dense banding below 500bp,resend recommended
+73,TD170806717,7020001087623,8.42,23,0.1937,Fail,Obvious dense banding below 500bp,resend recommended
+74,TD170806718,7020001161936,9.26,21,0.1945,Fail,Obvious dense banding below 500bp,resend recommended
+71,TD170806715,7020001062419,9.6,21,0.2016,Fail,Obvious dense banding below 500bp,resend recommended
+22,TD170806566,7020000721213,4.5,20,0.09,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+28,TD170806572,7020001090736,4.68,20,0.094,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+34,TD170806578,7020000582521,5.64,20,0.113,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+59,TD170806603,7020000634619,6.28,19,0.119,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+15,TD170806559,7020000576014,8.02,19,0.152,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+70,TD170806614,7020001187413,7.99,19,0.152,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+65,TD170806609,7020001154922,7.96,22,0.175,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+94,TD170806638,7020000717918,7.4,24,0.178,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+2,TD170806546,7020000483425,9.13,20,0.183,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+95,TD170806639,7020000866927,9.4,21,0.197,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+63,TD170806607,7020001167519,9.48,21,0.199,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+26,TD170806570,7020000882420,10.4,20,0.208,Fail,"Obvious dense banding below 500bp,Slightly impure",resend recommended
+50,TD170806694,7020000876431,6.41,23,0.1474,Fail,"Slight dense banding below 500bp,Insufficient",resend recommended
+67,TD170806711,7020001103530,5.68,19,0.1079,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+20,TD170806664,7020001141316,5.36,22,0.1179,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+19,TD170806563,7020000569619,6.66,19,0.127,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+66,TD170806710,7020001129821,6.12,21,0.1285,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+69,TD170806713,7020000688816,6.5,21,0.1365,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+68,TD170806612,7020001132415,8.02,18,0.144,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+46,TD170806590,7020001124530,7.32,20,0.146,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+51,TD170806695,7020000854013,6.64,22,0.1461,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+24,TD170806668,7020001181438,6.5,23,0.1495,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+47,TD170806691,7020000813727,7.12,23,0.1638,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+61,TD170806605,7020001128136,8.34,20,0.167,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+43,TD170806587,7020001133726,7.24,23,0.167,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+51,TD170806595,7020000817922,9.32,18,0.168,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+60,TD170806604,7020001031136,8.55,20,0.171,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+32,TD170806676,7020000593113,7.79,22,0.1714,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+40,TD170806684,7020000765530,7.24,24,0.1738,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+47,TD170806591,7020001148710,8.28,22,0.182,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+55,TD170806699,7020001121135,8.48,22,0.1866,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+87,TD170806631,7020001146439,9.44,20,0.189,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+21,TD170806665,7020000859717,8.44,23,0.1941,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+9,TD170806653,7020001077233,8.12,24,0.1949,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+42,TD170806686,7020001115334,9.96,20,0.1992,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+85,TD170806729,7020001292428,8.3,24,0.1992,Hold,"*,Below 500bp there are dense banding",require low DNA library prep
+5,TD170806549,7020000504220,5.2,20,0.104,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+39,TD170806583,7020001113026,6.12,19,0.116,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+52,TD170806596,7020001123739,6.72,22,0.148,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+54,TD170806598,7020001133931,7.66,20,0.153,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+20,TD170806564,7020000370735,8.78,20,0.176,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+58,TD170806602,7020001188911,10.2,18,0.184,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+32,TD170806576,7020000602230,9.46,22,0.208,Hold,"*,Below 500bp there are dense banding,Slightly impure",require low DNA library prep
+37,TD170806681,7020001030139,9.14,23,0.2102,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+59,TD170806703,7020000655314,9.6,23,0.2208,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+50,TD170806594,7020001192511,10,23,0.23,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+83,TD170806727,7020000692612,10.2,24,0.2448,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+13,TD170806657,7020000815131,11.7,23,0.2691,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+88,TD170806732,7020000609939,12.3,22,0.2706,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+16,TD170806660,7020001114829,11.5,24,0.276,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+67,TD170806611,7020000618722,12.8,23,0.294,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+7,TD170806651,7020001132424,12.6,24,0.3024,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+53,TD170806697,7020001099230,12.1,25,0.3025,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+25,TD170806669,7020000719019,13.2,23,0.3036,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+62,TD170806606,7020001116529,13.6,23,0.313,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+81,TD170806725,7020001118917,13.1,24,0.3144,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+68,TD170806712,7020001098322,12.6,25,0.315,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+57,TD170806701,7020001112717,13.7,23,0.3151,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+43,TD170806687,7020000819927,13.8,23,0.3174,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+22,TD170806666,7020001116930,13.4,24,0.3216,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+63,TD170806707,7020001132738,16.7,20,0.334,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+56,TD170806700,7020001056538,15.39,22,0.3386,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+97,TD170806641,7020000636613,15.4,23,0.354,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+62,TD170806706,7020001030317,17.6,21,0.3696,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+4,TD170806648,7020001036428,15.48,24,0.3715,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+45,TD170806689,7020000861724,17.1,22,0.3762,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+30,TD170806674,7020000597533,14.5,26,0.377,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+31,TD170806675,7020001121313,15.1,26,0.3926,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+3,TD170806647,7020001168810,17.12,24,0.4109,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+96,TD170806640,7020001121627,19.8,23,0.455,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+83,TD170806627,7020000811910,20.8,23,0.478,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+91,TD170806735,7020000398638,23.6,21,0.4956,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+82,TD170806726,7020000871032,21,24,0.504,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+82,TD170806626,7020001103128,21.4,24,0.514,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+15,TD170806659,7020001095920,22,24,0.528,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+29,TD170806673,7020001137618,21.6,26,0.5616,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+79,TD170806623,7020001112931,24,24,0.576,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+39,TD170806683,7020001088611,24.4,24,0.5856,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+77,TD170806621,7020001130027,27.2,22,0.598,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+28,TD170806672,7020001338017,24.4,26,0.6344,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+81,TD170806625,7020000815211,25.4,25,0.635,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+74,TD170806618,7020000777139,27.8,23,0.639,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+6,TD170806650,7020000866417,26.2,27,0.7074,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+14,TD170806658,7020001111925,33,24,0.792,Pass,"*,Below 500bp there are dense banding",Regular prep possible
+86,TD170806630,7020001190722,10.7,20,0.214,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+25,TD170806569,7020000807720,12.1,21,0.254,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+27,TD170806571,7020001166914,12.1,21,0.254,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+30,TD170806574,7020000765316,13.7,19,0.26,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+31,TD170806575,7020001280338,13.1,22,0.288,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+36,TD170806580,7020000886910,13.2,22,0.29,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+64,TD170806608,7020000811535,14.2,23,0.327,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+44,TD170806588,7020001059923,15.9,22,0.35,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+37,TD170806581,7020001126820,17.1,21,0.359,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+56,TD170806600,7020001161613,18.1,21,0.38,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+29,TD170806573,7020001175539,19.4,20,0.388,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+98,TD170806642,7020001115030,18.2,22,0.4,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+99,TD170806643,7020001120129,18.8,23,0.432,Pass,"*,Below 500bp there are dense banding,Slightly impure",Regular prep possible
+33,TD170806677,7020000850810,10.1,23,0.2323,Pass,"*,Slight dense banding below 500bp",Regular prep possible
+34,TD170806678,7020001161720,15.5,22,0.341,Pass,"*,Slight dense banding below 500bp",Regular prep possible
+72,TD170806716,7020000627525,17.2,25,0.43,Pass,"*,Slight dense banding below 500bp",Regular prep possible
+23,TD170806667,7020001106139,19.5,25,0.4875,Pass,"*,Slight dense banding below 500bp",Regular prep possible
+79,TD170806723,7020001154118,21.8,24,0.5232,Pass,"*,Slight dense banding below 500bp",Regular prep possible
