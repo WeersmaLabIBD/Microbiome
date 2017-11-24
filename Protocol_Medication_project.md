@@ -226,21 +226,20 @@ Read_TSV_Columns: k__Archaea|p__Euryarchaeota-
 **Examples commands**
 ```{bash}
 Taxonomies
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -z -i model_1_taxa.read.config All_filtered_taxonomy_pheno.txt ./Model_1_All
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -z -i model_1_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_1_IBD 
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -z -i model_1_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_1_MIBS
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -z -i model_1_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_1_LLD 
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_1_IBD
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_1_LLD
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_1_MIBS
+
 
 Pathways
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -i model_1_path.read.config MIBS_filtered_path_pheno.txt ./Model_1_MIBS_path
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -i model_1_path.read.config IBD_filtered_path_pheno.txt ./Model_1_IBD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -i model_1_path.read.config LLD_filtered_path_pheno.txt ./Model_1_LLD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -i model_1_path.read.config All_filtered_path_pheno.txt ./Model_1_All_path
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config IBD_filtered_path_pheno.txt ./Model_1_IBD_path
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config LLD_filtered_path_pheno.txt ./Model_1_LLD_path
+/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config MIBS_filtered_path_pheno.txt ./Model_1_MIBS_path
 ```
 
 **Model 2: All medication in the same linear model (microbiome ~ Med1+Med2+Med3,Age,Sex,RD,BMI)**
 
-**Example config file MODEL 1**
+**Example config file MODEL 2**
 ```{bash}
 Matrix: Metadata
 Delimiter: TAB
@@ -255,30 +254,14 @@ Read_TSV_Columns: k__Archaea|p__Euryarchaeota-
 **Examples commands**
 ```{bash}
 Taxonomies
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -z -i model_2_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_2_LLD
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -z -i model_2_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_2_MIBS
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -z -i model_2_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_2_IBD
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -z -i model_2_taxa.read.config All_filtered_taxonomy_pheno.txt ./Model_2_All
-
-Pathways
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config MIBS_filtered_path_pheno.txt ./Model_2_MIBS_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config IBD_filtered_path_pheno.txt ./Model_2_IBD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -i model_2_paths.read.config All_filtered_path_pheno.txt ./Model_2_All_path
-```
-**Without extra filtering**
-```{bash}
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_2_LLD
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_2_MIBS
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_2_IBD
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa.read.config All_filtered_taxonomy_pheno.txt ./Model_2_All
 
-
+Pathways
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config MIBS_filtered_path_pheno.txt ./Model_2_MIBS_path
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config IBD_filtered_path_pheno.txt ./Model_2_IBD_path
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config All_filtered_path_pheno.txt ./Model_2_All_path
-
 ```
 
 8.Merge results in a table
