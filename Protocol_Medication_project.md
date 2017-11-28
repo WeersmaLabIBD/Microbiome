@@ -264,7 +264,7 @@ Pathways
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
 ```
 
-8.Merge results in a table
+9.Merge results in a table
 ----------------------------
 **Repeat per folder**
 
@@ -295,6 +295,18 @@ setwd("../Model_2_All_tax/")
      }
 }
  write.table(output,"../Model_2_all_taxa.txt", sep = "\t", quote = F, row.names = T)
+```
+8. Extract beta's and SE for meta-analysis from Maaslin log files
+--------------------------------------------------------------
+
+Run in each Maaslin's output folder: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/extract_info_logs_Maaslin.sh 
+
+**Manually step** 
+```
+Remove columns and add number of cases and controls per drug and calculate the Neff as: Neff=4/(1/Ncontrols+1/Ncases)
+The resulting files have the follwing header: 
+Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
+(Drug)  (Bact)  (Betas) (N Bact) (Num zeors)	(Pval)	(FDR-pval)	(Stand. error)	(Ncontrols) (Ncases)	(Neff)	(A)	(C)
 ```
 
 9.Merge results per drug
