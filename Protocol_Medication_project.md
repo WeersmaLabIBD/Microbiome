@@ -5,7 +5,7 @@ Creator: Arnau Vich
 
 Year: 2017
 
-1. Raw pathaways, first, we filter the stratified pathways, keeping the information for the overall pathway. 
+1.Raw pathaways, first, we filter the stratified pathways, keeping the information for the overall pathway. 
 ------------------------------------------------------------------------------------------------------------
 ```{bash}
 less $input_humann2.tsv | head -1 >> $input_unstrat.tsv
@@ -13,11 +13,11 @@ less $input_humann2.tsv | grep -v "|" >> $input_unstrat.tsv
 ## Remove unmapped | unaligned pathways
 ```
 
-2. Open files with Excel (I'm writing a script to do it in Python and avoid Excel): Remove duplicate sample id's in the second row + remove path description, just keeping the metacyc id (split by ":")
+2.Open files with Excel (I'm writing a script to do it in Python and avoid Excel): Remove duplicate sample id's in the second row + remove path description, just keeping the metacyc id (split by ":")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-3. Clean headers (terminal/bash)
+3.Clean headers (terminal/bash)
 --------------------------------
 
 ```{bash}
@@ -50,7 +50,7 @@ rm tmp1.txt
 ```
 
 
-4. Metadata and summary statistics in R
+4.Metadata and summary statistics in R
 ----------------------------------------
 ```{R}
  #Filter metadata script: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/Filter_metadata.R
@@ -80,7 +80,7 @@ samples_to_keep=row.names(final_phenos)
 
 
 
-5. Filtering in R 
+5.Filtering in R 
 ------------------------------------
 
 ```{r}
@@ -162,7 +162,7 @@ filtering_taxonomy(tax_all,0.01,10)
 ```
 
 
-6. Normalize and merge with phenos
+6.Normalize and merge with phenos
 -----------------------------
 
 ```{R}
@@ -197,7 +197,7 @@ for(i in 1:length(file.names)){
 }
 ```
 
-7. Run MaasLin
+7.Run MaasLin
 ----------------
 
 **Model 1: Evaluate each medication forcing Age, Sex, Read Depth, BMI as co-variates**
@@ -263,6 +263,22 @@ Pathways
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config IBD_filtered_path_pheno.txt ./Model_2_IBD_path
 /Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
 ```
+8.Extract beta's and SE for meta-analysis from Maaslin log files
+--------------------------------------------------------------
+
+Run in each Maaslin's output folder: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/extract_info_logs_Maaslin.sh 
+
+**Manually step** 
+```
+Remove columns and add number of cases and controls per drug and calculate the Neff as: Neff=4/(1/Ncontrols+1/Ncases)
+The resulting files have the follwing header: 
+Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
+(Drug)  (Bact)  (Betas) (N Bact) (Num zeors)	(Pval)	(FDR-pval)	(Stand. error)	(Ncontrols) (Ncases)	(Neff)	(A)	(C)
+```
+**Replace new line symbols if you use Excel**
+``
+for i in *.txt; do tr '^M' '\n' < $i >tmp && mv tmp $i; done
+``
 
 9.Merge results in a table
 ----------------------------
@@ -296,20 +312,9 @@ setwd("../Model_2_All_tax/")
 }
  write.table(output,"../Model_2_all_taxa.txt", sep = "\t", quote = F, row.names = T)
 ```
-8. Extract beta's and SE for meta-analysis from Maaslin log files
---------------------------------------------------------------
 
-Run in each Maaslin's output folder: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/extract_info_logs_Maaslin.sh 
 
-**Manually step** 
-```
-Remove columns and add number of cases and controls per drug and calculate the Neff as: Neff=4/(1/Ncontrols+1/Ncases)
-The resulting files have the follwing header: 
-Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
-(Drug)  (Bact)  (Betas) (N Bact) (Num zeors)	(Pval)	(FDR-pval)	(Stand. error)	(Ncontrols) (Ncases)	(Neff)	(A)	(C)
-```
-
-9.Merge results per drug
+10.Merge results per drug
 -----------------------------
 
 ```
@@ -365,7 +370,7 @@ colnames(metformin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD
 colnames(statin)=c("4_all_coef","4_all_qval","2_IBD_coef","2_IBD_qval","1_LLD_coef","1_LLD_qval","3_MIBS_coef","3_MIBS_qval")
 ```
 
-10.Plot heatmap
+11.Plot heatmap
 -----------------
 
 ```
