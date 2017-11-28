@@ -277,7 +277,7 @@ Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
 ```
 **Replace new line symbols if you use Excel**
 ``
-for i in *.txt; do tr '^M' '\n' < $i >tmp && mv tmp $i; done
+for i in *.txt; do tr '\105' '\n' < $i >tmp && mv tmp $i; done
 ``
 
 9.Merge results in a table
