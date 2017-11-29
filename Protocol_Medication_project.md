@@ -280,6 +280,75 @@ Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
 for i in *.txt; do tr '\105' '\n' < $i >tmp && mv tmp $i; done
 ``
 
+9.Meta-analysis and Heterogeneity mesure
+--------------------------------------------
+
+```{R}
+library (meta)
+setwd("./Desktop/PPI_v2/00.With_new_data/8.Proce_outputs/test/")
+drug_list=c("ACE_inhibitor","NSAID","PPI","SSRI_antidepressant","angII_receptor_antagonist","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","metformin","statin")
+path="./"
+flag=1
+for (a in drug_list){
+	file.names = dir(path,pattern=a)
+	my_IBD=grep("IBD",file.names, value = T )
+	my_MIBS=grep("MIBS",file.names, value = T )
+	my_LLD=grep("LLD",file.names, value = T )
+	IBD=read.table(my_IBD, sep="\t", header = T, row.names = 2)
+	LLD=read.table(my_LLD, sep="\t", header = T, row.names = 2)
+	MIBS=read.table(my_MIBS, sep="\t", header = T, row.names = 2)
+	IBD_MIBS=merge(IBD,MIBS, by = "row.names")
+	rownames(IBD_MIBS)=IBD_MIBS$Row.names
+	IBD_MIBS$Row.names=NULL
+	all=merge(IBD_MIBS,LLD, by = "row.names")
+ 
+	selection=all
+
+	colnames(selection)=c("Taxa","Factor.IBD","Coef.IBD","N.IBD","N0.IBD","Pval.IBD","Qval.IBD","SE.IBD","NonUsers.IBD","Users.IBD","Neff.IBD","Ref.IBD","Alt.IBD","Factor.MIBS","Coef.MIBS","N.MIBS","N0.MIBS","Pval.MIBS","Qval.MIBS","SE.MIBS","NonUsers.MIBS","Users.MIBS","Neff.MIBS","Ref.MIBS","Alt.MIBS","Factor.LLD","Coef.LLD","N.LLD","N0.LLD","Pval.LLD","Qval.LLD","SE.LLD","NonUsers.LLD","Users.LLD","Neff.LLD","Ref.LLD","Alt.LLD")  
+
+	#Calculate Inverse variance 
+	selection$inverse_var.ibd=1/selection$SE.IBD^2
+	selection$inverse_var.mibs=1/selection$SE.MIBS^2
+	selection$inverse_var.lld=1/selection$SE.LLD^2
+
+	#Calculate SE
+	selection$se=sqrt(1/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld))
+
+	#Calculate Beta
+	selection$beta=(selection$inverse_var.ibd*selection$Coef.IBD+selection$inverse_var.mibs*selection$Coef.MIBS+selection$inverse_var.lld*selection$Coef.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
+	
+	#Calculate Z-score
+	selection$Z=selection$beta/selection$se
+	
+	#Calculate meta p-value
+	selection$P=2*pnorm(-abs(selection$Z))
+	
+	#Adjust pvalue with FDR
+	selection$FDR=p.adjust(selection$P,method = "fdr")
+	
+	#Create empty columns
+	selection$Het.Q="NS"
+	selection$Het.I2="NS"
+	selection$Het.Pval="NS"
+
+	#Heterogeneity using Cochran's Q-test for meta-FDR < 0.1
+	for (i in 1:length(rownames(selection))){
+		if (selection$FDR[i]<0.1){
+			TE=c( selection[i,3], selection[i,15], selection[i,27])
+			SE=c( selection[i,8], selection[i,20], selection[i,32])
+			het=metagen(TE,SE)
+			selection[i,47]=het$I2
+			selection[i,46]=het$Q 
+			#Calculate p-value from Q calculation
+			selection[i,48]=pchisq(het$Q,df=2,lower.tail=F)
+		}
+	}
+write.table(selection, file=paste(a, "_meta.txt", sep=""), sep="\t", quote=F)
+}
+
+```
+
+
 9.Merge results in a table
 ----------------------------
 **Repeat per folder**
