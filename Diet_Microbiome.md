@@ -12,6 +12,7 @@ Year: 2017
  -------------
 
 **Subset to relevant columns**  
+```
 library(readxl)  
 Food=read_excel("~/Desktop/Data/Metadata/Final_Metadata_IBD_V46.xlsx",sheet = "Completemetadata_drugs.txt")
 Food=Food[-c(1,2,3),] 
@@ -19,7 +20,7 @@ Food=Food[!is.na(Food$UMCGIBDDNAID),]
 Food[Food=="NA"]<-NA  
 colnames(Food)
 Food=Food[,c(10,14,82,84,85,748,11,757,758,754,4,48,33,512:587,589:683,685:696,773:777,779:785)] #keep these
-
+```
 **Remove samples with a read depth below 10 M**  
 Food=Food[!grepl("yes",Food$ReadDepthBelow10M),]                                                                      
 Food=Food[,-10] #remove column ReadDepth
