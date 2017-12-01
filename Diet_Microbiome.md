@@ -207,7 +207,7 @@ path_rel=as.data.frame(path_rel) #safe as data frame
 write.table(path_rel,'../Metadata/Subsetted files/Pathways/Pathways_LLD_&_IBD_rel_abundance.txt',sep = '\t')
 View(path_rel)
 ```
-**Growth Rates**                                                                                                                    
+**2.4 Growth Rates**                                                                                                                    
 *1. IBD and LLD (already in 1 file)* 
 ```
 setwd("~/Desktop/Data/Metadata")
@@ -251,3 +251,44 @@ HC_foodtax = merge (HC_Food, tax, by = "row.names", all = FALSE)
 write.table(HC_foodtax, "HC_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
 ```
 **Merge Food with Species, Pathways and Growth rates, accordingly!**
+
+
+ 
+ 4.MaAsLin  
+ -------------
+
+
+*4.1 Config file*
+*Text file to be saved as input.read.config in working directory*
+```
+Matrix: Metadata
+Delimiter: TAB
+Read_TSV_Columns:Sex-how_often_tea__1
+
+Matrix: Abundance 
+Delimiter: TAB 
+Read_TSV_Columns:k__Archaea.p__Euryarchaeota-
+```
+
+- For species change Abundance to: *k__Archaea.p__Euryarchaeota.c__Methanobacteria.o__Methanobacteriales.f__Methanobacteriaceae.g__Methanobrevibacter.s__Methanobrevibacter_smithii.t__Methanobrevibacter_smithii_unclassified-*
+- For growth rates change Abundance to: *butyrate.producing_bacterium_SSC.2-*
+- For pathways change Abundance to: *AEROBACTINSYN.PWY-*
+
+*4.2 Remove patients with only NAs in Food (not filled FFQ)*
+
+*4.3 Run Maaslin* 
+
+Packages: activate all the 3 gamlss packages 
+
+*Univariate Maaslin Runs:*
+```
+setwd("/Users/laurabolte/Desktop/Data/Maaslin Files/")  #All tsv files from step 3 are stored here
+library(Maaslin) 
+Maaslin('CD_Food_Tax.tsv','CD_Food_Tax_output',strInputConfig ='input.read.config',strForcedPredictors = c('Sex','AgeAtFecalSampling','PFReads'), dSignificanceLevel = 1, dMinAbd = 0, dMinSamp = 0, strModelSelection = "none", fAllvAll=TRUE, fZeroInflated=TRUE, strTransform = "none")
+```
+Thereafter for UC, IBS, HC 
+
+*For the purpose of a later Metaanalysis I have set dsign to 1. So there is no restriction on the significance and Maaslin gives coefficients and p-values for all univariate food-tax runs. 
+
+*Growth rates are run without fZeroInflated=TRUE*
+
