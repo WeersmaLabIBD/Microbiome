@@ -483,3 +483,178 @@ write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_significan
 summary(Tax_sign$Diet)
 summary(Tax_sign$Tax)
 ```
+
+ 7.Cochran's Q-Test (to be fixed)   
+ -------------
+
+Measuring the inconsistency (heterogeneity) or Assessing the consistency (homogeneity) of studies’ results.
+Heterogeneity in meta-analysis refers to the variation in study outcomes between studies. 
+Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom
+
+If p-adj < 0.1 (adjusted metap), go back to cohort-specific p-values and sample sizes to check heterogeneity  
+```
+#w_studies -> vector of cohort-specific weights (SD) 
+       W = CD(208), UC(126), IBS(231), HC(904)
+#B_studies -> vector of cohort-specific  betas  
+       P = (0.02, 0.005, 0.02, 0.0003)
+#B_overall -> single value, is your overall Beta (meta-P) that you get combining the cohorts
+       PM = 0.05 
+#diff= w_studies * (B_studies -  B_overall)^2     
+       diff= W x (P-PM)
+             s1 X (p1-PM)2 
+             s2 X (p1-PM)2
+#Q_stat=sum(diff)
+#degFrd=length(B_i) -1  -> number of studies - 1, here 3
+#pvalue_Q=pchisq(Q_stat,lower.tail=F,df=degFrd)
+```
+Use the tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) to check results 
+
+
+ 8.Heatmaps (to be fixed)   
+ -------------
+ 
+**8.1 Modify output files of Meta-analysis** 
+
+*CD/UC/IBS/HC:*
+- color: their coefficients
+- colordepth: their original, non-inverted p-vals (go back to original Maaslin table)
+*Meta-p:*
+- color: coefficient of HC
+- colordepth: meta-p 
+
+```
+Heatmap=matrix(nrow=nrow(my_results_meta),ncol=ncol(my_results_meta))  #11 cols
+colnames(Heatmap)=c("Taxa","Diet","CD_Coef","CD_p","UC_Coef","UC_p","IBS_Coef","IBS_p","HC_Coef","HC_p","Meta_p_adj")
+Heatmap=as.data.frame(Heatmap)
+Heatmap$Taxa=my_results_meta$Tax
+Heatmap$Diet=my_results_meta$Diet
+Heatmap$Meta_p_adj=Tax_meta_padjust$p_adjust   #add Meta-p-adj from file 'Path_meta_padjust' (p-adjusted metaanalysis)
+View(Taxonomy)
+Heatmap$CD_Coef=Taxonomy$CD_Coef               #add p-vals and coefs, from original file 'Pathways' (Maaslin results) 
+Heatmap$CD_p=Taxonomy$CD_p
+Heatmap$UC_Coef=Taxonomy$UC_Coef
+Heatmap$UC_p=Taxonomy$UC_p
+Heatmap$IBS_Coef=Taxonomy$IBS_Coef
+Heatmap$IBS_p=Taxonomy$IBS_p
+Heatmap$HC_Coef=Taxonomy$HC_Coef
+Heatmap$HC_p=Taxonomy$HC_p
+View(Heatmap)
+
+Heatmap_sign=Heatmap[Heatmap$Meta_p_adj<=0.05,] #only significant results
+write.table(Heatmap_sign, '../Metaanalysis/Results/Heatmap_input_padj_<0.05.txt', sep = '\t')
+summary(Heatmap_sign$Diet)
+summary(Heatmap_sign$Taxa)
+```
+
+**8.2 Plot heatmaps** 
+
+*Example Fruit intake* 
+```
+fruit1=Heatmap_sign[grepl("fruit", Heatmap_sign$Diet),]
+fruit=fruit1[!grepl("how_often_fruit", fruit1$Diet),]
+fruit=fruit[!grepl("group_fruits", fruit$Diet),]
+fruit=as.data.frame(fruit[,c(1, 3:11)])  #cols to keep
+
+library(ggplot2)
+library(gplots)
+library(gridExtra)
+
+#z$value<-as.numeric(as.character(z$value))
+fruit$CD_color="grey"
+fruit$UC_color="grey"
+fruit$IBS_color="grey"
+fruit$HC_color="grey"
+fruit$Metap_color="grey"
+
+#CD
+fruit[(fruit$CD_p > 0.05 & fruit$CD_Coef > 0),]$CD_color<-"1"
+fruit[(fruit$CD_p <= 0.05 & fruit$CD_p > 0.00005 & fruit$CD_Coef > 0),]$CD_color<-"2"
+fruit[(fruit$CD_p <= 0.00005 & fruit$CD_Coef > 0),]$CD_color<-"3"
+
+fruit[(fruit$CD_p > 0.05 & fruit$CD_Coef < 0),]$CD_color<-"-1"
+fruit[(fruit$CD_p <= 0.05 & fruit$CD_p > 0.00005 & fruit$CD_Coef < 0),]$CD_color <-"-2"
+fruit[(fruit$CD_p <= 0.00005 & fruit$CD_Coef < 0),]$CD_color <-"-3"
+
+#UC
+fruit[(fruit$UC_p > 0.05 & fruit$UC_Coef > 0),]$UC_color<-"1"
+fruit[(fruit$UC_p <= 0.05 & fruit$UC_p > 0.00005 & fruit$UC_Coef > 0),]$UC_color<-"2"
+fruit[(fruit$UC_p <= 0.00005 & fruit$UC_Coef > 0),]$UC_color<-"3"
+
+fruit[(fruit$UC_p > 0.05 & fruit$UC_Coef < 0),]$UC_color<-"-1"
+fruit[(fruit$UC_p <= 0.05 & fruit$UC_p > 0.00005 & fruit$UC_Coef < 0),]$UC_color <-"-2"
+fruit[(fruit$UC_p <= 0.00005 & fruit$UC_Coef < 0),]$UC_color <-"-3"
+
+#IBS
+fruit[(fruit$IBS_p > 0.05 & fruit$IBS_Coef > 0),]$IBS_color<-"1"
+fruit[(fruit$IBS_p <= 0.05 & fruit$IBS_p > 0.00005 & fruit$IBS_Coef > 0),]$IBS_color<-"2"
+fruit[(fruit$IBS_p <= 0.00005 & fruit$IBS_Coef > 0),]$IBS_color<-"3"
+
+fruit[(fruit$IBS_p > 0.05 & fruit$IBS_Coef < 0),]$IBS_color<-"-1"
+fruit[(fruit$IBS_p <= 0.05 & fruit$IBS_p > 0.00005 & fruit$IBS_Coef < 0),]$IBS_color <-"-2"
+fruit[(fruit$IBS_p <= 0.00005 & fruit$IBS_Coef < 0),]$IBS_color <-"-3"
+
+#HC
+fruit[(fruit$HC_p > 0.05 & fruit$HC_Coef > 0),]$HC_color<-"1"
+fruit[(fruit$HC_p <= 0.05 & fruit$HC_p > 0.00005 & fruit$HC_Coef > 0),]$HC_color<-"2"
+fruit[(fruit$HC_p <= 0.00005 & fruit$HC_Coef > 0),]$HC_color<-"3"
+
+fruit[(fruit$HC_p > 0.05 & fruit$HC_Coef < 0),]$HC_color<-"-1"
+fruit[(fruit$HC_p <= 0.05 & fruit$HC_p > 0.00005 & fruit$HC_Coef < 0),]$HC_color <-"-2"
+fruit[(fruit$HC_p <= 0.00005 & fruit$HC_Coef < 0),]$HC_color <-"-3"
+
+#Meta
+fruit[(fruit$Meta_p > 0.05 & fruit$HC_Coef > 0),]$Metap_color<-"1"
+fruit[(fruit$Meta_p <= 0.05 & fruit$Meta_p > 0.00005 & fruit$HC_Coef > 0),]$Metap_color<-"2"
+fruit[(fruit$Meta_p <= 0.00005 & fruit$HC_Coef > 0),]$Metap_color<-"3"
+
+fruit[(fruit$Meta_p > 0.05 & fruit$HC_Coef < 0),]$Metap_color<-"-1"
+fruit[(fruit$Meta_p <= 0.05 & fruit$Meta_p > 0.00005 & fruit$HC_Coef < 0),]$Metap_color <-"-2"
+fruit[(fruit$Meta_p <= 0.00005 & fruit$HC_Coef < 0),]$Metap_color <-"-3"
+
+for_plot=fruit[,c(1,11,12,13,14,15)]
+rownames(for_plot)=for_plot$Taxa
+for_plot$Taxa=NULL 
+rownames(for_plot)=sub('.*o__', '', rownames(for_plot))  #remove strings before and incl. o__ 
+for_plot$Taxa=0
+for_plot$Taxa=rownames(for_plot)
+View(for_plot)
+library(reshape2)
+a_for_plot=melt(for_plot, id.vars="Taxa")
+
+ggplot (a_for_plot, aes(variable, Taxa)) + geom_tile(aes(fill=value), colour="white") + scale_fill_manual(breaks=c("-3","-2","-1","1","2","3"), values=c("#eff3ff","#bdd7e7","#fee5d9", "#fcae91", "#fb6a4a", "#de2d26" ), name="p-value", labels=c("P < 5e-05", "P < 5e-02", "P > 5e-02","P > 5e-02","P < 5e-02", "P < 5e-05")) + theme(panel.background=element_blank(), axis.text=element_text(colour="black")) + labs(x="Dataset", y="Taxa") + scale_x_discrete (labels=c("CD","UC", "IBS","HC", "Meta-Score"))
+```
+ 
+ 9.Hierarchial Clustering    
+ -------------
+ 
+**9.1 Subset Food groups Input file**
+*Not corrected for kcal intake as previously, will be done via linear regression (to be fixed)* 
+
+```
+library(readxl)  
+Food=read_excel("~/Desktop/Data/Metadata/Final_Metadata_IBD_V46.xlsx",sheet = "Completemetadata_drugs.txt")
+Food=Food[-c(1,2,3),] 
+Food=Food[!is.na(Food$UMCGIBDDNAID),]  
+Food=Food[,c(10,14,82,84,85,748,11,757,758,754,4,48,33,512:587,589:683,685:696,773:777,779:785)] 
+Food=Food[!grepl("yes",Food$ReadDepthBelow10M),] 
+Food=Food[,-10]  
+Food[Food=="NA"]<-NA
+cols=c(11:12,32:207)  
+Food[cols]=lapply(Food[cols],as.numeric)  
+Foodgroups=Food[,c(1:12,32:207)] 
+Foodgroups=Foodgroups[,-c(2:12)]
+
+Foodgroups2 <- as.data.frame(apply(Foodgroups,MARGIN = 2,FUN = as.numeric))
+Foodgroups2$UMCGIBDResearchIDorLLDeepID <- NULL
+rownames(Foodgroups2) <- Foodgroups$UMCGIBDResearchIDorLLDeepID
+Foodgroups2[is.na(Foodgroups2)]<-0.0
+```
+**9.2 Hclust**
+
+```
+d=dist(Foodgroups2)
+FoodClust <- hclust (d, method="complete", members = NULL)
+FoodTest1 <- as.data.frame(apply(Foodgroups2,MARGIN = 2,median))
+d=dist(FoodTest1)
+FoodTest1C <- hclust(d)
+```
