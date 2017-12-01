@@ -108,7 +108,7 @@ write.table(HC_Food,'../Metadata/Subsetted files/Food/HC_Food.txt',sep = '\t')
 **2.1 Taxonomy - All Levels**                                                                                                 
 *N.B.: Taxonomy files I am using have been filtered (step 5 Medication project) and normalized (step 6 Medication project)*  
 
-**Subset to relevant columns**  
+**Subset and merge**  
 *1. IBD-Tax:*
 ```
 tax_IBD=read.table('../Metadata/IBD_filtered_taxonomy_pheno.txt', header=T, sep='\t')
@@ -132,7 +132,7 @@ tax_LLD=tax_LLD4
 rowSums(tax_LLD)
 ```
 *3. Merge Taxonomy IBD and LLD:*                                                                                             
-*N.B.: Metaanalysis will need equal taxa in every cohort. IBD file has more taxa than LLDeep. These 2 files need to be merged by common columns i.e. taxa:*   
+N.B.: Metaanalysis will need equal taxa in every cohort. IBD file has more taxa than LLDeep. These 2 files need to be merged by common columns i.e. taxa:   
 ```
 tax_I=as.data.frame(t(tax_IBD))  #set taxa as row.names 
 tax_L=as.data.frame(t(tax_LLD))  #set taxa as row.names
@@ -147,7 +147,7 @@ write.table(tax,'../Metadata/Subsetted Files/Taxonomy/Taxonomy_LLD_&_IBD.txt', s
 
 **2.2 Species**  
 
-*1. Species including Strains (n=189):*
+**Species including Strains (n=189)**
 ```
 tax2=as.data.frame(t(tax)) #All Taxa (n=287)
 Species_strains=tax2[grep('s__', row.names(tax2)),]              
@@ -155,12 +155,15 @@ colSums(Species_strains)
 Species_strains=as.data.frame(t(Species_strains))
 write.table(Species_strains,'../Metadata/Subsetted Files/Species/Species_LLD_&_IBD.txt', sep='\t')
 ```
-*2. Species without Strains (n=48):* 
+**Species without Strains (n=48)** 
 ```
 #Species_no_strains=Species_Strains[!grepl('t__', row.names(Species_Strains)),]  
 ```
 
-**2.3 Pathways**  
+**2.3 Pathways** 
+
+**Subset and merge**
+
 *1. IBD-Path:*  
 ```
 path_IBD=read.table("../Metadata/IBD_filtered_path_pheno.txt", header=T, sep='\t')
@@ -195,7 +198,7 @@ rowSums(path)
 colSums(path)
 write.table(path,'../Metadata/Subsetted Files/Pathways/Pathways_LLD_&_IBD_not_rel.txt', sep='\t')
 ```
-*4. Covert into relative abundances i.e. in relation to sum* 
+**Make pathways relative to sum** 
 ```
 path_rel=t(t(path))/colSums(t(path)) #Or instead of colSums(t(Pathways)) -> rowSums(Pathways)
 rowSums(path)
@@ -208,7 +211,6 @@ write.table(path_rel,'../Metadata/Subsetted files/Pathways/Pathways_LLD_&_IBD_re
 View(path_rel)
 ```
 **2.4 Growth Rates**                                                                                                                    
-*1. IBD and LLD (already in 1 file)* 
 ```
 setwd("~/Desktop/Data/Metadata")
 growth=read.table("../Metadata/selected_samples_growthrates_2.txt", header=T, sep='\t')
@@ -223,10 +225,11 @@ write.table(growth,'../Metadata/Subsetted Files/Growth Rates/Growth_Rates_LLD_&_
  3.Merge Phenotypic and Microbial Abundance Files   
  -------------
  
- *Maaslin input files require: 
- - saving as tsv in a folder which will be the working directory during the Maaslin runs
+ **Maaslin input files require:**
+ - tsv format
+ - saved in a folder which will be the working directory during the Maaslin runs
  - column names: ID's first, than phenotypes, followed by microbial abundances.                                                   
-   In this case: col 1-4 (ID, age, gender, read depth), col 5-180 (foods), col 180-467 (taxa)* 
+   In this case: col 1-4 (ID, age, gender, read depth), col 5-180 (foods), col 180-467 (taxa) 
  
 *1. CD-Food-Tax:*
 ```
@@ -258,7 +261,7 @@ write.table(HC_foodtax, "HC_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
  -------------
 
 
-*4.1 Config file*
+**Config file**
 *Text file to be saved as input.read.config in working directory*
 ```
 Matrix: Metadata
@@ -274,9 +277,9 @@ Read_TSV_Columns:k__Archaea.p__Euryarchaeota-
 - For growth rates change Abundance to: *butyrate.producing_bacterium_SSC.2-*
 - For pathways change Abundance to: *AEROBACTINSYN.PWY-*
 
-*4.2 Remove patients with only NAs in Food (not filled FFQ)*
+**Remove patients with only NAs in Food (not filled FFQ)**
 
-*4.3 Univariate Maaslin Runs* 
+**Univariate Maaslin Runs**
 
 - Packages: activate all the 3 gamlss packages 
 ```
@@ -288,22 +291,23 @@ Maaslin('CD_Food_Tax.tsv','CD_Food_Tax_output',strInputConfig ='input.read.confi
 - For the purpose of a later Metaanalysis I have set dsign to 1. So there is no restriction on the significance and Maaslin gives coefficients and p-values for all univariate food-tax runs. 
 - Growth rates are run without fZeroInflated=TRUE*
 
-
  
- 4.Import all Maaslin output files and merge them into one big table 
+ 5.Import all Maaslin output files into R 
  -------------
  
-*Script to import files from a folder, put them into a list, and merge them into one dataframe*
+*Import files from folder, put them into a list, and merge them into one dataframe*
 
-4.1 Make sure only the txt.files with individual diet factors agains all taxonomy are in Maaslin output folders. Transfer all other files such as PDFs and QC-files into a different folder*
+**Make sure only the txt.files with individual diet factors agains all taxonomy are in Maaslin output folders. Transfer all other files such as PDFs and QC-files into a different folder**
 
-4.2 Get a list of files in a directory
+**Get a list of files in a directory**
+
 ```
 setwd("~/Desktop/Data/Maaslin Files/Maaslin_Food_Tax/") #Set working dir to that containing all files that need to be merged
 file_list <- list.files()  #makes list of files in the directory 
 ```
-4.3 Merge the files into a single dataframe
+**Merge the files into a single dataframe**
 *iterate through list of files in the current working directory and put them together to form a dataframe* 
+
 ```
 filestomerge <- c()
 for (fldr in file_list) {
@@ -336,7 +340,6 @@ for (i in 2:length(filestomerge)) {
 }
 
 View(mergeddata)
-
 mergeddata$N <- NULL
 mergeddata$N.not.0 <- NULL
 mergeddata$Variable <- NULL
@@ -370,7 +373,7 @@ setwd("~/Desktop/Data/Maaslin Files")
 write.csv(metatable, '../Maaslin Files/Maaslin_Food_Tax/MergedLargeTable.csv')
 ```
 
- 5.Metaanalysis   
+ 6.Metaanalysis   
  -------------
 
 - Random effect meta-analysis 
@@ -385,7 +388,8 @@ Taxonomy=read.csv('../Maaslin_Food_Tax/MergedLargeTable.csv', header=TRUE, sep='
 Taxonomy=Taxonomy[-c(1)]
 ```
 
-*5.1 Invert p-values (1-p) if the coefficient of CD, UC, or IBS is different from the coefficient in hc (largest cohort)*  
+**Invert p-values (1-p) if the coefficient of CD, UC, or IBS is different from the coefficient in hc (largest cohort)**  
+
 ```
 my_results=matrix(nrow=nrow(Taxonomy),ncol=ncol(Taxonomy))
 
@@ -431,7 +435,7 @@ my_results$Diet=Taxonomy$Diet
 View(my_results)
 write.table(my_results,'../Subsetted Files/Taxonomy_inverted_p.txt',sep = '\t') 
 ```
-#5.2 Metaanalysis 
+**Meta-analyse** 
 ```
 library(metap)
 my_results_meta=as.data.frame(my_results)
@@ -447,12 +451,13 @@ for (x in 1:nrow(my_results_meta)) {
 write.table(my_results_meta,'../Results/Taxonomy_meta_unadjusted_all_output.txt',sep = '\t')
 ```
 
- 6.Correct for Multiple Testing   
+ 7.Correct for Multiple Testing   
  -------------
 
-*Obtain FDR-Adjusted p-values: 
+*Obtain FDR-Adjusted p-values* 
 
-*6.1 P-adjust for all food groups* 
+**P-adjust for all food groups** 
+
 ```
 setwd("~/Desktop/Data/Metaanalysis/Results")
 Tax=read.table('../Results/Taxonomy_meta_unadjusted_all_output.txt', header=TRUE, sep='\t')
@@ -461,9 +466,9 @@ p_adjust_all=p.adjust(Tax$metap, "fdr")
 Tax_adj=cbind(Tax,p_adjust_all)
 ```
 
-*6.2 P-adjust per food group*
-
+**P-adjust per food group**
 *Apply the p.adjust function to all row-pairs (taxa) in each food-subset*
+
 ```
 my_adj=as.data.frame(Tax_adj)
 my_adj$p_adjust_sep=0
@@ -475,7 +480,8 @@ for(diet in diets){
 }
 ```
 
-*6.3 Show significant results only*
+**Look at significant results**
+
 ```
 Tax_sign=my_adj[my_adj$p_adjust_sep<=0.05,] #only significant results
 View(Tax_sign)
@@ -484,15 +490,16 @@ summary(Tax_sign$Diet)
 summary(Tax_sign$Tax)
 ```
 
- 7.Cochran's Q-Test (to be fixed)   
+ 8.Cochran's Q-Test (to be fixed)   
  -------------
 
-Measuring the inconsistency (heterogeneity) or Assessing the consistency (homogeneity) of studies’ results.
+*Measuring the inconsistency (heterogeneity) or Assessing the consistency (homogeneity) of studies’ results.
 Heterogeneity in meta-analysis refers to the variation in study outcomes between studies. 
-Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom
+Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom*
 
-If p-adj < 0.1 (adjusted metap), go back to cohort-specific p-values and sample sizes to check heterogeneity  
 ```
+If p-adj < 0.1 (adjusted metap), go back to cohort-specific p-values and sample sizes to check heterogeneity  
+
 #w_studies -> vector of cohort-specific weights (SD) 
        W = CD(208), UC(126), IBS(231), HC(904)
 #B_studies -> vector of cohort-specific  betas  
@@ -510,10 +517,10 @@ If p-adj < 0.1 (adjusted metap), go back to cohort-specific p-values and sample 
 Use the tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) to check results 
 
 
- 8.Heatmaps (to be fixed)   
+ 9.Heatmaps    
  -------------
  
-**8.1 Modify output files of Meta-analysis** 
+**Modify output files of Meta-analysis** 
 
 *CD/UC/IBS/HC:*
 - color: their coefficients
@@ -546,9 +553,9 @@ summary(Heatmap_sign$Diet)
 summary(Heatmap_sign$Taxa)
 ```
 
-**8.2 Plot heatmaps** 
-
+**Plot heatmaps** 
 *Example Fruit intake* 
+
 ```
 fruit1=Heatmap_sign[grepl("fruit", Heatmap_sign$Diet),]
 fruit=fruit1[!grepl("how_often_fruit", fruit1$Diet),]
@@ -624,11 +631,11 @@ a_for_plot=melt(for_plot, id.vars="Taxa")
 ggplot (a_for_plot, aes(variable, Taxa)) + geom_tile(aes(fill=value), colour="white") + scale_fill_manual(breaks=c("-3","-2","-1","1","2","3"), values=c("#eff3ff","#bdd7e7","#fee5d9", "#fcae91", "#fb6a4a", "#de2d26" ), name="p-value", labels=c("P < 5e-05", "P < 5e-02", "P > 5e-02","P > 5e-02","P < 5e-02", "P < 5e-05")) + theme(panel.background=element_blank(), axis.text=element_text(colour="black")) + labs(x="Dataset", y="Taxa") + scale_x_discrete (labels=c("CD","UC", "IBS","HC", "Meta-Score"))
 ```
  
- 9.Hierarchial Clustering    
+ 10.Hierarchial Clustering (to be fixed)
  -------------
  
-**9.1 Subset Food groups Input file**
-*Not corrected for kcal intake as previously, will be done via linear regression (to be fixed)* 
+**Subset Food group file**
+*Not correct for kcal intake in the way it was done previously, via linear regression instead (to be fixed)* 
 
 ```
 library(readxl)  
@@ -649,7 +656,8 @@ Foodgroups2$UMCGIBDResearchIDorLLDeepID <- NULL
 rownames(Foodgroups2) <- Foodgroups$UMCGIBDResearchIDorLLDeepID
 Foodgroups2[is.na(Foodgroups2)]<-0.0
 ```
-**9.2 Hclust**
+
+**Hclust**
 
 ```
 d=dist(Foodgroups2)
