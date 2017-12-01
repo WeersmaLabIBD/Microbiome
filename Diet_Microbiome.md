@@ -276,19 +276,210 @@ Read_TSV_Columns:k__Archaea.p__Euryarchaeota-
 
 *4.2 Remove patients with only NAs in Food (not filled FFQ)*
 
-*4.3 Run Maaslin* 
+*4.3 Univariate Maaslin Runs* 
 
-Packages: activate all the 3 gamlss packages 
-
-*Univariate Maaslin Runs:*
+- Packages: activate all the 3 gamlss packages 
 ```
 setwd("/Users/laurabolte/Desktop/Data/Maaslin Files/")  #All tsv files from step 3 are stored here
 library(Maaslin) 
 Maaslin('CD_Food_Tax.tsv','CD_Food_Tax_output',strInputConfig ='input.read.config',strForcedPredictors = c('Sex','AgeAtFecalSampling','PFReads'), dSignificanceLevel = 1, dMinAbd = 0, dMinSamp = 0, strModelSelection = "none", fAllvAll=TRUE, fZeroInflated=TRUE, strTransform = "none")
 ```
-Thereafter for UC, IBS, HC 
+- Thereafter for UC, IBS, HC 
+- For the purpose of a later Metaanalysis I have set dsign to 1. So there is no restriction on the significance and Maaslin gives coefficients and p-values for all univariate food-tax runs. 
+- Growth rates are run without fZeroInflated=TRUE*
 
-*For the purpose of a later Metaanalysis I have set dsign to 1. So there is no restriction on the significance and Maaslin gives coefficients and p-values for all univariate food-tax runs. 
 
-*Growth rates are run without fZeroInflated=TRUE*
+ 
+ 4.Import all Maaslin output files and merge them into one big table 
+ -------------
+ 
+*Script to import files from a folder, put them into a list, and merge them into one dataframe*
 
+4.1 Make sure only the txt.files with individual diet factors agains all taxonomy are in Maaslin output folders. Transfer all other files such as PDFs and QC-files into a different folder*
+
+4.2 Get a list of files in a directory
+```
+setwd("~/Desktop/Data/Maaslin Files/Maaslin_Food_Tax/") #Set working dir to that containing all files that need to be merged
+file_list <- list.files()  #makes list of files in the directory 
+```
+4.3 Merge the files into a single dataframe
+*iterate through list of files in the current working directory and put them together to form a dataframe* 
+```
+filestomerge <- c()
+for (fldr in file_list) {
+  #print(paste('FOLDER:',fldr))
+  #print(paste('./',fldr))
+  targetfolder <- paste('./',fldr,sep='')
+  fldrfiles <- list.files(targetfolder)
+  #print(fldrfiles)
+  for (ifile in fldrfiles) {
+    t <- paste(targetfolder,'/',ifile,sep='')
+    print(t)
+    filestomerge <- c(filestomerge,t)
+  }
+}
+
+mergeddata <- read.csv2(filestomerge[1],sep = '\t',header = TRUE)
+fn <- strsplit(filestomerge[1],'/')[[1]][2]
+fn <- strsplit(fn,'_')[[1]][1]
+print(fn)
+mergeddata$filename <- fn
+#for (i in c(2,100,200,300,400,500,600,700)) { #length(filestomerge)) {
+for (i in 2:length(filestomerge)) {
+  tmpdata <- read.csv2(filestomerge[i],sep = '\t',header = TRUE)
+  print (filestomerge[i])
+  fn <- strsplit(filestomerge[i],'/')[[1]][2]
+  fn <- strsplit(fn,'_')[[1]][1]
+  tmpdata$filename <- fn
+  print(fn)
+  mergeddata <- rbind(mergeddata,tmpdata)
+}
+
+View(mergeddata)
+
+mergeddata$N <- NULL
+mergeddata$N.not.0 <- NULL
+mergeddata$Variable <- NULL
+mergeddata$Q.value <- NULL
+
+tCD <- mergeddata[mergeddata$filename=="CD",]
+tCD$filename <- NULL
+View(tCD)
+colnames(tCD) <- c("Tax","Diet","CD_Coef","CD_p")
+
+tUC <- mergeddata[mergeddata$filename=="UC",]
+tUC$filename <- NULL
+colnames(tUC) <- c("Tax","Diet","UC_Coef","UC_p")
+
+tIBS <- mergeddata[mergeddata$filename=="IBS",]
+tIBS$filename <- NULL
+colnames(tIBS) <- c("Tax","Diet","IBS_Coef","IBS_p")
+
+tHC <- mergeddata[mergeddata$filename=="HC",]
+tHC$filename <- NULL
+colnames(tHC) <- c("Tax","Diet","HC_Coef","HC_p")
+
+merge1 <- merge(tCD,tUC,by=c("Tax","Diet"))
+merge2 <- merge(merge1,tIBS,by=c("Tax","Diet"))
+merge3 <- merge(merge2,tHC,by=c("Tax","Diet"))
+View(merge3)
+#metatable <- data.frame(row.names = c('DietFactor','Taxa','CD_p','CD_coef','UC_p','UC_coef','IBS_p','IBS_coef','HC_p','HC_coef'))
+metatable=merge3
+View(metatable)
+setwd("~/Desktop/Data/Maaslin Files")
+write.csv(metatable, '../Maaslin Files/Maaslin_Food_Tax/MergedLargeTable.csv')
+```
+
+ 5.Metaanalysis   
+ -------------
+
+- Random effect meta-analysis 
+- Combining p-values using summation of z values (Stouffers method)
+- sumz of R-package metap 
+- Take into account samples sizes (weights) and coefficients (directions) per group
+       
+**Taxonomy** 
+```
+setwd("/Users/laurabolte/Desktop/Data/Maaslin Files/Maaslin_Food_Tax/")
+Taxonomy=read.csv('../Maaslin_Food_Tax/MergedLargeTable.csv', header=TRUE, sep=',')
+Taxonomy=Taxonomy[-c(1)]
+```
+
+*5.1 Invert p-values (1-p) if the coefficient of CD, UC, or IBS is different from the coefficient in hc (largest cohort)*  
+```
+my_results=matrix(nrow=nrow(Taxonomy),ncol=ncol(Taxonomy))
+
+for (x in 1:nrow(Taxonomy)){  
+  if (Taxonomy[x,3]>0 & Taxonomy[x,5]>0 & Taxonomy[x,7]>0 & Taxonomy[x,9]>0 | Taxonomy[x,3]<0 & Taxonomy[x,5]<0 & Taxonomy[x,7]<0 & Taxonomy[x,9]<0) {
+    my_results[x,3]=Taxonomy[x,3] 
+    my_results[x,4]=Taxonomy[x,4]
+    my_results[x,5]=Taxonomy[x,5]
+    my_results[x,6]=Taxonomy[x,6]
+    my_results[x,7]=Taxonomy[x,7]
+    my_results[x,8]=Taxonomy[x,8]
+    my_results[x,9]=Taxonomy[x,9]
+    my_results[x,10]=Taxonomy[x,10]
+  } else { 
+    my_results[x,3]=Taxonomy[x,3]
+    my_results[x,4]=Taxonomy[x,4]
+    my_results[x,5]=Taxonomy[x,5]
+    my_results[x,6]=Taxonomy[x,6]
+    my_results[x,7]=Taxonomy[x,7]
+    my_results[x,8]=Taxonomy[x,8]
+    my_results[x,9]=Taxonomy[x,9]
+    my_results[x,10]=Taxonomy[x,10]
+    if (sign(Taxonomy[x,9]) != sign(Taxonomy[x,3])){  #if coef HC (col9) has a different sign (+ or -) than coef CD (col3)
+      my_results[x,4]=1-Taxonomy[x,4]                 #than p CD (col4) will be inverted to 1-p 
+      my_results[x,3]=Taxonomy[x,3]                   #and coef CD (col3) stays coef CD
+    } 
+    if (sign(Taxonomy[x,9]) != sign(Taxonomy[x,5])){
+      my_results[x,6]=1-Taxonomy[x,6]
+      my_results[x,5]=Taxonomy[x,5]
+    } 
+    if (sign(Taxonomy[x,9]) != sign(Taxonomy[x,7])) {
+      my_results[x,8]=1-Taxonomy[x,8]
+      my_results[x,7]=Taxonomy[x,7]
+    } 
+  }
+  
+} 
+
+colnames(my_results)=colnames(Taxonomy)
+my_results=as.data.frame(my_results)
+my_results$Tax=Taxonomy$Tax
+my_results$Diet=Taxonomy$Diet 
+View(my_results)
+write.table(my_results,'../Subsetted Files/Taxonomy_inverted_p.txt',sep = '\t') 
+```
+#5.2 Metaanalysis 
+```
+library(metap)
+my_results_meta=as.data.frame(my_results)
+my_results_meta$metap=0
+
+for (x in 1:nrow(my_results_meta)) { 
+  my_weights=c(sqrt(208), sqrt(126), sqrt(231), sqrt(904))  #CD(208), UC(126), IBS(231), HC(904)
+  p=c(my_results[x,4],my_results[x,6],my_results[x,8], my_results[x,10])
+  my_out=sumz(p, my_weights)  
+  my_results_meta[x,11]=my_out$p
+}
+
+write.table(my_results_meta,'../Results/Taxonomy_meta_unadjusted_all_output.txt',sep = '\t')
+```
+
+ 6.Correct for Multiple Testing   
+ -------------
+
+*Obtain FDR-Adjusted p-values: 
+
+*6.1 P-adjust for all food groups* 
+```
+setwd("~/Desktop/Data/Metaanalysis/Results")
+Tax=read.table('../Results/Taxonomy_meta_unadjusted_all_output.txt', header=TRUE, sep='\t')
+Tax=as.data.frame(Tax)
+p_adjust_all=p.adjust(Tax$metap, "fdr") 
+Tax_adj=cbind(Tax,p_adjust_all)
+```
+
+*6.2 P-adjust per food group*
+
+*Apply the p.adjust function to all row-pairs (taxa) in each food-subset*
+```
+my_adj=as.data.frame(Tax_adj)
+my_adj$p_adjust_sep=0
+
+diets <- unique(my_adj$Diet)
+
+for(diet in diets){
+  my_adj$p_adjust_sep[my_adj$Diet == diet] <- p.adjust(my_adj$metap[my_adj$Diet == diet], "fdr") 
+}
+```
+
+*6.3 Show significant results only*
+```
+Tax_sign=my_adj[my_adj$p_adjust_sep<=0.05,] #only significant results
+View(Tax_sign)
+write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_significant.txt', sep = '\t')
+summary(Tax_sign$Diet)
+summary(Tax_sign$Tax)
+```
