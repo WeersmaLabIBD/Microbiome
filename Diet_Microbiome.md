@@ -26,19 +26,19 @@ Food=Food[,c(10,14,82,84,85,748,11,757,758,754,4,48,33,512:587,589:683,685:696,7
 Food=Food[!grepl("yes",Food$ReadDepthBelow10M),]                                                                      
 Food=Food[,-10] #remove column ReadDepth
 ```
-**Convert food groups, age, and PFR to numeric**                                                                            
+**Convert variables to numeric or factors**                                                                            
 ```
 str(Food)              
-cols=c(11:12,32:207)  
-Food[cols]=lapply(Food[cols],as.numeric)  
-*Save as Foodgroups*                                                                                    
-Foodgroups=Food[,c(1:12,32:207)]                                                                   
+cols1=c(11:12,32:207)     #food groups, age, PFR to numeric
+Food[cols]=lapply(Food[cols1],as.numeric)  
+cols2=c(10,13:31)         #dietary practices (yes/no/..), gender to factors
+Food[cols2]=lapply(Food[cols2],as.factor)                                                                                                                                                                           
+```
+**Split file into Food groups and Dietary ways** 
+```
+Foodgroups=Food[,c(1:12,32:207)]                                                        
 write.table(Foodgroups,'../Metadata/Subsetted Files/Food/Foodgroups.txt',sep = '\t')
-**Convert dietary practices, and gender to factors**                                                               
-cols2=c(10,13:31)     
-Food[cols2]=lapply(Food[cols2],as.factor)                                                                                      
-*Save as Dietaryways*                                                                                     
-Dietaryways=Food[,c(1:31)]                                                                           
+Dietaryways=Food[,c(1:31)]                                                                          
 write.table(Dietaryways,'../Metadata/Subsetted Files/Food/Dietaryways.txt',sep = '\t')
 ```
 **Correct food groups for caloric intake**                                                                                  
@@ -105,8 +105,8 @@ write.table(HC_Food,'../Metadata/Subsetted files/Food/HC_Food.txt',sep = '\t')
  2.Microbial Abundance Metadata   
  -------------
 
-**2.1 Taxonomy - All Levels**  
-*N.B.: Taxonomy files I am using have been filtered (step 5 Medication project) and normalized (step 6 Medication project)  
+**2.1 Taxonomy - All Levels**                                                                                                 
+*N.B.: Taxonomy files I am using have been filtered (step 5 Medication project) and normalized (step 6 Medication project)*  
 
 **Subset to relevant columns**  
 *1. IBD-Tax:*
@@ -131,8 +131,8 @@ tax_LLD4=as.data.frame(t(tax_LLD3))
 tax_LLD=tax_LLD4
 rowSums(tax_LLD)
 ```
-*3. Merge Taxonomy IBD and LLD:* 
-*N.B.: Metaanalysis will need equal taxa in every cohort. IBD file has more taxa than LLDeep. These 2 files need to be merged by common columns i.e. taxa*   
+*3. Merge Taxonomy IBD and LLD:*                                                                                             
+*N.B.: Metaanalysis will need equal taxa in every cohort. IBD file has more taxa than LLDeep. These 2 files need to be merged by common columns i.e. taxa:*   
 ```
 tax_I=as.data.frame(t(tax_IBD))  #set taxa as row.names 
 tax_L=as.data.frame(t(tax_LLD))  #set taxa as row.names
@@ -146,11 +146,10 @@ write.table(tax,'../Metadata/Subsetted Files/Taxonomy/Taxonomy_LLD_&_IBD.txt', s
 ```
 
 **2.2 Species**  
-*N.B.: Taxonomy files I am using have been filtered (step 5 Medication project) and normalized (step 6 Medication project)  
 
 *1. Species including Strains (n=189):*
 ```
-tax2=as.data.frame(t(tax)) #All Taxa = 287)
+tax2=as.data.frame(t(tax)) #All Taxa (n=287)
 Species_strains=tax2[grep('s__', row.names(tax2)),]              
 colSums(Species_strains)
 Species_strains=as.data.frame(t(Species_strains))
@@ -181,8 +180,8 @@ path_LLD2=as.data.frame(t(path_LLD))
 path_LLD3=path_LLD2[,-grep("_IBS", colnames(path_LLD2))] #delete Maastricht 
 path_LLD=as.data.frame(t(path_LLD3))  
 ```
-*3. Merge Pathway files IBD and LLD:* 
-*N.B.: Metaanalysis will need equal taxa in every cohort. The IBD file has more pathways than the LLDeep file. These 2 files need to be merged by common columns i.e. pathways* 
+*3. Merge Pathway files IBD and LLD:*                                                                                           
+*N.B.: Metaanalysis will need equal taxa in every cohort. The IBD file has more pathways than the LLDeep file. These 2 files need to be merged by common columns i.e. pathways*                                                                              
 ```
 path_I=as.data.frame(t(path_IBD))  #make pathways the row.names 
 path_L=as.data.frame(t(path_LLD))  #make pathways the row.names
@@ -208,8 +207,8 @@ path_rel=as.data.frame(path_rel) #safe as data frame
 write.table(path_rel,'../Metadata/Subsetted files/Pathways/Pathways_LLD_&_IBD_rel_abundance.txt',sep = '\t')
 View(path_rel)
 ```
-**Growth Rates**
-*1. Growth rates IBD and LLD* 
+**Growth Rates**                                                                                                                    
+*1. IBD and LLD (already in 1 file)* 
 ```
 setwd("~/Desktop/Data/Metadata")
 growth=read.table("../Metadata/selected_samples_growthrates_2.txt", header=T, sep='\t')
@@ -227,7 +226,7 @@ write.table(growth,'../Metadata/Subsetted Files/Growth Rates/Growth_Rates_LLD_&_
  *Maaslin input files require: 
  - saving as tsv in a folder which will be the working directory during the Maaslin runs
  - column names: ID's first, than phenotypes, followed by microbial abundances.                                                   
-   In this case: col 5-180 = food, col 180-467 = taxa* 
+   In this case: col 1-4 (ID, age, gender, read depth), col 5-180 (foods), col 180-467 (taxa)* 
  
 *1. CD-Food-Tax:*
 ```
