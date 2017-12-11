@@ -42,16 +42,16 @@ FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
 ## 7. Next, I will import the database comprising the taxonomic data for each of the samples. 
 Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)
 
-##8. To merge this microbiome data with my VT Database, I will have to delete the first row and make the first
-## column the rownames, because after this, I can transpose the data. 
-##8.a Removing the first row. 
+##8. To merge this microbiome data with my VT Database, I will have to create a patientID column in the microbiome taxonomy database.
+# Now, the samples are columns and the taxons are rows. This should be transposed. To tranpose this, I firstly delete the 
+# first row (these are headers). 
 Taxa = Taxa[-1,]
-##8b. Making the first column (called "SID") the rownames. 
+##8b. To transpose the data, I will make the first column (patientID: called "SID"), into the rownames. 
 rownames(Taxa) = Taxa$SID
-##8c. Removing the column "SID". 
+##8c. Because SID is now the rownames, I can remove the column. Removing the column "SID". 
 Taxa = Taxa[,c(2:433)]
 ##8d. I want to focuss on only species (so no higher taxons). Therefore, I use the function "grep" to only
-## retain microbiome features that are species. 
+## retain columns with "s__", which is the annotation for species. 
 temp1 = Taxa[grep("s__", row.names(Taxa)),]
 ##8e. Transposing the microbiome taxonomy database. 
 Taxa = as.data.frame(t(temp1))
@@ -67,7 +67,7 @@ rowSums(Taxafinal)
 
 
 ##10. Next, I want to merge the microbiome taxonomy database, with my VT database.  
-##To do this, I take the following steps.
+##To do this, I firstly have to create a column again from the Patient IDs (which is the rownames now). 
 ##10a. Making the rownames (Patient ID numbers), into the first column. 
 Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
 Taxafinal=Taxafinal[,c(1237, 1:1236)]
