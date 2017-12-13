@@ -24,7 +24,7 @@ source activate qiime2-2017.10
 ```
 ```
 # preparing the demultiplexed data (without barcode and primer), and the Metadata_16S.tsv
-# moving all the R1.fastq.gz and R2.fastq.gz files in one folder (clean_data)
+# moving all the R1.fastq.gz and R2.fastq.gz files in one folder (clean_data), the same as "CasavaOneEightSingleLanePerSampleDirFmt"
 # rename fastq.gz files as BAQ2420.1.2_55_L001_R1_001.fastq.gz (sample identifier, the barcode sequence or a barcode identifier, the lane number, the read number, and the set number)
 
 #!/bin/bash
