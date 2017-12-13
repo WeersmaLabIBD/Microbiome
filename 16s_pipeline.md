@@ -73,6 +73,8 @@ qiime tools view demux.qzv
 3. Sequence quality control and feature table construction
 
 Trimming low quality bp ,generating feature table and representative sequences using DADA2
+
+DADA2 is a method to infer the sample sequences in a collection of amplicon sequencing reads. DADA2 is a de novo method, and completely reference free
 ```
 # --p-trim-left-f and --p-trim-left-r: how many bp do you want to trim from 5'end
 # --p-trunc-len-f and --p-trunc-len-r: the trim position on 3'end
