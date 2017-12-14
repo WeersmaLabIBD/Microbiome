@@ -255,3 +255,34 @@ core-metrics-results/weighted-unifrac-group-site-significance.qzv \
 
 # output: weighted-unifrac-group-site-significance.qzv
 ```
+6. Taxonomic analysis
+We will use Greengenes 13_8 99% OTUs, where the sequences have been trimmed to only include 250 bases from the region of the 16S that was sequenced in this analysis (the V4 region)
+```
+# downlaod the Greengene database
+
+wget -O "gg-13-8-99-515-806-nb-classifier.qza" "https://data.qiime2.org/2017.10/common/gg-13-8-99-515-806-nb-classifier.qza"
+```
+```
+# all the OTUs can be classified as taxa
+
+qiime feature-classifier classify-sklearn \
+  --i-classifier gg-13-8-99-515-806-nb-classifier.qza \
+  --i-reads rep-seqs.qza \
+  --o-classification taxonomy.qza
+  
+qiime metadata tabulate \
+  --m-input-file taxonomy.qza \
+  --o-visualization taxonomy.qzv
+  
+# output: taxonomy.qzv
+```
+```
+# draw bar plots, level 1=k__Bacteria, level 2=k__p, level 3=k__p__c ....
+
+qiime taxa barplot \
+  --i-table table.qza \
+  --i-taxonomy taxonomy.qza \
+  --m-metadata-file  Metadata_16S.tsv \
+  --o-visualization taxa-bar-plots.qzv
+  
+# output: taxa-bar-plots.qzv
