@@ -256,6 +256,7 @@ core-metrics-results/weighted-unifrac-group-site-significance.qzv \
 # output: weighted-unifrac-group-site-significance.qzv
 ```
 6. Taxonomic analysis
+
 We will use Greengenes 13_8 99% OTUs, where the sequences have been trimmed to only include 250 bases from the region of the 16S that was sequenced in this analysis (the V4 region)
 ```
 # downlaod the Greengene database
