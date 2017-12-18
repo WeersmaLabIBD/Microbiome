@@ -437,87 +437,89 @@ write.table(my_results,'../Subsetted Files/Taxonomy_inverted_p.txt',sep = '\t')
 ```
 **Meta-analyse** 
 ```
-library(metap)
-my_results_meta=as.data.frame(my_results)
-my_results_meta$metap=0
+Tax=read.csv('../Metaanalysis/Subsetted Files/Taxonomy_inverted_p.txt', header=TRUE, sep='\t')
+my_results_meta=as.data.frame(Tax)
+my_results_meta$metaz=0                     #c11
+my_results_meta$metap=0                     #c12
+W=c(205,124,223,872)                        #Sample size CD, UC, IBS, HC
 
 for (x in 1:nrow(my_results_meta)) { 
-  my_weights=c(sqrt(208), sqrt(126), sqrt(231), sqrt(904))  #CD(208), UC(126), IBS(231), HC(904)
-  p=c(my_results[x,4],my_results[x,6],my_results[x,8], my_results[x,10])
-  my_out=sumz(p, my_weights)  
-  my_results_meta[x,11]=my_out$p
+  Wi=sqrt(W)                                #Square-root of sample size
+  P=c(Tax[x,4],Tax[x,6],Tax[x,8],Tax[x,10]) #Columns containing P-values   
+  Zi=qnorm(1-(P/2))                         #Convert p-values to Z-scores                                
+  Z=(sum(Zi*Wi)/sqrt(sum(Wi^2)))            #Meta-zscore                    
+  MetaP=2*pnorm(-abs(Z))                    #Convert Z-score to p-value
+  my_results_meta[x,11]=Z
+  my_results_meta[x,12]=MetaP 
 }
 
-write.table(my_results_meta,'../Results/Taxonomy_meta_unadjusted_all_output.txt',sep = '\t')
+View(my_results_meta) 
+write.table(my_results_meta,'../Metaanalysis/Results/Tax_meta_unadjusted.txt',sep = '\t')
 ```
 
- 7.Correct for Multiple Testing   
+ 7.Correct Meta-P-values for Multiple Testing   
  -------------
 
 *Obtain FDR-Adjusted p-values* 
 
-**P-adjust for all food groups** 
-
-```
-setwd("~/Desktop/Data/Metaanalysis/Results")
-Tax=read.table('../Results/Taxonomy_meta_unadjusted_all_output.txt', header=TRUE, sep='\t')
-Tax=as.data.frame(Tax)
-p_adjust_all=p.adjust(Tax$metap, "fdr") 
-Tax_adj=cbind(Tax,p_adjust_all)
-```
-
 **P-adjust per food group**
-*Apply the p.adjust function to all row-pairs (taxa) in each food-subset*
+*1. Split the dataframe*
+*2. Apply the p.adjust function to all row-pairs (taxa) in each food-subset*
 
 ```
-my_adj=as.data.frame(Tax_adj)
-my_adj$p_adjust_sep=0
-
+my_adj=as.data.frame(my_results_meta)
+my_adj$metap_adj=0
 diets <- unique(my_adj$Diet)
 
 for(diet in diets){
-  my_adj$p_adjust_sep[my_adj$Diet == diet] <- p.adjust(my_adj$metap[my_adj$Diet == diet], "fdr") 
+  my_adj$metap_adj[my_adj$Diet == diet] <- p.adjust(my_adj$metap[my_adj$Diet == diet], "fdr") 
 }
+
+write.table(my_adj,'../Metaanalysis/Results/Tax_new_meta_adj_all.txt',sep = '\t')
 ```
 
-**Look at significant results**
-
+**Filter for significant results**
+*Filter results that are significant after FDR correction. On these the Cochran's Q-test will be performed*
 ```
-Tax_sign=my_adj[my_adj$p_adjust_sep<=0.05,] #only significant results
-View(Tax_sign)
-write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_significant.txt', sep = '\t')
-summary(Tax_sign$Diet)
-summary(Tax_sign$Tax)
+Tax_sign=my_adj[my_adj$metap_adj<=0.05,] 
+write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_sign.txt', sep = '\t')
 ```
 
- 8.Cochran's Q-Test (to be fixed)   
+ 8.Cochran's Q-Test   
  -------------
 
-*Measuring the inconsistency (heterogeneity) or Assessing the consistency (homogeneity) of studies’ results.
-Heterogeneity in meta-analysis refers to the variation in study outcomes between studies. 
-Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom*
+*Measuring the inconsistency (heterogeneity) of studies’ results. Heterogeneity in meta-analysis refers to the variation in study outcomes between studies. Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom*
 
 ```
-If p-adj < 0.1 (adjusted metap), go back to cohort-specific p-values and sample sizes to check heterogeneity  
+my_results_Q=as.data.frame(Tax_sign)
+my_results_Q$weightedZ=0    #c14
+my_results_Q$Qval=0         #c15
+my_results_Q$Hetpval=0      #c16
 
-#w_studies -> vector of cohort-specific weights (SD) 
-       W = CD(208), UC(126), IBS(231), HC(904)
-#B_studies -> vector of cohort-specific  betas  
-       P = (0.02, 0.005, 0.02, 0.0003)
-#B_overall -> single value, is your overall Beta (meta-P) that you get combining the cohorts
-       PM = 0.05 
-#diff= w_studies * (B_studies -  B_overall)^2     
-       diff= W x (P-PM)
-             s1 X (p1-PM)2 
-             s2 X (p1-PM)2
-#Q_stat=sum(diff)
-#degFrd=length(B_i) -1  -> number of studies - 1, here 3
-#pvalue_Q=pchisq(Q_stat,lower.tail=F,df=degFrd)
+W=c(205, 124, 223, 872)     #Sample size CD, UC, IBS, HC 
+totalSample=sum(W)          #Total number of samples 
+
+for (x in 1:nrow(my_results_Q)) { 
+  P=c(Tax_sign[x,4],Tax_sign[x,6],Tax_sign[x,8],Tax_sign[x,10]) #Columns containing p-values per cohort
+  Zi=qnorm(1-(P/2))                                #Convert p-values to Z-scores                                
+  weightedZ= sum(sqrt(W)*Zi)                         
+  expectedZ= sqrt(W)*weightedZ/totalSample         #Calculate expected Z 
+  Qval= sum((Zi-expectedZ)*(Zi-expectedZ))         #Heterogeneity Chisquare, Q-value 
+  Hetpval=pchisq(Qval, lower.tail = F, df=3)       #Heterogeneity P-val, P-value of Q
+  my_results_Q[x,14]=weightedZ   
+  my_results_Q[x,15]=Qval
+  my_results_Q[x,16]=Hetpval
+}
+
+write.table(my_results_Q,'../Metaanalysis/Results/Tax_meta_heterogeneity.txt',sep = '\t')
 ```
 Use the tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) to check results 
 
-
- 9.Heatmaps    
+ 9.Correct Heterogeneity-P-values for Multiple Testing   (to be fixed)
+ -------------
+ 
+ 
+ 10.Heatmaps    
  -------------
  
 **Modify output files of Meta-analysis** 
@@ -535,9 +537,9 @@ colnames(Heatmap)=c("Taxa","Diet","CD_Coef","CD_p","UC_Coef","UC_p","IBS_Coef","
 Heatmap=as.data.frame(Heatmap)
 Heatmap$Taxa=my_results_meta$Tax
 Heatmap$Diet=my_results_meta$Diet
-Heatmap$Meta_p_adj=Tax_meta_padjust$p_adjust   #add Meta-p-adj from file 'Path_meta_padjust' (p-adjusted metaanalysis)
+Heatmap$Meta_p_adj=Tax_meta_padjust$p_adjust #add Meta-p-adj from 'Tax_meta_padjust' (adjusted Meta-p vals, Metaanalysis)
 View(Taxonomy)
-Heatmap$CD_Coef=Taxonomy$CD_Coef               #add p-vals and coefs, from original file 'Pathways' (Maaslin results) 
+Heatmap$CD_Coef=Taxonomy$CD_Coef             #add original (non-inverted) p-vals and coefs from 'Taxonomy' (Maaslin results) 
 Heatmap$CD_p=Taxonomy$CD_p
 Heatmap$UC_Coef=Taxonomy$UC_Coef
 Heatmap$UC_p=Taxonomy$UC_p
@@ -631,7 +633,7 @@ a_for_plot=melt(for_plot, id.vars="Taxa")
 ggplot (a_for_plot, aes(variable, Taxa)) + geom_tile(aes(fill=value), colour="white") + scale_fill_manual(breaks=c("-3","-2","-1","1","2","3"), values=c("#eff3ff","#bdd7e7","#fee5d9", "#fcae91", "#fb6a4a", "#de2d26" ), name="p-value", labels=c("P < 5e-05", "P < 5e-02", "P > 5e-02","P > 5e-02","P < 5e-02", "P < 5e-05")) + theme(panel.background=element_blank(), axis.text=element_text(colour="black")) + labs(x="Dataset", y="Taxa") + scale_x_discrete (labels=c("CD","UC", "IBS","HC", "Meta-Score"))
 ```
  
- 10.Hierarchial Clustering (to be fixed)
+ 11.Hierarchial Clustering (to be fixed)
  -------------
  
 **Subset Food group file**
