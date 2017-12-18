@@ -377,9 +377,9 @@ write.csv(metatable, '../Maaslin Files/Maaslin_Food_Tax/MergedLargeTable.csv')
  -------------
 
 - Random effect meta-analysis 
-- Combining p-values using summation of z values (Stouffers method)
-- sumz of R-package metap 
 - Take into account samples sizes (weights) and coefficients (directions) per group
+- Adjust for multiple testing 
+- Heterogeneity estimation (Cochran's Q)
        
 **Taxonomy** 
 ```
@@ -478,18 +478,18 @@ for(diet in diets){
 write.table(my_adj,'../Metaanalysis/Results/Tax_new_meta_adj_all.txt',sep = '\t')
 ```
 
-**Filter for significant results**
-*Filter results that are significant after FDR correction. On these the Cochran's Q-test will be performed*
-```
-Tax_sign=my_adj[my_adj$metap_adj<=0.05,] 
-write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_sign.txt', sep = '\t')
-```
-
  8.Cochran's Q-Test   
  -------------
 
 *Measuring the inconsistency (heterogeneity) of studies’ results. Heterogeneity in meta-analysis refers to the variation in study outcomes between studies. Cochran’s Q is calculated as the weighted sum of squared differences between individual study effects and the pooled effect across studies with the weights being those used in the pooling method. Q is distributed as a chi-square statistic with k (number of studies) minus 1 degrees of freedom*
 
+**Filter for significant results**
+*Filter results that are significant after FDR correction. On these results the Cochran's Q-test will be performed*
+```
+Tax_sign=my_adj[my_adj$metap_adj<=0.05,] 
+write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_sign.txt', sep = '\t')
+```
+**Cochran's Q-Test**
 ```
 my_results_Q=as.data.frame(Tax_sign)
 my_results_Q$weightedZ=0    #c14
@@ -513,7 +513,7 @@ for (x in 1:nrow(my_results_Q)) {
 
 write.table(my_results_Q,'../Metaanalysis/Results/Tax_meta_heterogeneity.txt',sep = '\t')
 ```
-Use the tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) to check results 
+The tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) can be used to check results 
 
  9.Correct Heterogeneity-P-values for Multiple Testing   (to be fixed)
  -------------
