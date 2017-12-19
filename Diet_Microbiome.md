@@ -297,17 +297,16 @@ Maaslin('CD_Food_Tax.tsv','CD_Food_Tax_output',strInputConfig ='input.read.confi
  
 *Import files from folder, put them into a list, and merge them into one dataframe*
 
-**Make sure only the txt.files with individual diet factors agains all taxonomy are in Maaslin output folders. Transfer all other files such as PDFs and QC-files into a different folder**
+- Make sure only the txt.files with individual diet factors agains all taxonomy are in Maaslin output folders
+- Transfer all other files such as PDFs and QC-files into a different folder
 
-**Get a list of files in a directory**
-
+*get a list of files in a directory* 
 ```
 setwd("~/Desktop/Data/Maaslin Files/Maaslin_Food_Tax/") #Set working dir to that containing all files that need to be merged
 file_list <- list.files()  #makes list of files in the directory 
 ```
 **Merge the files into a single dataframe**
 *iterate through list of files in the current working directory and put them together to form a dataframe* 
-
 ```
 filestomerge <- c()
 for (fldr in file_list) {
@@ -439,21 +438,21 @@ write.table(my_results,'../Subsetted Files/Taxonomy_inverted_p.txt',sep = '\t')
 ```
 Tax=read.csv('../Metaanalysis/Subsetted Files/Taxonomy_inverted_p.txt', header=TRUE, sep='\t')
 my_results_meta=as.data.frame(Tax)
-my_results_meta$metaz=0                     #c11
-my_results_meta$metap=0                     #c12
-W=c(205,124,223,872)                        #Sample size CD, UC, IBS, HC
+my_results_meta$meta_z=0           #c11
+my_results_meta$meta_p=0           #c12
+W=c(205,124,223,872)               #Weights Taxonomy, Pathways: CD, UC, IBS, HC
 
 for (x in 1:nrow(my_results_meta)) { 
-  Wi=sqrt(W)                                #Square-root of sample size
-  P=c(Tax[x,4],Tax[x,6],Tax[x,8],Tax[x,10]) #Columns containing P-values   
-  Zi=qnorm(1-(P/2))                         #Convert p-values to Z-scores                                
-  Z=(sum(Zi*Wi)/sqrt(sum(Wi^2)))            #Meta-zscore                    
-  MetaP=2*pnorm(-abs(Z))                    #Convert Z-score to p-value
+  Wi=sqrt(W)  
+  P=c(Tax[x,4],Tax[x,6],Tax[x,8],Tax[x,10])
+  Zi=qnorm(1-(P/2))                #Convert p-values to Z-scores                                
+  Z=(sum(Zi*Wi)/sqrt(sum(Wi^2)))   #Meta-zscore                    
+  MetaP=2*pnorm(-abs(Z))           #Convert Z-score to p-value
   my_results_meta[x,11]=Z
   my_results_meta[x,12]=MetaP 
 }
 
-View(my_results_meta) 
+Test=my_results_meta[922,] #same as METAL 
 write.table(my_results_meta,'../Metaanalysis/Results/Tax_meta_unadjusted.txt',sep = '\t')
 ```
 
@@ -468,14 +467,15 @@ write.table(my_results_meta,'../Metaanalysis/Results/Tax_meta_unadjusted.txt',se
 
 ```
 my_adj=as.data.frame(my_results_meta)
-my_adj$metap_adj=0
-diets <- unique(my_adj$Diet)
+my_adj$meta_padj=0
+
+diets <- unique(my_adj$Diet)        #Select all associations of one food group, to adjust for the number of tests
 
 for(diet in diets){
-  my_adj$metap_adj[my_adj$Diet == diet] <- p.adjust(my_adj$metap[my_adj$Diet == diet], "fdr") 
+  my_adj$meta_padj[my_adj$Diet == diet] <- p.adjust(my_adj$meta_p[my_adj$Diet == diet], "fdr") 
 }
 
-write.table(my_adj,'../Metaanalysis/Results/Tax_new_meta_adj_all.txt',sep = '\t')
+write.table(my_adj,"../Metaanalysis_Heterogeneity/Results/Tax_meta_adj_all.txt",sep = '\t')
 ```
 
  8.Cochran's Q-Test   
@@ -486,38 +486,57 @@ write.table(my_adj,'../Metaanalysis/Results/Tax_new_meta_adj_all.txt',sep = '\t'
 **Filter for significant results**
 *Filter results that are significant after FDR correction. On these results the Cochran's Q-test will be performed*
 ```
-Tax_sign=my_adj[my_adj$metap_adj<=0.05,] 
-write.table(Tax_sign, '../Metaanalysis/Results/Taxonomy_padj_per_food_sign.txt', sep = '\t')
+Tax_sign=my_adj[my_adj$meta_padj<=0.05,]        
+write.table(Tax_sign,"../Metaanalysis/Results/Tax_meta_adj.txt",sep = '\t')
 ```
+
 **Cochran's Q-Test**
 ```
-my_results_Q=as.data.frame(Tax_sign)
-my_results_Q$weightedZ=0    #c14
-my_results_Q$Qval=0         #c15
-my_results_Q$Hetpval=0      #c16
+my_results_Q=as.data.frame(Tax_sign)   
+my_results_Q$weighted_z=0    #c14
+my_results_Q$het_chisq=0     #c15
+my_results_Q$het_p=0         #c16
 
-W=c(205, 124, 223, 872)     #Sample size CD, UC, IBS, HC 
-totalSample=sum(W)          #Total number of samples 
+W=c(205, 124, 223, 872)      #weights CD, UC, IBS, HC
+totalSample=sum(W)
 
 for (x in 1:nrow(my_results_Q)) { 
-  P=c(Tax_sign[x,4],Tax_sign[x,6],Tax_sign[x,8],Tax_sign[x,10]) #Columns containing p-values per cohort
-  Zi=qnorm(1-(P/2))                                #Convert p-values to Z-scores                                
+  P=c(Tax_sign[x,4],Tax_sign[x,6],Tax_sign[x,8],Tax_sign[x,10])
+  Zi=qnorm(1-(P/2))                                 #Convert p-values to Z-scores                                
   weightedZ= sum(sqrt(W)*Zi)                         
-  expectedZ= sqrt(W)*weightedZ/totalSample         #Calculate expected Z 
-  Qval= sum((Zi-expectedZ)*(Zi-expectedZ))         #Heterogeneity Chisquare, Q-value 
-  Hetpval=pchisq(Qval, lower.tail = F, df=3)       #Heterogeneity P-val, P-value of Q
-  my_results_Q[x,14]=weightedZ   
-  my_results_Q[x,15]=Qval
-  my_results_Q[x,16]=Hetpval
+  expectedZ= sqrt(W)*weightedZ/totalSample          #Calculate expected Z 
+  hetchisq= sum((Zi-expectedZ)*(Zi-expectedZ))      #Q-value 
+  hetpval=pchisq(hetchisq, lower.tail = F, df=3)    #P-value of Q
+  my_results_Q[x,14]=weightedZ  
+  my_results_Q[x,15]=hetchisq 
+  my_results_Q[x,16]=hetpval
 }
 
-write.table(my_results_Q,'../Metaanalysis/Results/Tax_meta_heterogeneity.txt',sep = '\t')
+#Test2=my_results_Q[, ] #check if same as METAL in row O_Actinomycetales - fruit
+write.table(my_results_Q,"../Metaanalysis/Results/Tax_Meta_Chochrans_unadjusted.txt",sep = '\t')
+
 ```
 The tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) can be used to check results 
 
  9.Correct Heterogeneity-P-values for Multiple Testing   (to be fixed)
  -------------
- 
+**Null hypothesis: Is there homogeneity?** 
+*If not (=significant het_p), reject these because they are heterogenous*
+```
+Tax_Q_adj=as.data.frame(my_results_Q)
+Tax_Q_adj$het_padj=0
+
+diets <- unique(Tax_Q_adj$Diet)
+
+for(diet in diets){
+  Tax_Q_adj$het_padj[Tax_Q_adj$Diet == diet] <- p.adjust(Tax_Q_adj$het_p[Tax_Q_adj$Diet == diet], "bonferroni") 
+}
+```
+**Take out results with significant heterogeneity, keep only homogenous results**
+```
+Tax_Q_adj_insign=Tax_Q_adj[Tax_Q_adj$het_padj > 0.1,]  #above 0.1 = no significant heterogeneity  
+write.table(Tax_Q_adj_insign,"../Metaanalysis/Results/Tax_Meta_Homogeneous.txt",sep = '\t')
+```
  
  10.Heatmaps    
  -------------
