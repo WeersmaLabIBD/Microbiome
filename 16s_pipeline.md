@@ -296,3 +296,13 @@ qiime tools extract \
  
 biom convert -i *.biom -o *.tsv --to-tsv
 ```
+Importing relative abundance data
+```
+# note: choose right --type 
+biom convert -i relative_abundance.tsv -o relative_abundance.biom --to-hdf5 --table-type="OTU table"
+qiime tools import \
+  --input-path relative_abundance.biom \
+  --type 'FeatureTable[RlativeFrequency]' \
+  --source-format BIOMV210Format \
+  --output-path relative_abundance.qza
+```
