@@ -293,4 +293,6 @@ Exporting data
 qiime tools extract \
   *.qza \
   --output-dir ./*
+ 
+biom convert -i *.biom -o *.tsv --to-tsv
 ```
