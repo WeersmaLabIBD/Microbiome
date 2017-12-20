@@ -287,7 +287,7 @@ qiime taxa barplot \
   --o-visualization taxa-bar-plots.qzv
   
 # output: taxa-bar-plots.qzv
-
+```
 Exporting data
 ```
 qiime tools extract \
