@@ -298,11 +298,35 @@ biom convert -i *.biom -o *.tsv --to-tsv
 ```
 Importing relative abundance data
 ```
-# note: choose right --type 
+# note: choose right --type FeatureTable[Frequency]
 biom convert -i relative_abundance.tsv -o relative_abundance.biom --to-hdf5 --table-type="OTU table"
 qiime tools import \
   --input-path relative_abundance.biom \
-  --type 'FeatureTable[RlativeFrequency]' \
+  --type 'FeatureTable[Frequency]' \
   --source-format BIOMV210Format \
   --output-path relative_abundance.qza
+```
+Differential abundance testing with ANCOM
+
+```
+# extract PPI_users and non users at 4 weeks
+qiime feature-table filter-samples \
+--i-table genus_feature_table.qza \
+--m-metadata-file Metadata_16S.tsv \
+--p-where "Timepoint='four'" \
+--o-filtered-table Timepoint_four.qza
+```
+```
+# remove 0 (invalid)
+qiime composition add-pseudocount \
+  --i-table Timepoint_four.qza \
+  --o-composition-table comp-Timepoint_four.qza
+```
+```
+# to see the effect of PPI on 2 groups at 4 weeks
+qiime composition ancom \
+  --i-table comp-Timepoint_four.qza \
+  --m-metadata-file Metadata_16S.tsv \
+  --m-metadata-category PPI \
+  --o-visualization ancom-PPI_four.qzv
 ```
