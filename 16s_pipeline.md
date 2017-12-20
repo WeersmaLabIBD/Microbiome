@@ -291,6 +291,6 @@ qiime taxa barplot \
 Exporting data
 ```
 qiime tools extract \
-  ***.qza \
-  --output-dir ./***
+  *.qza \
+  --output-dir ./*
 ```
