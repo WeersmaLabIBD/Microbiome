@@ -518,7 +518,7 @@ write.table(my_results_Q,"../Metaanalysis/Results/Tax_Meta_Chochrans_unadjusted.
 ```
 The tool METAL (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2922887/) can be used to check results 
 
- 9.Correct Heterogeneity-P-values for Multiple Testing   (to be fixed)
+ 9.Correct Heterogeneity-P-values for Multiple Testing    
  -------------
 **Null hypothesis: Is there homogeneity?** 
 *If not (=significant het_p), reject these because they are heterogenous*
