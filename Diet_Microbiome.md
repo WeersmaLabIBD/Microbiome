@@ -541,10 +541,10 @@ write.table(Tax_Q_adj_insign,"../Metaanalysis/Results/Tax_Meta_Homogeneous.txt",
  10.Heatmaps    
  -------------
  
-**Modify output files of Meta-analysis** 
+**Modify output files of Meta-analysis**                                                                                      
 *CD/UC/IBS/HC:*
 - color: their coefficients
-- colordepth: their original, non-inverted p-vals (go back to original Maaslin table)
+- colordepth: their original, non-inverted p-vals (go back to original Maaslin table)                                          
 *Meta-p:*
 - color: coefficient of HC
 - colordepth: meta-p 
