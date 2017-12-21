@@ -542,7 +542,6 @@ write.table(Tax_Q_adj_insign,"../Metaanalysis/Results/Tax_Meta_Homogeneous.txt",
  -------------
  
 **Modify output files of Meta-analysis** 
-
 *CD/UC/IBS/HC:*
 - color: their coefficients
 - colordepth: their original, non-inverted p-vals (go back to original Maaslin table)
@@ -550,108 +549,168 @@ write.table(Tax_Q_adj_insign,"../Metaanalysis/Results/Tax_Meta_Homogeneous.txt",
 - color: coefficient of HC
 - colordepth: meta-p 
 
+*STEP 1: Subset and merge metaanalysis table for heatmaps:*
 ```
-Heatmap=matrix(nrow=nrow(my_results_meta),ncol=ncol(my_results_meta))  #11 cols
-colnames(Heatmap)=c("Taxa","Diet","CD_Coef","CD_p","UC_Coef","UC_p","IBS_Coef","IBS_p","HC_Coef","HC_p","Meta_p_adj")
-Heatmap=as.data.frame(Heatmap)
-Heatmap$Taxa=my_results_meta$Tax
-Heatmap$Diet=my_results_meta$Diet
-Heatmap$Meta_p_adj=Tax_meta_padjust$p_adjust #add Meta-p-adj from 'Tax_meta_padjust' (adjusted Meta-p vals, Metaanalysis)
-View(Taxonomy)
-Heatmap$CD_Coef=Taxonomy$CD_Coef             #add original (non-inverted) p-vals and coefs from 'Taxonomy' (Maaslin results) 
-Heatmap$CD_p=Taxonomy$CD_p
-Heatmap$UC_Coef=Taxonomy$UC_Coef
-Heatmap$UC_p=Taxonomy$UC_p
-Heatmap$IBS_Coef=Taxonomy$IBS_Coef
-Heatmap$IBS_p=Taxonomy$IBS_p
-Heatmap$HC_Coef=Taxonomy$HC_Coef
-Heatmap$HC_p=Taxonomy$HC_p
-View(Heatmap)
-
-Heatmap_sign=Heatmap[Heatmap$Meta_p_adj<=0.05,] #only significant results
-write.table(Heatmap_sign, '../Metaanalysis/Results/Heatmap_input_padj_<0.05.txt', sep = '\t')
-summary(Heatmap_sign$Diet)
-summary(Heatmap_sign$Taxa)
-```
-
-**Plot heatmaps** 
-*Example Fruit intake* 
-
-```
-fruit1=Heatmap_sign[grepl("fruit", Heatmap_sign$Diet),]
-fruit=fruit1[!grepl("how_often_fruit", fruit1$Diet),]
-fruit=fruit[!grepl("group_fruits", fruit$Diet),]
-fruit=as.data.frame(fruit[,c(1, 3:11)])  #cols to keep
-
+library(reshape2)
+library(dplyr)
 library(ggplot2)
 library(gplots)
 library(gridExtra)
+library(tidyr)
 
-#z$value<-as.numeric(as.character(z$value))
-fruit$CD_color="grey"
-fruit$UC_color="grey"
-fruit$IBS_color="grey"
-fruit$HC_color="grey"
-fruit$Metap_color="grey"
+#1.1: Plot only these results, take meta-p and coefficients from here: 
+setwd("~/Desktop/Data/Heatmaps")
+Species_results=read.table("../Heatmaps/Spec_Meta_Cochrans_adjusted_homogeneous.txt", sep='\t', header=T)
+Species_m_c = select(Species_results,-4,-6,-8,-10,-12:-15) #meta-p values, only significant and homogeneous results 
+Species_m_c$NewCol = do.call(paste, c(Species_m_c[c("Tax", "Diet")], sep = "__|")) #join strings from Tax and Diet column into one new column
+row.names(Species_m_c)=Species_m_c$NewCol
+Species_m_c=Species_m_c[,-8]
+
+#1.2: Take individual, non-inverted p-values from here: 
+Species_p=read.csv("~/Desktop/Data/Heatmaps/MergedLargeTable_Species.csv")
+Species_p=Species_p[,-1]                 
+Species_p=select(Species_p,-3,-5,-7,-9) #non-inverted original p-values in cohorts
+Species_p$NewCol = do.call(paste, c(Species_p[c("Tax", "Diet")], sep = "__|")) #join strings from Tax and Diet column into one new column
+row.names(Species_p)=Species_p$NewCol
+Species_p=Species_p[,-7]
+
+#1.3: Merge by NewCol and remove that column afterwards: 
+Species=merge(Species_m_c, Species_p, by = "row.names")  #all=T
+Species=select(Species,-1,-9,-10)
+
+#1.4: Shorten column names in excel and import back in R  
+write.table(Species,"../Heatmaps/Species_map.txt", sep='\t')
+```
+
+**Loop to Plot heatmaps** 
+```
+Speciesmap=read.table("../Heatmaps/Species_strains_map.txt", sep='\t', header=T)
+Speciesmap=Speciesmap[,-12]
+
+Speciesmap$CD_color="grey"
+Speciesmap$UC_color="grey"
+Speciesmap$IBS_color="grey"
+Speciesmap$HC_color="grey"
+Speciesmap$Metap_color="grey"
+
+Speciesmap_temp=Speciesmap
+diets <- unique(Speciesmap_temp$Diet)
+
+for(diet in diets[1:3]){   #takes only 1 to 3 food groups, for all remove [1:3] 
+  Speciesmap=Speciesmap_temp[Speciesmap_temp$Diet == diet,] 
+  print(diet)
+  print(nrow(Speciesmap))
 
 #CD
-fruit[(fruit$CD_p > 0.05 & fruit$CD_Coef > 0),]$CD_color<-"1"
-fruit[(fruit$CD_p <= 0.05 & fruit$CD_p > 0.00005 & fruit$CD_Coef > 0),]$CD_color<-"2"
-fruit[(fruit$CD_p <= 0.00005 & fruit$CD_Coef > 0),]$CD_color<-"3"
-
-fruit[(fruit$CD_p > 0.05 & fruit$CD_Coef < 0),]$CD_color<-"-1"
-fruit[(fruit$CD_p <= 0.05 & fruit$CD_p > 0.00005 & fruit$CD_Coef < 0),]$CD_color <-"-2"
-fruit[(fruit$CD_p <= 0.00005 & fruit$CD_Coef < 0),]$CD_color <-"-3"
+if (sum(Speciesmap$CD_p > 0.05 & Speciesmap$CD_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p > 0.05 & Speciesmap$CD_Coef > 0),]$CD_color<-"1"
+}
+if (sum(Speciesmap$CD_p <= 0.05 & Speciesmap$CD_p > 0.00005 & Speciesmap$CD_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p <= 0.05 & Speciesmap$CD_p > 0.00005 & Speciesmap$CD_Coef > 0),]$CD_color<-"2"
+}
+if (sum(Speciesmap$CD_p <= 0.00005 & Speciesmap$CD_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p <= 0.00005 & Speciesmap$CD_Coef > 0),]$CD_color<-"3"
+}
+if (sum(Speciesmap$CD_p > 0.05 & Speciesmap$CD_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p > 0.05 & Speciesmap$CD_Coef < 0),]$CD_color<-"-1"
+}
+if (sum(Speciesmap$CD_p <= 0.05 & Speciesmap$CD_p > 0.00005 & Speciesmap$CD_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p <= 0.05 & Speciesmap$CD_p > 0.00005 & Speciesmap$CD_Coef < 0),]$CD_color <-"-2"
+  }
+if (sum(Speciesmap$CD_p <= 0.00005 & Speciesmap$CD_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$CD_p <= 0.00005 & Speciesmap$CD_Coef < 0),]$CD_color <-"-3"
+}
 
 #UC
-fruit[(fruit$UC_p > 0.05 & fruit$UC_Coef > 0),]$UC_color<-"1"
-fruit[(fruit$UC_p <= 0.05 & fruit$UC_p > 0.00005 & fruit$UC_Coef > 0),]$UC_color<-"2"
-fruit[(fruit$UC_p <= 0.00005 & fruit$UC_Coef > 0),]$UC_color<-"3"
-
-fruit[(fruit$UC_p > 0.05 & fruit$UC_Coef < 0),]$UC_color<-"-1"
-fruit[(fruit$UC_p <= 0.05 & fruit$UC_p > 0.00005 & fruit$UC_Coef < 0),]$UC_color <-"-2"
-fruit[(fruit$UC_p <= 0.00005 & fruit$UC_Coef < 0),]$UC_color <-"-3"
+if (sum(Speciesmap$UC_p > 0.05 & Speciesmap$UC_Coef > 0) > 0) {
+    Speciesmap[(Speciesmap$UC_p > 0.05 & Speciesmap$UC_Coef > 0),]$UC_color<-"1"
+}
+if (sum(Speciesmap$UC_p <= 0.05 & Speciesmap$UC_p > 0.00005 & Speciesmap$UC_Coef > 0) > 0) {
+    Speciesmap[(Speciesmap$UC_p <= 0.05 & Speciesmap$UC_p > 0.00005 & Speciesmap$UC_Coef > 0),]$UC_color<-"2"
+}
+if (sum(Speciesmap$UC_p <= 0.00005 & Speciesmap$UC_Coef > 0) > 0) {
+Speciesmap[(Speciesmap$UC_p <= 0.00005 & Speciesmap$UC_Coef > 0),]$UC_color<-"3"
+}
+if (sum(Speciesmap$UC_p > 0.05 & Speciesmap$UC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$UC_p > 0.05 & Speciesmap$UC_Coef < 0),]$UC_color<-"-1"
+}
+if (sum(Speciesmap$UC_p <= 0.05 & Speciesmap$UC_p > 0.00005 & Speciesmap$UC_Coef < 0) > 0) {
+    Speciesmap[(Speciesmap$UC_p <= 0.05 & Speciesmap$UC_p > 0.00005 & Speciesmap$UC_Coef < 0),]$UC_color <-"-2"
+}
+if (sum(Speciesmap$UC_p <= 0.00005 & Speciesmap$UC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$UC_p <= 0.00005 & Speciesmap$UC_Coef < 0),]$UC_color <-"-3"
+}
 
 #IBS
-fruit[(fruit$IBS_p > 0.05 & fruit$IBS_Coef > 0),]$IBS_color<-"1"
-fruit[(fruit$IBS_p <= 0.05 & fruit$IBS_p > 0.00005 & fruit$IBS_Coef > 0),]$IBS_color<-"2"
-fruit[(fruit$IBS_p <= 0.00005 & fruit$IBS_Coef > 0),]$IBS_color<-"3"
-
-fruit[(fruit$IBS_p > 0.05 & fruit$IBS_Coef < 0),]$IBS_color<-"-1"
-fruit[(fruit$IBS_p <= 0.05 & fruit$IBS_p > 0.00005 & fruit$IBS_Coef < 0),]$IBS_color <-"-2"
-fruit[(fruit$IBS_p <= 0.00005 & fruit$IBS_Coef < 0),]$IBS_color <-"-3"
+if (sum(Speciesmap$IBS_p > 0.05 & Speciesmap$IBS_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p > 0.05 & Speciesmap$IBS_Coef > 0),]$IBS_color<-"1"
+}
+if (sum(Speciesmap$IBS_p <= 0.05 & Speciesmap$IBS_p > 0.00005 & Speciesmap$IBS_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p <= 0.05 & Speciesmap$IBS_p > 0.00005 & Speciesmap$IBS_Coef > 0),]$IBS_color<-"2"
+}
+if (sum(Speciesmap$IBS_p <= 0.00005 & Speciesmap$IBS_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p <= 0.00005 & Speciesmap$IBS_Coef > 0),]$IBS_color<-"3"
+}
+if (sum(Speciesmap$IBS_p > 0.05 & Speciesmap$IBS_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p > 0.05 & Speciesmap$IBS_Coef < 0),]$IBS_color<-"-1"
+}
+if (sum(Speciesmap$IBS_p <= 0.05 & Speciesmap$IBS_p > 0.00005 & Speciesmap$IBS_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p <= 0.05 & Speciesmap$IBS_p > 0.00005 & Speciesmap$IBS_Coef < 0),]$IBS_color <-"-2"
+}
+if (sum(Speciesmap$IBS_p <= 0.00005 & Speciesmap$IBS_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$IBS_p <= 0.00005 & Speciesmap$IBS_Coef < 0),]$IBS_color <-"-3"
+}
 
 #HC
-fruit[(fruit$HC_p > 0.05 & fruit$HC_Coef > 0),]$HC_color<-"1"
-fruit[(fruit$HC_p <= 0.05 & fruit$HC_p > 0.00005 & fruit$HC_Coef > 0),]$HC_color<-"2"
-fruit[(fruit$HC_p <= 0.00005 & fruit$HC_Coef > 0),]$HC_color<-"3"
-
-fruit[(fruit$HC_p > 0.05 & fruit$HC_Coef < 0),]$HC_color<-"-1"
-fruit[(fruit$HC_p <= 0.05 & fruit$HC_p > 0.00005 & fruit$HC_Coef < 0),]$HC_color <-"-2"
-fruit[(fruit$HC_p <= 0.00005 & fruit$HC_Coef < 0),]$HC_color <-"-3"
+if (sum(Speciesmap$HC_p > 0.05 & Speciesmap$HC_Coef > 0)> 0) {
+  Speciesmap[(Speciesmap$HC_p > 0.05 & Speciesmap$HC_Coef > 0),]$HC_color<-"1"
+}
+if (sum(Speciesmap$HC_p <= 0.05 & Speciesmap$HC_p > 0.00005 & Speciesmap$HC_Coef > 0)> 0) {
+  Speciesmap[(Speciesmap$HC_p <= 0.05 & Speciesmap$HC_p > 0.00005 & Speciesmap$HC_Coef > 0),]$HC_color<-"2"
+}
+if (sum(Speciesmap$HC_p <= 0.00005 & Speciesmap$HC_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$HC_p <= 0.00005 & Speciesmap$HC_Coef > 0),]$HC_color<-"3"
+}
+if (sum(Speciesmap$HC_p > 0.05 & Speciesmap$HC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$HC_p > 0.05 & Speciesmap$HC_Coef < 0),]$HC_color<-"-1"
+}
+if (sum(Speciesmap$HC_p <= 0.05 & Speciesmap$HC_p > 0.00005 & Speciesmap$HC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$HC_p <= 0.05 & Speciesmap$HC_p > 0.00005 & Speciesmap$HC_Coef < 0),]$HC_color <-"-2"
+}
+if (sum(Speciesmap$HC_p <= 0.00005 & Speciesmap$HC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$HC_p <= 0.00005 & Speciesmap$HC_Coef < 0),]$HC_color <-"-3"
+}
 
 #Meta
-fruit[(fruit$Meta_p > 0.05 & fruit$HC_Coef > 0),]$Metap_color<-"1"
-fruit[(fruit$Meta_p <= 0.05 & fruit$Meta_p > 0.00005 & fruit$HC_Coef > 0),]$Metap_color<-"2"
-fruit[(fruit$Meta_p <= 0.00005 & fruit$HC_Coef > 0),]$Metap_color<-"3"
+if (sum(Speciesmap$meta_p > 0.05 & Speciesmap$HC_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$meta_p > 0.05 & Speciesmap$HC_Coef > 0),]$Metap_color<-"1"
+}
+if (sum( (Speciesmap$meta_p <= 0.05 & Speciesmap$meta_p > 0.00005) & Speciesmap$HC_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$meta_p <= 0.05 & Speciesmap$meta_p > 0.00005 & Speciesmap$HC_Coef > 0),]$Metap_color<-"2"
+}
+if (sum(Speciesmap$meta_p <= 0.00005 & Speciesmap$HC_Coef > 0) > 0) {
+  Speciesmap[(Speciesmap$meta_p <= 0.00005 & Speciesmap$HC_Coef > 0),]$Metap_color<-"3"
+}
+if (sum((Speciesmap$meta_p > 0.05 & Speciesmap$HC_Coef < 0)) > 0) {
+  Speciesmap[(Speciesmap$meta_p > 0.05 & Speciesmap$HC_Coef < 0),]$Metap_color<-"-1"
+}
+if (sum(Speciesmap$meta_p <= 0.05 & Speciesmap$meta_p > 0.00005 & Speciesmap$HC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$meta_p <= 0.05 & Speciesmap$meta_p > 0.00005 & Speciesmap$HC_Coef < 0),]$Metap_color <-"-2"
+}
+if (sum(Speciesmap$meta_p <= 0.00005 & Speciesmap$HC_Coef < 0) > 0) {
+  Speciesmap[(Speciesmap$meta_p <= 0.00005 & Speciesmap$HC_Coef < 0),]$Metap_color <-"-3"
+}
 
-fruit[(fruit$Meta_p > 0.05 & fruit$HC_Coef < 0),]$Metap_color<-"-1"
-fruit[(fruit$Meta_p <= 0.05 & fruit$Meta_p > 0.00005 & fruit$HC_Coef < 0),]$Metap_color <-"-2"
-fruit[(fruit$Meta_p <= 0.00005 & fruit$HC_Coef < 0),]$Metap_color <-"-3"
+for_plot=Speciesmap[,c(1,2,12,13,14,15,16)]
+a_for_plot=gather(for_plot,"Cohort","Color",CD_color:Metap_color)
+g <- ggplot (a_for_plot, aes(x=Cohort, y=Species)) + geom_tile(aes(fill=Color), colour="white") + 
+scale_fill_manual(breaks=c("-1","-2","-3","1","2","3"), values=c("#deebf7","#9ecae1","#3182bd", "#fee0d2", "#fc9272", "#de2d26"), name="p-value", labels=c("P > 5e-02","P < 5e-02", "P < 5e-05","P > 5e-02","P < 5e-02", "P < 5e-05")) + theme(panel.background=element_blank(), axis.text=element_text(colour="black")) + labs(x="Dataset", y="Species") + scale_x_discrete (labels=c("CD (205)","UC (154)","IBS (223)", "HC (871)","Meta (1453)")) + ggtitle(paste("Diet:",diet))
+ggsave(g,filename = paste('plot_species_diet_',diet,'.png',sep=''),width = 8,height=nrow(a_for_plot)*0.045)
 
-for_plot=fruit[,c(1,11,12,13,14,15)]
-rownames(for_plot)=for_plot$Taxa
-for_plot$Taxa=NULL 
-rownames(for_plot)=sub('.*o__', '', rownames(for_plot))  #remove strings before and incl. o__ 
-for_plot$Taxa=0
-for_plot$Taxa=rownames(for_plot)
-View(for_plot)
-library(reshape2)
-a_for_plot=melt(for_plot, id.vars="Taxa")
+}
 
-ggplot (a_for_plot, aes(variable, Taxa)) + geom_tile(aes(fill=value), colour="white") + scale_fill_manual(breaks=c("-3","-2","-1","1","2","3"), values=c("#eff3ff","#bdd7e7","#fee5d9", "#fcae91", "#fb6a4a", "#de2d26" ), name="p-value", labels=c("P < 5e-05", "P < 5e-02", "P > 5e-02","P > 5e-02","P < 5e-02", "P < 5e-05")) + theme(panel.background=element_blank(), axis.text=element_text(colour="black")) + labs(x="Dataset", y="Taxa") + scale_x_discrete (labels=c("CD","UC", "IBS","HC", "Meta-Score"))
+Speciesmap=Species_temp
 ```
- 
  11.Hierarchial Clustering (to be fixed)
  -------------
  
