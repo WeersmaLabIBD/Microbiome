@@ -7,6 +7,7 @@ Year: 2017
 
 This pipeline is based on https://molgenis.gitbooks.io/ngs_dna/ngs-protocols.html
 
+# pipeline prepararion
 1.Installing the necessary resources and creating workdir
 ```
 sh NGS_DNA-resources.sh
