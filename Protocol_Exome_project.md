@@ -115,7 +115,7 @@ q=$(echo $i | awk -F "L_" '{print $2}')
   done
 done
 
-cd ../../../../projects/Exomeproject/run01/jobs/
+cd ../../../../../projects/Exomeproject/run01/jobs/
 
 # now all the scripts are prepared
 ```
