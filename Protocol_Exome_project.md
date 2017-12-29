@@ -1,4 +1,4 @@
-#Pipeline for exome data analysis
+Pipeline for exome data analysis
 --------------------------------
 
 Creator: Shixian
@@ -107,7 +107,7 @@ done
 cd ../../../../projects/Exomeproject/run01/jobs/
 ```
 
-#debug 
+# debug 
 
 ```
 # before run all the scripts, we have to debug at first
@@ -157,7 +157,7 @@ sh submit.sh
 # molgenis.submitted.log : recording sbatch job numbers
 ```
 
-#data qulity control
+# data qulity control
 Spike in the PhiX reads and Check the Illumina encoding
 
 ```
@@ -180,7 +180,7 @@ sh s03_FastQC_0.sh
 
 ```
 
-#data alignment 
+# data alignment 
 Alignment + SortSam
 ```
 # Burrows-Wheeler Aligner (BWA) is used to align the sequencing data to the reference genome. The method used is BWA mem.
@@ -208,7 +208,7 @@ sh s06_BaseRecalibrator_0.sh
 
 ```
 
-#data deduplicates
+# data deduplicates
 Deleting duplicates(dedup)
 ```
 # the BAM file is examined to locate duplicate reads
@@ -218,7 +218,7 @@ sh s07_MarkDuplicates_0.sh
 # input: 214-1206.merged.bam 
 #output: 214-1206.merged.dedup.bam
 ```
-
+```
 # Calculating dedup metrics
 
 sh s08_Flagstat_0.sh
@@ -228,12 +228,13 @@ sh s08_Flagstat_0.sh
 
 ```
 
-#SV calling 
+# SV calling 
 
 ```
 # In this step, the progam Manta calls all types (DEL,DUP,INV,TRA,INS) from the merged BAM file. Output files are candidateSmallIndels, candidateSV and diploidSV along with information such as difference in length between REF and ALT alleles, type of structural variant end information about allele depth.
 
 sh s09a_Manta_0.sh
+```
 ```
 # CoNVaDING (Copy Number Variation Detection In Next-generation sequencing Gene panels) was designed for small (single-exon) copy number variation (CNV) detection in high coverage next-generation sequencing (NGS) data
 # But there is no control group, suitable for high coverage NGS, so it is not necessary
@@ -254,7 +255,7 @@ sh s09e_MantaAnnotation_0.sh
 
 ```
 
-#gender check 
+# gender check 
 Determine gender
 ```
 # Calculating the coverage on the non pseudo autosomal region and compare this to the average coverage on the complete genome predicts male or female well.
@@ -274,7 +275,7 @@ sh s15_GenderCheck_0.sh
 
 ```
 
-#alignment QC 
+# alignment QC 
 Calculate coverage per base and per target
 ```
 # Calculates coverage per base and per target, the output will contain chromosomal position, coverage per base and gene annotation
@@ -292,7 +293,7 @@ sh s14d_CollectGCBiasMetrics_0.sh
 
 ```
 
-#variant calling 
+# variant calling 
 Variant discovery
 
 ```
@@ -329,7 +330,7 @@ sh s16d_GenotypeVariants_0.sh
 
 ```
 
-#variant annotation
+# variant annotation
 Annotation
 
 ```
@@ -370,7 +371,7 @@ sh s19_MergeBatches_0.sh
 
 ```
 
-#variant filteration 
+# variant filteration 
 Split indels and SNPs
 
 ```
@@ -402,7 +403,6 @@ sh s21b_IndelFiltration_0.sh
 ```
 Merge indels and SNPs
 ```
-```
 # Merge all the SNPs and indels into one file (per project) and merge SNPs and indels per sample.
 sh s22_MergeIndelsAndSnps_0.sh
 # input: Exomeproject.variant.calls.GATK.sorted.vcf.gz.vcf.annotated.filtered.snps.vcf
@@ -414,7 +414,7 @@ sh s22_MergeIndelsAndSnps_0.sh
 
 ```
 
-#Gavin analysis
+# Gavin analysis
 Gavin split samples
 ```
 # Tool that predict the impact of the SNP with the help of different databases (CADD etc)
@@ -431,16 +431,16 @@ sh s20_SplitIndelsAndSNPs_0.sh
 ```
 
 
-#gene network analysis
+# gene network analysis
 GeneNetwork
-···
+```
 # Tool that ranks genes based on HPO ID's (focus on disease phenotype), there will be 2 extra INFO fields in the output vcf with a score and position.
 # The Human Phenotype Ontology (HPO) aims to provide a standardized vocabulary of phenotypic abnormalities encountered in human disease. 
 
 sh s23b_GeneNetwork_0.sh (skipped)
 
 ```
-#pipeline QC 
+# pipeline QC 
 QC for data analysis
 ```
 # In silico concordance check
