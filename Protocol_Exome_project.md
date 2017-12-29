@@ -2,7 +2,10 @@ Pipeline for exome data analysis
 --------------------------------
 
 Creator: Shixian
+
 Year: 2017
+
+This pipeline is based on https://molgenis.gitbooks.io/ngs_dna/ngs-protocols.html
 
 1.Installing the necessary resources and creating workdir
 ```
@@ -11,11 +14,14 @@ sh makestructure.sh
 ```
 2.creating samplesheet from bam files, the outfile is Exomeproject.csv
 ```
+# creat_samplesheet.sh is in general tools folder
+
 sh creat_samplesheet.sh -{PATH of samples}
 ```
 3.BamToFastq
 ```
 # using bamTofastq.sh to create script for each bam file
+# bamTofastq.sh is in general tools folder
 
 sbatch bamTofastq.sh
 for i in $(ll | grep bamTofq | awk '{print $9}')
@@ -26,13 +32,12 @@ done
 4.Preparing and running NGS_DNA pipeline
 ```
 # copy fastq data to destination
+
 group="umcg-weersma"
 tmpName="tmp03"
+folder="Exomeproject" 
+
 cp –rf samples.fastq.gz /groups/${group}/${tmpName}/WES-project/rawdata/ngs/
-
-module load NGS_DNA
-
-folder="Exomeproject"  
 mkdir /groups/${group}/${tmpName}/WES-project/generatedscripts/$folder/
 cd /groups/${group}/${tmpName}/WES-project/generatedscripts/$folder/
 cp -rf samplesheet.csv ./
@@ -40,11 +45,13 @@ cp -rf ~/github/NGS_DNA/templates/generate_template.sh ./
 
 # NOTE: the latest version of NGS_NDA is 3.4.3, but the Boxy cluster can not load it. We should install it in our {HOME} directory. umcg-weersma.csv must be added
 
-# do some change in generate_template.sh:
+# do some change in generate_template.sh before run it:
+# add following commands:
 
 1) module load NGS_DNA/3.4.3-beta
 2) module load Python/2.7.11-foss-2015b
 
+# NOTE:
 # errors with module load Python/2.7.11-foss-2015b ：
 # Exception in thread "main" java.lang.Exception: Parameter 'batchIDList' used in steps [CopyPrmTmpData, CreateInhouseProjects] does not have a value in any of the parameter files
 #        at org.molgenis.compute.model.impl.WorkflowImpl.findMatchingOutput(WorkflowImpl.java:146)
@@ -66,19 +73,23 @@ cp -rf ~/github/NGS_DNA/templates/generate_template.sh ./
 #TabError: inconsistent use of tabs and spaces in indentation
 #ls: cannot access *.txt.tmp: No such file or directory
 #Samplesize is 2
-
 # 13982 [main] INFO org.molgenis.compute.ComputeCommandLine  - All scripts have been generated
 # 13982 [main] INFO org.molgenis.compute.ComputeCommandLine  - You can find them in: /groups/umcg-weersma/tmp03/WES-project/generatedscripts/Exomeproject/scripts
 
 # conclusion: run generate_template.sh with python 2.7 at first and run it again with python 3.5
 
 3) RE-SET {tmpDirectory}, {workDir} and {group}
+```
+```
+# generate 2 key scripts
 
 sh generate_template.sh
 cd scripts
 
 # you will find CopyPrmTmpData_0.sh and CreateInhouseProjects_0.sh 2 scripts.
-# But CopyPrmTmpData_0.sh can not be run successfully because wrong location of rawdata in prm folder. Therefore, we need to do this job by several commands manually.
+```
+```
+# CopyPrmTmpData_0.sh can not be run successfully because wrong location of rawdata in prm folder. Therefore, we need to do this job by several commands manually.
 
 sh submit.sh
 mv WES-project/rawdata/ngs/* ./projects/Exomeproject/run01/rawdata/ngs/
@@ -105,6 +116,8 @@ q=$(echo $i | awk -F "L_" '{print $2}')
 done
 
 cd ../../../../projects/Exomeproject/run01/jobs/
+
+# now all the scripts are prepared
 ```
 
 # debug 
@@ -131,14 +144,14 @@ done
  install.packages("jsonlite")
  install.packages("highr")
  
-# s13_CoverageCalculations_0.sh: bug . time is too short
+# s13_CoverageCalculations_0.sh: bug . run_time is too short, shift it to more time
 
 for i in s13_CoverageCalculations_*.sh
 do
   sed -i 's;--time=05:59:00;--time=96:59:00;g' $i
 done
  
-# s09e_MantaAnnotation_0.sh: bug . script is killed
+# s09e_MantaAnnotation_0.sh: bug . script is killed due to limited memory
 
 for i in s09e_MantaAnnotation_*.sh
 do
@@ -146,8 +159,10 @@ do
 done
 
 ```
-```
+
 # submit jobs
+```
+# now submit all scripts
 
 sh submit.sh
 
