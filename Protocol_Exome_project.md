@@ -1,4 +1,4 @@
-Pipeline for exome data analysis
+# Pipeline for exome data analysis
 --------------------------------
 
 Creator: Shixian
