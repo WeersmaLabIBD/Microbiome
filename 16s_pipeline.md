@@ -96,7 +96,7 @@ qiime dada2 denoise-paired \
 qiime feature-table summarize \
   --i-table table.qza \
   --o-visualization table.qzv \
-  --m-Metadata_16S-file Metadata_16S.tsv
+  --m-sample-metadata-file Metadata_16S.tsv
 
 qiime feature-table tabulate-seqs \
   --i-data rep-seqs.qza \
