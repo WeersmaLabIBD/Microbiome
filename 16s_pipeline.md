@@ -20,7 +20,7 @@ conda create -n qiime2-2017.12 --file https://data.qiime2.org/distro/core/qiime2
 
 # activate qiime2
 
-source activate qiime2-2017.10
+source activate qiime2-2017.12
 ```
 ```
 # preparing the demultiplexed data (without barcode and primer), and the Metadata_16S.tsv
