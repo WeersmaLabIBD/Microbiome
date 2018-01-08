@@ -16,7 +16,7 @@ sh ./Miniconda3-latest-Linux-x86_64.sh
 
 # please make sure the qiime2 is the latest version, or it would get errors in following steps
 
-conda create -n qiime2-2017.10 --file https://data.qiime2.org/distro/core/qiime2-2017.10-conda-linux-64.txt
+conda create -n qiime2-2017.12 --file https://data.qiime2.org/distro/core/qiime2-2017.12-conda-linux-64.txt
 
 # activate qiime2
 
