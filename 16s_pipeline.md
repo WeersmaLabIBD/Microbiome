@@ -296,6 +296,10 @@ qiime tools extract \
  
 biom convert -i *.biom -o *.tsv --to-tsv
 ```
+Filtring data
+```
+
+```
 Importing relative abundance data
 ```
 # note: choose right --type FeatureTable[Frequency]
