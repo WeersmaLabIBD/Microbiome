@@ -3,7 +3,7 @@
 
 This pipeline is based on qiime2 : https://docs.qiime2.org/2017.10/tutorials
 
-Creators: microbiome group (Sana, Shixian, Lianmin)
+Creators: microbiome group (Shixian,Sana,Lianmin)
 
 Year: 2017
 
