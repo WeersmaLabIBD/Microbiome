@@ -147,7 +147,7 @@ dev.off()
 
 # filter taxa -----------------------------------------------------------------------------------------------------------
 # filter taxa in terms of its presence within each group, filtered means surely exist
-# here i choose <20% which is about 2 samples within each group as absence, due to the frequency histogram
+# here i choose taxa present more than 20% samples (about 2 samples) within each group as presence, due to the frequency histogram
 
 groups=c("ACTR0","YCTR0","YOME4","YOME8","YOME12","YCTR4","YCTR8","YCTR12")
 
@@ -187,20 +187,30 @@ all_filtered=as.data.frame(t(count_taxa))
 
 write.table(count_taxa,file = "total_taxa.tsv",sep = "\t")
 
+# output genus count
+
 count_genus=all_filtered[,grep("g__",colnames(all_filtered),invert = F)]
 print(paste("genus number is: ", ncol(count_genus)))
+
+# output family count
 
 count_family=all_filtered[,grep("f__",colnames(all_filtered),invert = F)]
 count_family=count_family[,grep("g__",colnames(count_family),invert = T)]
 print(paste("family number is: ", ncol(count_family)))
 
+# output order count
+
 count_order=all_filtered[,grep("o__",colnames(all_filtered),invert = F)]
 count_order=count_order[,grep("f__",colnames(count_order),invert = T)]
 print(paste("order number is: ", ncol(count_order)))
 
+# output class count
+
 count_class=all_filtered[,grep("c__",colnames(all_filtered),invert = F)]
 count_class=count_class[,grep("o__",colnames(count_class),invert = T)]
 print(paste("class number is: ", ncol(count_class)))
+
+# output phylum count
 
 count_pylum=all_filtered[,grep("p__",colnames(all_filtered),invert = F)]
 count_pylum=count_pylum[,grep("c__",colnames(count_pylum),invert = T)]
@@ -398,7 +408,7 @@ for(i in groups){
   
 }
 
-# total relative abundace
+# total relative abundace, merge all the 40 files above together
 
 groups=c("ACTR0","YCTR0","YOME4","YOME8","YOME12","YCTR4","YCTR8","YCTR12")
 taxa=c("phylum","class","order","family","genus")
@@ -439,11 +449,12 @@ for(i in groups){
 }
 bb[is.na(bb)]=0
 
+# final total relative abundace of all taxa with all samples is saved as "total_relative_abundance.tsv"
+
 write.table(bb,file = "total_relative_abundance.tsv",sep = "\t")
 
-
-
 # devide data to binary and quantitative classification-----------------------------------------------------------------------
+# this step is not necessary
 # select continus taxa data
 
 groups=c("YCTR0","YOME4","YOME8","YOME12","YCTR4","YCTR8","YCTR12")
@@ -516,7 +527,7 @@ binary_taxa_ppi=as.data.frame(t(binary_taxa_ppi))
 
 
 # composition------------------------------------------------------------------------------------------------------------------
-
+# analyze the microbiome composition of each group with each level
 # only mark taxa is present more than 1% of samples within each group
 
 # age vs normal
@@ -620,6 +631,8 @@ for(i in groups){
 # ------------------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------shannon diversity---------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------
+
+# shannon diversity result is from qiime2
 
 library(ggplot2)
 meta_data=read.table(file = "Metadata_16S_de2.tsv", sep = ";", header = T)
@@ -740,7 +753,7 @@ ppi_non=shannon[grep("YCTR4",shannon$Group),]
 a=wilcox.test(ppi_non$shannon,ppi$shannon,exact = T, correct = FALSE)
 print(paste("8 week, ppi vs non_ppi : p_value is", a$p.value))
 
-# re draw box plot with p_value
+# re-draw box plot with p_value
 
 png("ppi_shannon.png",width=700,height=700)
 
@@ -769,6 +782,8 @@ dev.off()
 # --------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------beta diversity---------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
+
+# beta divsity is caculated based on rarefied OTUs data
 
 library(vegan)
 library(ggplot2)
@@ -840,6 +855,8 @@ Time_point=factor(table$Timepoint,c("four","eight","twielve"))
 
 table=as.data.frame(table)
 
+# create animation to see how individules move at each time points
+
 p <- ggplot(table, aes(V1, V2, color = Mice, size=3,frame = Timepoint,shape=PPI)) +
   geom_point() +theme_bw() + xlab(label = "PC1") + ylab(label = "PC2")+
   facet_wrap(~PPI, scales = "fixed")+
@@ -887,6 +904,8 @@ p <- ggplot(table, aes(V1, V2, color = PPI, size=3,frame = Timepoint)) +
   scale_color_manual(values =c("green","red"))+
   guides(size=FALSE)
 gganimate(p,interval = 1.5,"ppi_all_b_h.gif")
+
+# create PCA plot with arrow lines
 
 Time_point=factor(table$Timepoint,c("4","8","12"))
 
