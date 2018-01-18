@@ -8,6 +8,8 @@
 #                                                  shannon file: alpha-diversity.tsv
 #                                                 rarefied outs: rarefied_table.tsv
 #                                                 metadata file: Metadata_16S_de2.tsv
+#
+# Prepare all the files above, then try to run the following commands.
 
 
 #----------------------------------------------------------------------------------------------------------------------------
@@ -515,7 +517,7 @@ binary_taxa_ppi=as.data.frame(t(binary_taxa_ppi))
 
 # composition------------------------------------------------------------------------------------------------------------------
 
-# only mark taxa more than 1%
+# only mark taxa is present more than 1% of samples within each group
 
 # age vs normal
 
