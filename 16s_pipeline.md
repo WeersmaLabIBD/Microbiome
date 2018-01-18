@@ -178,7 +178,7 @@ qiime phylogeny midpoint-root \
 
 Computing alpha and beta diversity metrics, and generating principle coordinates analysis (PCoA) plots
 ```
-# --p-sampling-depth 5000, according to table.qzv (minimal frequency per sample is 4562, choosing 5000 cut 4 samples from YCTR0)
+# --p-sampling-depth 33,792, according to the lowest reads number of 84 samples
 
 qiime diversity core-metrics-phylogenetic \
   --i-phylogeny rooted-tree.qza \
