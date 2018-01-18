@@ -1,4 +1,4 @@
-16s Data Qimme2 Pipeline 
+16s Data Qiime2 Pipeline 
 -----------
 
 This pipeline is based on qiime2 : https://docs.qiime2.org/2017.10/tutorials
