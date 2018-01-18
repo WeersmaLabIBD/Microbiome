@@ -1,4 +1,4 @@
-16s Data Anylysis Pipeline
+16s Data Qimme2 Pipeline 
 -----------
 
 This pipeline is based on qiime2 : https://docs.qiime2.org/2017.10/tutorials
@@ -122,8 +122,7 @@ qiime tools import \
 ```
 # OTUs picking
 # The clustering method in vsearch is based on the publicly available information about the uclust method on the usearch website:
-
-http://drive5.com/usearch/manual/uclust_algo.html
+# http://drive5.com/usearch/manual/uclust_algo.html
 
 qiime vsearch cluster-features-closed-reference \
   --i-table table.qza \
