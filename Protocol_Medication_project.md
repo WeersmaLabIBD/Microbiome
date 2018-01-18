@@ -592,6 +592,153 @@ test3$value[test3$value=="none"] <- 0
 ggplot(test3,aes(variable,bact, fill=value)) + geom_tile(aes(fill=as.numeric(value)), colour="white") + scale_fill_gradient2(low="#456BB3", high = "#F26A55", mid = "white", midpoint = 0) + theme_bw()
 ```
 
+12. Diversity measuraments
+--------------------------
+
+Calculate Shannon Index and create boxplots per cohorts
+
+```{r}
+library(vegan)
+library(ggplot2)
+library(RColorBrewer)
 
 
+IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/IBD_taxonomy_unstrat_clean.txt", header = T, sep = "\t",check.names = F, as.is = T, row.names = 1)
+LLD=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/LLD_taxonomy_unstrat_clean.txt", header = T, sep = "\t",check.names = F, as.is = T, row.names = 1)
+MIBS=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/MIBS_taxonomy_clean.txt", header = T, sep = "\t",check.names = F, as.is = T, row.names = 1)
+     
+phenos=read.table("~/Desktop/PPI_v2/00.With_new_data/filtered_metadata.txt", header = T, sep = "\t",check.names = F, row.names = 1, stringsAsFactors = T)
+stomas=read.table("~/Desktop/PPI_v2/00.With_new_data/remove_stoma.txt")
+remove=stomas$V1
+final_phenos=phenos[!row.names(phenos)%in%remove,]
+samples_to_keep=row.names(final_phenos)
+
+tax_IBD=IBD[,colnames(IBD)%in%samples_to_keep]
+tax_MIBS=MIBS[,colnames(MIBS)%in%samples_to_keep]
+tax_LLD=LLD[,colnames(LLD)%in%samples_to_keep]
+tax_IBD2 = as.data.frame(t(tax_IBD[!duplicated(tax_IBD, fromLast = T), ]))
+colnames(tax_IBD2) = gsub("[|]",".",colnames(tax_IBD2))
+tax_MIBS2 = as.data.frame(t(tax_MIBS[!duplicated(tax_MIBS, fromLast = T), ]))
+colnames(tax_MIBS2) = gsub("[|]",".",colnames(tax_MIBS2))
+tax_LLD2 = as.data.frame(t(tax_LLD[!duplicated(tax_LLD, fromLast = T), ]))
+colnames(tax_LLD2) = gsub("[|]",".",colnames(tax_LLD2))
+
+filtering_taxonomy = function(x){
+  x = rev(x)
+  result = c()
+  for(i in 1:length(x)){
+    rmstr = grep("t__",x[i])
+    if (length(rmstr) >0) next
+    check_prev = grep(x[i], result[length(result)])
+    if (length(check_prev) == 0) result = append(result,x[i])
+  }
+  
+  rev(result)
+}
+
+colnames_taxa2_filtered = filtering_taxonomy(colnames(tax_MIBS2))
+tax_MIBS3= tax_MIBS2[,colnames_taxa2_filtered]
+
+colnames_taxa2_filtered = filtering_taxonomy(colnames(tax_IBD2))
+tax_IBD3= tax_IBD2[,colnames_taxa2_filtered]
+
+colnames_taxa2_filtered = filtering_taxonomy(colnames(tax_LLD2))
+tax_LLD3= tax_LLD2[,colnames_taxa2_filtered]
+
+coded_phenos=final_phenos
+coded_phenos[coded_phenos=="User"]=1
+coded_phenos[coded_phenos=="Non_user"]=0
+coded_phenos2=coded_phenos
+coded_phenos2$cohort=NULL
+coded_phenos3=coded_phenos2[5:46]
+coded_phenos3$total_meds=0
+coded_phenos3=data.matrix(coded_phenos3)
+coded_phenos3=as.data.frame(coded_phenos3)
+coded_phenos3$total_meds <- rowSums(coded_phenos3)
+
+MIBS_SI <- as.data.frame(diversity(tax_MIBS3, index="shannon"))
+LLD_SI <- as.data.frame(diversity(tax_LLD3, index="shannon"))
+IBD_SI <- as.data.frame(diversity(tax_IBD3, index="shannon"))
+
+coded_phenos4=coded_phenos3
+coded_phenos4[1:42]=NULL
+
+
+
+IBD_SI2=merge(coded_phenos4,IBD_SI, by="row.names")
+MIBS_SI2=merge(coded_phenos4,MIBS_SI, by="row.names")
+LLD_SI2=merge(coded_phenos4,LLD_SI, by="row.names")
+
+colnames(MIBS_SI2)=c("SID","Meds","Div.")
+colnames(IBD_SI2)=c("SID","Meds","Div.")
+colnames(LLD_SI2)=c("SID","Meds","Div.")
+ggplot( MIBS_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
+ggplot( LLD_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
+ggplot( IBD_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
+```
+
+
+Calculate beta-diversity, create pcoa plots and MANOVA (adonis) analyses
+
+```{R}
+LLD_SI2$cohort="1_LLD"
+MIBS_SI2$cohort="2_MIBS"
+IBD_SI2$cohort="3_IBD"
+b1=rbind(LLD_SI2,MIBS_SI2)
+b2=rbind(b1,IBD_SI2)
+
+ggplot( b2, aes(x=as.factor(Meds),y=Div., fill=cohort)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index") + ylim(0,3) + facet_grid(. ~ cohort) + scale_fill_manual(breaks=b2$cohort, values=my_col)
+
+
+beta<- vegdist(tax_IBD3, method="bray")
+mypcoa=cmdscale(beta, k = 5)
+beta_IBD=as.data.frame(mypcoa)
+
+beta<- vegdist(tax_MIBS3, method="bray")
+mypcoa=cmdscale(beta, k = 5)
+beta_MIBS=as.data.frame(mypcoa)
+
+beta<- vegdist(tax_LLD3, method="bray")
+mypcoa=cmdscale(beta, k = 5)
+beta_LLD=as.data.frame(mypcoa)
+
+b1=rbind(beta_LLD,beta_MIBS)
+b3=rbind(b1,beta_IBD)
+
+rownames(b2)=b2$SID
+b2$SID=NULL
+b4=merge(b2,b3,by="row.names")
+
+ggplot(b4,aes(V3,V4))  +  geom_point (size=2, aes(colour=as.factor(Meds))) + theme_classic() + labs(x="PCoA1", y="PCoA3") + facet_grid(. ~ cohort) + scale_color_manual("Total Medication",values = blues_fun(14))
+
+adonis_IBD <- matrix(ncol = 3, nrow=1) 
+b5_pheno <- b2[rownames(tax_IBD3),]
+ad <- adonis(formula = tax_IBD3 ~ b5_pheno[,1] , data = b5_pheno, permutations = 10000, method = "bray")
+aov_table <- ad$aov.tab
+adonis_IBD[1,1]=aov_table[1,1]
+adonis_IBD[1,2]=aov_table[1,5]
+adonis_IBD[1,3]=aov_table[1,6]
+colnames(adonis_IBD) = c("Df", "R2", "Pr(>F)")
+
+
+adonis_MIBS <- matrix(ncol = 3, nrow=1) 
+b5_pheno <- b2[rownames(tax_MIBS3),]
+ad <- adonis(formula = tax_MIBS3 ~ b5_pheno[,1] , data = b5_pheno, permutations = 10000, method = "bray")
+aov_table <- ad$aov.tab
+adonis_MIBS[1,1]=aov_table[1,1]
+adonis_MIBS[1,2]=aov_table[1,5]
+adonis_MIBS[1,3]=aov_table[1,6]
+colnames(adonis_MIBS) = c("Df", "R2", "Pr(>F)")
+
+
+adonis_LLD <- matrix(ncol = 3, nrow=1) 
+b5_pheno <- b2[rownames(tax_LLD3),]
+ad <- adonis(formula = tax_LLD3 ~ b5_pheno[,1] , data = b5_pheno, permutations = 10000, method = "bray")
+aov_table <- ad$aov.tab
+adonis_LLD[1,1]=aov_table[1,1]
+adonis_LLD[1,2]=aov_table[1,5]
+adonis_LLD[1,3]=aov_table[1,6]
+colnames(adonis_LLD) = c("Df", "R2", "Pr(>F)")
+
+```
 
