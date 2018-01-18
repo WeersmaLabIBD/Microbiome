@@ -56,7 +56,7 @@ qiime tools import \
 # output: demux.qza
 ```
 ```
-# transfer qza to qzv which is able to be visualized in https://view.qiime2.org/visualization/ , where you can also find the quality score and decide cut-off for DADA2 step
+# transfer qza to qzv which is able to be visualized in https://view.qiime2.org/, where you can also find the quality score and decide cut-off for DADA2 step
 
 qiime demux summarize \
   --i-data demux.qza \
