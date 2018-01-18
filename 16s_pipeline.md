@@ -104,7 +104,36 @@ qiime feature-table tabulate-seqs \
   
 # output: table.qzv rep-seqs.qzv
 ```
+4. Close-reference OTUs piking
+```
+# import reference data (Greengene)
 
+qiime tools import \
+  --type 'FeatureData[Sequence]' \
+  --input-path 97_otus.fasta \
+  --output-path 97_otus.qza
+  
+qiime tools import \
+  --type 'FeatureData[Taxonomy]' \
+  --source-format HeaderlessTSVTaxonomyFormat \
+  --input-path 97_otu_taxonomy.txt \
+  --output-path ref-taxonomy.qza
+```
+```
+# OTUs picking
+# The clustering method in vsearch is based on the publicly available information about the uclust method on the usearch website:
+
+http://drive5.com/usearch/manual/uclust_algo.html
+
+qiime vsearch cluster-features-closed-reference \
+  --i-table table.qza \
+  --i-sequences rep-seqs.qza \
+  --i-reference-sequences 97_otus.qza \
+  --p-perc-identity 0.97 \
+  --o-clustered-table table-cr-97.qza \
+  --o-unmatched-sequences unmatched.qza \
+  --o-clustered-sequences 97_rep.qza
+```
 4. Generate a tree for phylogenetic diversity analyses
 
 A rooted phylogenetic tree is needed to produce phylogenetic diversity metrics, including Faith’s Phylogenetic Diversity and weighted and unweighted UniFrac
@@ -112,7 +141,7 @@ A rooted phylogenetic tree is needed to produce phylogenetic diversity metrics, 
 # multiple alignment of the representative sequences, using mafft program
 
 qiime alignment mafft \
-  --i-sequences rep-seqs.qza \
+  --i-sequences 97_rep.qza \
   --o-alignment aligned-rep-seqs.qza
   
 # output: aligned-rep-seqs.qza
@@ -153,8 +182,8 @@ Computing alpha and beta diversity metrics, and generating principle coordinates
 
 qiime diversity core-metrics-phylogenetic \
   --i-phylogeny rooted-tree.qza \
-  --i-table table.qza \
-  --p-sampling-depth 5000 \
+  --i-table table-cr-97.qza \
+  --p-sampling-depth 33,792 \
   --m-metadata-file Metadata_16S.tsv \
   --output-dir core-metrics-results
   
@@ -257,7 +286,7 @@ core-metrics-results/weighted-unifrac-group-site-significance.qzv \
 ```
 6. Taxonomic analysis
 
-We will use Greengenes 13_8 99% OTUs, where the sequences have been trimmed to only include 250 bases from the region of the 16S that was sequenced in this analysis (the V4 region)
+ Greengenes 13_8 99% OTUs
 ```
 # downlaod the Greengene database
 
@@ -268,7 +297,7 @@ wget -O "gg-13-8-99-515-806-nb-classifier.qza" "https://data.qiime2.org/2017.10/
 
 qiime feature-classifier classify-sklearn \
   --i-classifier gg-13-8-99-515-806-nb-classifier.qza \
-  --i-reads rep-seqs.qza \
+  --i-reads 97_rep.qza \
   --o-classification taxonomy.qza
   
 qiime metadata tabulate \
@@ -281,7 +310,7 @@ qiime metadata tabulate \
 # draw bar plots, level 1=k__Bacteria, level 2=k__p, level 3=k__p__c ....
 
 qiime taxa barplot \
-  --i-table table.qza \
+  --i-table table-cr-97.qza \
   --i-taxonomy taxonomy.qza \
   --m-metadata-file  Metadata_16S.tsv \
   --o-visualization taxa-bar-plots.qzv
@@ -296,41 +325,4 @@ qiime tools extract \
  
 biom convert -i *.biom -o *.tsv --to-tsv
 ```
-Filtring data
-```
 
-```
-Importing relative abundance data
-```
-# note: choose right --type FeatureTable[Frequency]
-biom convert -i relative_abundance.tsv -o relative_abundance.biom --to-hdf5 --table-type="OTU table"
-qiime tools import \
-  --input-path relative_abundance.biom \
-  --type 'FeatureTable[Frequency]' \
-  --source-format BIOMV210Format \
-  --output-path relative_abundance.qza
-```
-Differential abundance testing with ANCOM
-
-```
-# extract PPI_users and non users at 4 weeks
-qiime feature-table filter-samples \
---i-table genus_feature_table.qza \
---m-metadata-file Metadata_16S.tsv \
---p-where "Timepoint='four'" \
---o-filtered-table Timepoint_four.qza
-```
-```
-# remove 0 (invalid)
-qiime composition add-pseudocount \
-  --i-table Timepoint_four.qza \
-  --o-composition-table comp-Timepoint_four.qza
-```
-```
-# to see the effect of PPI on 2 groups at 4 weeks
-qiime composition ancom \
-  --i-table comp-Timepoint_four.qza \
-  --m-metadata-file Metadata_16S.tsv \
-  --m-metadata-category PPI \
-  --o-visualization ancom-PPI_four.qzv
-```
