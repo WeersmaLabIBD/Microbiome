@@ -592,7 +592,7 @@ test3$value[test3$value=="none"] <- 0
 ggplot(test3,aes(variable,bact, fill=value)) + geom_tile(aes(fill=as.numeric(value)), colour="white") + scale_fill_gradient2(low="#456BB3", high = "#F26A55", mid = "white", midpoint = 0) + theme_bw()
 ```
 
-12. Diversity measuraments
+12.Diversity measuraments
 --------------------------
 
 Calculate Shannon Index and create boxplots per cohorts
