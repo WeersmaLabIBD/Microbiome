@@ -1,4 +1,10 @@
-eQTL analysis between microbiome and exome data
+# eQTL analysis between microbiome and exome data
+
+creator: Shixian
+
+year: 2018
+
+----------------------------------------------------------------------
 
 1. Get vcf file 
 
