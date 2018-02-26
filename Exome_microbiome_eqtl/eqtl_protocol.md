@@ -61,9 +61,11 @@ CR 0362,1
 ```
 
 mkdir IBD
+
 mkdir LLD
 
 cd IBD
+
 sbatch IBD_split.sh
 
 ```
@@ -81,6 +83,7 @@ bcftools view -S ./IBD_ID_list.txt -o IBD_split.vcf ../qcpass.recode.vcf
 ```
 
 cd LLD
+
 sbatch LLD_split.sh
 
 ```
@@ -104,6 +107,7 @@ potential sequencing or calling errors. We only do this in LLD cohort. And remov
 bcftools but only vcftools works out the stuff perfectly. Because other tools can not remove the exactly same variants between LLD and IBD_HWE_filtered files.
 
 mkdir LLD/split_HWE
+
 cd LLD/split_HWE
 
 sbatch  LLD_HW_00001.sh
@@ -124,6 +128,7 @@ vcftools --vcf ../LLD_split.vcf --recode --hwe 0.00001 --out LLD_HW_00001
 ```
 
 mkdir IBD/split_HWE
+
 cd IBD/split_HWE
 
 sbatch IBD_HWE_filter.sh
@@ -150,6 +155,7 @@ vcftools --vcf ../IBD_split.vcf --positions ../../LLD/split_HWE/LLD_HW_00001.rec
 In this step, we remove those variats can not reach 99% calling rate among the whole corhort.
 
 mkdir LLD/HWE_missing
+
 cd LLD/HWE_missing
 
 sbatch LLD_missing_genotype.sh
@@ -170,6 +176,7 @@ vcftools --vcf ../split_HWE/LLD_HW_00001.recode.vcf --recode --max-missing 0.99 
 ```
 
 mkdir IBD/HWE_missing
+
 cd IBD/HWE_missing
 
 sbatch IBD_missing_genotype.sh
@@ -221,6 +228,7 @@ vcftools --vcf IBD_split_HWE_missing.recode.vcf --recode --maf 0.01 --out ../mis
 From this step, we use PLINK. First of all, we shit the vcf file to PLINK format. Note the parameters used in this step.
 
 mkdir -p IBD/MAF_LD/plink_input
+
 cd IBD/MAF_LD
 
 sbatch IBD_vcf_plink.sh
@@ -248,6 +256,7 @@ plink --bfile plink_input/IBD_split_HWE_missing_MAF_01 --indep-pairwise 50 5 0.2
 plink --bfile plink_input/IBD_split_HWE_missing_MAF_01 --extract IBD_split_HWE_missing_MAF_01_indep.prune.in --genome --make-bed --out IBD_split_HWE_missing_MAF_01_indep
 
 mkdir -p LLD/MAF_LD/plink_input
+
 cd LLD/MAF_LD
 
 sbatch LLD_vcf_plink.sh
@@ -288,7 +297,9 @@ cd LLD/MAF_LD
 plink --bfile LLD_split_HWE_missing_MAF_01_indep --recode vcf --out LLD_split_HWE_missing_MAF_01_indep
 
 mkdir -p exome/pca/1000G
+
 mkdir -p exome/pca/IBD
+
 mkdir -p exome/pca/LLD
 
 sbatch download_1000G.sh
@@ -332,6 +343,7 @@ for chr in {1..22} X
 ```
 
 mkdir -p pca/IBD/joint_plik
+
 cd pca/IBD/joint_plik
 
 sbatch IBD_1000G_joint.sh
@@ -395,6 +407,7 @@ cat intersect_chr{{1..22},X}.bim > IBD_1000G.bim
 ```
 
 mkdir -p pca/LLD/joint_plik
+
 cd pca/LLD/joint_plik
 
 sbatch LLD_1000G_joint.sh
