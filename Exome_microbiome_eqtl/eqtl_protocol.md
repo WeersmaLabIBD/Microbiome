@@ -1,4 +1,4 @@
-#eQTL analysis between microbiome and exome data
+eQTL analysis between microbiome and exome data
 
 1. Get vcf file 
 
