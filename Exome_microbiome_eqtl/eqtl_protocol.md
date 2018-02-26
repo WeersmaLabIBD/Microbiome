@@ -6,11 +6,11 @@ year: 2018
 
 ----------------------------------------------------------------------
 
-1. Get vcf file 
+# 1. Get vcf file 
 
 check the exome data on cluster: /groups/umcg-weersma/tmp04/Shixian/exome/ibd_weersma_wes.vcf.20180117.vcf.gz (with tabix file)
 
-2. QC
+# 2. QC
 
 In the vcf.gz file you will see the header "FILTER", this is about VQSR(variant quality score recalibration) score, which is based the comparsion between your data and know variants 
 database on coverage(DP), QualByDepth and etc. It is something like machine learning process to get a balance between sensitivity and specifity using real data and known data. So we 
@@ -33,7 +33,7 @@ module load VCFtools
 vcftools --gzvcf ibd_weersma_wes.vcf.20180117.vcf.gz --recode --remove-filtered-all --out qcpass
 ```
 
-3. split QC pass vcf file into IBD and LLD 
+# 3. split QC pass vcf file into IBD and LLD 
 
 Prepare IBD and LLD individules list: IBD_ID_list.txt and LLD_ID_list.txt
 The format of list files only contains one column, listing all samples names. Vcftools, bcftools and plink, all of the software can do this stuff, but only bcftools can recognize
@@ -100,7 +100,7 @@ module load BCFtools
 bcftools view -S ./LLD_ID_list.txt -o LLD_split.vcf ../qcpass.recode.vcf
 ```
 
-3. Hardy-weinberg disequilibrium test
+# 4. Hardy-weinberg disequilibrium test
 
 In natural condition, the allele frequency has reached the Hardy-weinberg banlance. So we do this step to test all the variants to see if they can satisfy this law, to remove 
 potential sequencing or calling errors. We only do this in LLD cohort. And remove these variants appear in IBD cohort, too. I tried lots of tools including bedtools, vcftools and 
@@ -150,7 +150,7 @@ vcftools --vcf ../IBD_split.vcf --positions ../../LLD/split_HWE/LLD_HW_00001.rec
 
 ```
 
-4. Variants calling rate
+# 5. Variants calling rate
 
 In this step, we remove those variats can not reach 99% calling rate among the whole corhort.
 
@@ -196,7 +196,7 @@ module load VCFtools
 vcftools --vcf ../split_HWE/IBD_HWE_filtered.vcf.recode.vcf --recode --max-missing 0.99 --out IBD_split_HWE_missing
 ```
 
-5. Minor allele frequency
+# 6. Minor allele frequency
 
 In this step, we filter the variants based on thier MAF. By this way, we remove those low frequency or rare mutation in the whole cohort.
 
@@ -223,7 +223,7 @@ the same to the IBD
 vcftools --vcf IBD_split_HWE_missing.recode.vcf --recode --maf 0.01 --out ../missing_MAF/IBD_split_HWE_missing_MAF_01
 ```
 
-6. LD analysis
+# 7. LD analysis
 
 From this step, we use PLINK. First of all, we shit the vcf file to PLINK format. Note the parameters used in this step.
 
@@ -283,7 +283,7 @@ plink --bfile plink_input/LD_split_HWE_missing_MAF_01 --indep-pairwise 50 5 0.2 
 
 plink --bfile plink_input/LD_split_HWE_missing_MAF_01 --extract LLD_split_HWE_missing_MAF_01_indep.prune.in --genome --make-bed --out LLD_split_HWE_missing_MAF_01_indep
 
-7. pca analysis
+# 8. pca analysis
 
 In this step, we need to convert the PLINK files (bim, fam and bed) to vcf file again...
 We also need to mix our data with 1000 Genome Project.
