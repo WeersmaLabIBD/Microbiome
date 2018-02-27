@@ -526,3 +526,168 @@ for (i in 1:6) {
 dev.off()
 ``` 
 
+remove those ancestry outliers
+
+Rcript pca_outliers.Rcript
+
+Then modify the remove_smaple_list mannully because of the special format
+
+```
+cd /groups/umcg-weersma/tmp04/Shixian/eqtl/IBD/autosomal_genotypes/
+
+vcftools --remove IBD_pca_remove.txt --vcf IBD_split_HWE_missing_MAF_01_indep.vcf --recode --out IBD_final.vcf
+
+bgzip -c IBD_final.vcf.recode.vcf > IBD_final.vcf.gz
+tabix -p vcf IBD_final.vcf.gz
+
+java -Xmx40G -jar /home/umcg-hushixian/GenotypeHarmonizer-1.4.20-SNAPSHOT/GenotypeHarmonizer.jar -i ./autosomal_genotypes -I VCFFOLDER -o genotypes_trityper -O TRITYPER
+
+cd /groups/umcg-weersma/tmp04/Shixian/eqtl/LLD/autosomal_genotypes/
+
+vcftools --remove LLD_pca_remove.txt --vcf LLD_split_HWE_missing_MAF_01_indep.vcf --recode --out LLD_final.vcf
+
+bgzip -c LLD_final.vcf.recode.vcf > LLD_final.vcf.gz
+tabix -p vcf LLD_final.vcf.gz
+
+java -Xmx40G -jar /home/umcg-hushixian/GenotypeHarmonizer-1.4.20-SNAPSHOT/GenotypeHarmonizer.jar -i ./autosomal_genotypes -I VCFFOLDER -o genotypes_trityper -O TRITYPER
+```
+
+prepare eqtl_LLD_coupling.txt eqtl_LLD_taxa eqtl_LLD_taxa.annot
+
+prepare eqtl_IBD_coupling.txt eqtl_IBD_taxa eqtl_IBD_taxa.annot
+
+# 8. eQTL analysis
+
+In both IBD and LLD folder, do the following stuff, NOTE: miQTL_cookbook-master scripts are different between IBD and LLD, check them before running
+
+sh generate_xlm.sh
+
+```
+#!/bin/bash
+
+
+j=0
+
+awk '{print $1}' eqtl_LLD_taxa | while read line
+
+do
+  ((j=j+1)) 
+  cat miQTL_cookbook-master/software/benchmark_templates/template_benchmark0.xml |perl -pe "s/COHORTNAME/LLD/" > $j\_1_benchmark.xml
+  cat $j\_1_benchmark.xml | perl -pe "s/id968/$line/" > $j\_2_benchmark.xml
+  cat $j\_2_benchmark.xml | perl -pe "s/genus.Alistipes.id.968.txt/$line.txt/" > $j\_3_benchmark.xml
+  cat $j\_3_benchmark.xml | perl -pe "s/genus.Alistipes.id.968.txt.annot/$line.txt.annot/" > $j\_benchmark.xml
+  rm $j\_1_benchmark.xml
+  rm $j\_2_benchmark.xml
+  rm $j\_3_benchmark.xml
+done
+
+rm 1_benchmark.xml
+```
+
+module load R
+
+Rscript miQTL_cookbook-master/software/step3.1B_prepare_benchmark_data.R eqtl_LLD(IBD)_taxa
+
+```
+options = commandArgs(trailingOnly = TRUE)
+input_taxonomy = options[1]
+input_annotation = paste0(options[1],".annot")
+output_folder = "taxa_benchmark_selection"
+taxonomy_table = read.table(input_taxonomy,header=T,as.is = T,sep="\t",check.names = F)
+colnames(taxonomy_table)[1] = "-"
+annot_table = read.table(input_annotation,header=T,as.is = T,check.names = F)
+
+list=read.table(file="eqtl_LLD_taxa",header=T,sep="\t",check.names = F)
+
+taxa=as.vector(list[,1])
+
+dir.create(output_folder)
+
+for (i in taxa){
+	tax = taxonomy_table[taxonomy_table[,1]==i,]
+	annot = annot_table[annot_table[,2] == i,]
+	write.table(tax,file = paste0(output_folder,"/",i,".txt"),sep="\t",quote=F,row.names=F)
+	write.table(annot,file = paste0(output_folder,"/",i,".txt.annot"),sep="\t",quote=F,row.names=F)
+}
+
+```
+
+check coupling file again to make sure it is correct
+
+sbatch IBD(LLD)_eqtl.sh
+
+```
+#!/bin/bash
+#SBATCH --job-name=LLD_eqtl
+#SBATCH --error=LLD_eqtl.err
+#SBATCH --output=LLD_eqtl.out
+#SBATCH --mem=5gb
+#SBATCH --time=96:00:00
+#SBATCH --cpus-per-task=6
+
+for i in *.xml
+
+do
+
+java -XX:ParallelGCThreads=5 -Xmx30G -jar eqtl-mapping-pipeline-1.4nZ/eqtl-mapping-pipeline.jar --mode metaqtl --settings $i
+
+done
+```
+
+plot manhattan
+
+mkdir IBD/manhattan
+
+cd IBD/manhattan
+
+sh LLD_manhattan.sh (also need Manhattan.R)
+
+```
+#!/bin/bash
+#SBATCH --job-name=LLD_manhattan_input
+#SBATCH --error=LLD_manhattan_input.err
+#SBATCH --output=LLD_manhattan_input.out
+#SBATCH --mem=15gb
+#SBATCH --time=96:00:00
+#SBATCH --cpus-per-task=6
+
+n=1
+for i in $(ls /groups/umcg-weersma/tmp04/Shixian/eqtl/re-LLD/LLD_output/)
+do
+((n=n+1))
+zcat /groups/umcg-weersma/tmp04/Shixian/eqtl/re-LLD/LLD_output/$i/eQTLs.txt.gz | awk 'BEGIN{OFS="\t"}{print $2, $3, $4, $1,$5}' > $n.LLD_manhattan_input.txt
+done
+
+cat *.LLD_manhattan_input.txt > LLD_manhattan_input.txt
+
+module load R
+Rscript Manhattan.R
+```
+
+```
+options(scipen=200)
+input=read.table(file="LLD_manhattan_input.txt",header=T, sep="\t", check.names=F)
+
+colnames(input)=c("SNP","CHR","BP","P","taxa")
+
+input$CHR=as.numeric(input$CHR)
+input$BP=as.numeric(input$BP)
+input$P=as.numeric(as.character(input$P))
+#p=input$P
+#input$P=p.adjust(p,method="fdr",length(p))
+
+#significant=input[input$P<0.05,]
+
+#significant=significant[order(significant$P,decreasing=F),]
+
+#write.table(significant,file="IBD_significant_result.txt",row.names = F,sep = "\t")
+
+library("qqman")
+
+png("IBD_manhattan.png",width = 1000,height = 800)
+
+manhattan(input,col=c("#A4D3EE","#DDA0DD"))
+
+dev.off()
+```
+
