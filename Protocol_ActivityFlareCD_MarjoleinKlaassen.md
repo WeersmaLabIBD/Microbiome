@@ -1,11 +1,10 @@
-Project Name: Relating CD actvitiy to the gut microbiome
+Relating CD actvitiy to the gut microbiome
 -------------
 
-Name author of code: Marjolein Klaassen.
+Author of code: Marjolein Klaassen.
 Year: 2018
 
-Content:
-How to run MaAsLin on Taxonomy data, MetaCyc data, Virulence factors and growth rates 
+Aim: using MaAsLin to relate gut microbiome features to disease activity in Crohn's disease
 
 
 
