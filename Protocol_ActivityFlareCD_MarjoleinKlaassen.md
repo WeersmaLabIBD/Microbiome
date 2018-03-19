@@ -34,7 +34,8 @@ Taxonomy
 -------------
 
 Importing Taxonomy Data Metagenomics 
--------------
+------------- 
+
 ```Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)```
 
 Only keeping in species data (grep function)
