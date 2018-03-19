@@ -11,6 +11,7 @@ Setting my working Directory.
 
 Importing clinical metadata databases
 -------------
+
 ```db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
 
