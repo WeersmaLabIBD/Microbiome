@@ -174,17 +174,12 @@ TaxaVT = merge(TaxaVT, TaxonomyFilter2, by= "UMCGIBDDNAID", all = FALSE)
 Analyses MaAsLin Taxonomy 
 -------------
 
-Analyses 1: Comparing patients in a flare with patients in remission
--------------
-
-
-**Removing all patients that have no documented exacerbation** 
+**Analyses 1: Comparing patients in a flare with patients in remission**
 ```
+# Removing all patients that have no documented exacerbation
 TaxaInFlareNot = TaxaVT 
 TaxaInFlareNot<-TaxaInFlareNot[!with(TaxaInFlareNot,is.na(TaxaInFlareNot$TimeNextVT)& is.na(TaxaInFlareNot$TimePrevVT)),]
-```
-**Creating a loop to create new phenotype 'in flare/ not in flare'**
-```
+# Creating a loop to create new phenotype 'in flare/ not in flare'
 TaxaInFlareNot = cbind(TaxaInFlareNot[,1:7], "InFlareNot"=NA, TaxaInFlareNot[,8:ncol(TaxaInFlareNot)])
 TaxaInFlareNot$InFlareNot = as.numeric(as.character(TaxaInFlareNot$InFlareNot))
 
@@ -198,15 +193,11 @@ for (i in 1:nrow(TaxaInFlareNot)){
   } else
     TaxaInFlareNot$InFlareNot[i] = "Not in a flare"
 }
-```
 
-**Creating order of columns suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data)**
-```
+# Creating order of columns suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data)
 TaxaInFlareNot = TaxaInFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
-```
 
-**MaAsLin requires a tsv/csv file as input file of all the data (the R-database you just made)** 
-```
+# MaAsLin requires a tsv/csv file as input file of all the data (the R-database you just made) 
 write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
@@ -215,9 +206,7 @@ write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names =
 Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-Analyses 2: comparison in MaAsLin patients before and patients in an exacerbation
--------------
-
+**Analyses 2: comparison in MaAsLin patients before and patients in an exacerbation**
 
 ```
 InFlareNot = TaxaVT
@@ -269,8 +258,7 @@ write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 2',strInputConfig = '2.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-Analysis MaAslin analysis 3: Categorical comparison of gut metagenome patients duringa flare with all patients after a flare
--------------
+**Analysis MaAslin analysis 3: Categorical comparison of gut metagenome patients duringa flare with all patients after a flare**
 ```
 InFlareNot = TaxaVT
 
@@ -323,8 +311,7 @@ write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-Analysis MaAsLin 4: Linear analysis of patients who have their next flare <6 months - time until next flare
--------------
+**Analysis MaAsLin 4: Linear analysis of patients who have their next flare <6 months - time until next flare**
 
 ```
 TaxaCDIIa = TaxaVT
@@ -384,13 +371,12 @@ TaxaCDIIa = TaxaCDIIa[,c(1, 6, 2:5, 8:311)]
 write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
-**MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare)**
+**MaAsLin run 4 (Patients who have next flare < 1 year) - (time until next flare)**
 ```
 Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-Analysis 5: MaAsLin patients who had last flare <1 year with time since last flare 
--------------
+**Analysis 5: MaAsLin patients who had last flare <1 year with time since last flare**
 
 ```
 LinAfterIIb = TaxaVT
