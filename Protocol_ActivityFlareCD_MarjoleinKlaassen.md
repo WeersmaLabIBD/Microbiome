@@ -12,11 +12,12 @@ Setting my working Directory.
 Importing clinical metadata databases
 -------------
 
-```db = read.csv("VALFLO.csv", header = T, sep = ";")
+```
+db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
-
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
-VT = as.data.frame(VT)```
+VT = as.data.frame(VT)
+```
 
  Merging clinical files 
 -------------
