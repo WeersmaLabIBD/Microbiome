@@ -4,6 +4,9 @@ Project Name: Relating CD actvitiy to the gut microbiome
 Name author of code: Marjolein Klaassen.
 Year: 2018
 
+Content:
+How to run MaAsLin on Taxonomy data, MetaCyc data, Virulence factors and growth rates 
+
 
 Setting my working Directory 
 -------------
@@ -163,6 +166,7 @@ TaxaVT = merge(TaxaVT, TaxonomyFilter2, by= "UMCGIBDDNAID", all = FALSE)
 
 Analyses MaAsLin Taxonomy 
 -------------
+** Comparing patients in a flare with patients in remission ** 
 
 ** Removing all patients that have no documented exacerbation** 
 ```
@@ -186,7 +190,7 @@ for (i in 1:nrow(TaxaInFlareNot)){
 }
 ```
 
-** Creating order of data suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data) **
+** Creating order of columns suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data) **
 ```
 TaxaInFlareNot = TaxaInFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 ```
@@ -201,21 +205,13 @@ write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names =
 Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
+** Analysis 2: comparison in MaAsLin patients before and patients in an exacerbation **  
 
-
-
-
-#20.2 Analysis 2: categorical comparison of gut metagenome of all patients before a flare with all patients during a flare
-##20.2.a Give this dataframe a new name. 
+```
 InFlareNot = TaxaVT
-
-##20.2.b I remove patients that have not a documented previous and next flare in the EHR.
 InFlareNot<-InFlareNot[!with(InFlareNot,is.na(InFlareNot$TimeNextVT)& is.na(InFlareNot$TimePrevVT)),]
 
-#20.2.c. I create a new column, so I can give a new value 'before a flare' or 'in a flare' to all samples. 
 InFlareNot = cbind(InFlareNot[,1:7], "TempColFlare"=NA, InFlareNot[,8:ncol(InFlareNot)])
-#20.2.d. When time to next flare is na, the new column is "none" (just so that these samples have a variable).
-# Furthermore, when the time til the next flare is < 0, this patient is before a flare. 
 for (i in 1:nrow(InFlareNot)){
   if (is.na(InFlareNot$TimeNextVT[i])) {
     InFlareNot$TempColFlare[i]= "None"
@@ -245,34 +241,30 @@ for (i in 1:nrow(InFlareNot)){
   }
 }
 
-#20.2e. For this analysis, I only want to compare before a flare with during a flare. So I remove all samples that 
+# For this analysis, I only want to compare before a flare with during a flare. So I remove all samples that 
 # are closer to their last flare. 
 InFlareNot = InFlareNot[InFlareNot$TempColFlare!= "after a flare",]
 
 InFlareNot = InFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 
+# creating tsv file for MaAsLin
+
 write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+```
 
-## MaAsLin analysis 2: between patients >1 year quiescent disease versus in a flare 
+** MaAsLin analysis 2 **
+```
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 2',strInputConfig = '2.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
-
-
-
-
-
-#20.3 Analysis 3: categorical comparison of gut metagenome of all patients during a flare with all patients after a flare 
-##20.3.a Give this dataframe a new name. 
+Analysis MaAslin analysis 3: Categorical comparison of gut metagenome patients duringa flare with all patients after a flare
+-------------
+```
 InFlareNot = TaxaVT
 
-##20.3.b I remove patients that have not a documented previous and next flare in the EHR.
 InFlareNot<-InFlareNot[!with(InFlareNot,is.na(InFlareNot$TimeNextVT)& is.na(InFlareNot$TimePrevVT)),]
-
-#20.3.c. I create a new column, so I can give a new value 'before a flare' or 'in a flare' to all samples.
 InFlareNot = cbind(InFlareNot[,1:7], "TempColFlare"=NA, InFlareNot[,8:ncol(InFlareNot)])
 
-#20.3.d. When time to next flare is na, the new column is "none" (just so that these samples have a variable).
-# Furthermore, when the time til the next flare is < 0, this patient is before a flare. 
 for (i in 1:nrow(InFlareNot)){
   if (is.na(InFlareNot$TimeNextVT[i])) {
     InFlareNot$TempColFlare[i]= "None"
@@ -285,7 +277,7 @@ for (i in 1:nrow(InFlareNot)){
     InFlareNot$TempColFlare[i] = "during a flare"
   }
 }
-#
+
 for (i in 1:nrow(InFlareNot)){
   if (InFlareNot$TimeNextVT[i] =="None"){
     InFlareNot$TempColFlare[i] = "after a flare"
@@ -302,23 +294,22 @@ for (i in 1:nrow(InFlareNot)){
   }
 }
 
-#20.4.d. Now, I only want to compare in a flare with after a flare, so I remove samples which are closer to their
+
+# Now, I only want to compare in a flare with after a flare, so I remove samples which are closer to their
 # next flare. 
 InFlareNot = InFlareNot[InFlareNot$TempColFlare!= "before a flare",]
 
 
 InFlareNot = InFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 
+# Creating tsv file of database 
 write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+```
 
-## MaAsLin analysis 3: between patients >1 year quiescent disease versus in a flare 
+**MaAsLin analysis 3: between patients >1 year quiescent disease versus in a flare**
+```
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
-
-
-
-
-
-
+```
 
 
 
