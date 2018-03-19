@@ -924,7 +924,9 @@ Maaslin('LinAfterin1Yr.tsv','nOud Final Metacyc Analysis 4b',strInputConfig = '2
 
 
 
-
+Virulence factors 
+-------------
+Important: In contrast to species and metabolic pathways, virulence factor genes are counts (absolute abundances) instead of relative abundances
 
 
 
