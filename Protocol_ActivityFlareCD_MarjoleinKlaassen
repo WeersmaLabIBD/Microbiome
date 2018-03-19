@@ -8,22 +8,19 @@ Date: 19-3-2018
 
 Setting my working Directory.  
 -------------
-setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
+```setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")```
 
 -------------
-Importing clinical metadata database
+Importing clinical metadata databases
 -------------
-db = read.csv("VALFLO.csv", header = T, sep = ";")
+```db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
 
-## 3. Next, I will combine this clinical data, with my own database. In my own database, I have gathered the time until
-## disease activity. This way, I can relate disease activity status to the gut microbiome. 
-## Now, I will import this database. 
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
-VT = as.data.frame(VT)
+VT = as.data.frame(VT)```
 
-## 4. The next part of coding describes the merging of the clinical phenotype database with the disease activity status 
-## databbase. 
+Merging clinical files 
+**
 FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)
 ## 5. Valerie Colly, Floris Imhann and Arnau Vich Vila have already written a paper with these patients, and filtered out
