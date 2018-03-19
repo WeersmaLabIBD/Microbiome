@@ -306,7 +306,7 @@ InFlareNot = InFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
-**MaAsLin analysis 3: between patients >1 year quiescent disease versus in a flare**
+**MaAsLin analysis 3**
 ```
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
@@ -371,7 +371,7 @@ TaxaCDIIa = TaxaCDIIa[,c(1, 6, 2:5, 8:311)]
 write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
-**MaAsLin run 4 (Patients who have next flare < 1 year) - (time until next flare)**
+**MaAsLin analysis 4**
 ```
 Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
@@ -439,7 +439,7 @@ LinAfterIIb = LinAfterIIb[,c(1, 6, 2, 3, 5, 9:311)]
 write.table(LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin
 ```
 
-**MaAsLin run 5**
+**MaAsLin analysis 5:**
 ```
 Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
