@@ -646,14 +646,14 @@ MetaCycVTTidy = make.names(colnames(MetaCycVT), unique = TRUE)
 colnames(MetaCycVT) = MetaCycVTTidy 
 ```
 
-**
 
+Analyses MaAsLin MetaCyc-pathways
+-------------
 
-###### Analysis 1: categorical comparison of gut metagenome, all patients in a flare with
-###### all patients not in a flare. 
-
+**Analysis 1: categorical comparison of gut metegenomic pathways of all patients in a flare with all patients in remission**
+```
 MCInFlareNot = MetaCycVT
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have NA in both Prev/Next <1 yr flare
 MCInFlareNot<-MCInFlareNot[!with(MCInFlareNot,is.na(MCInFlareNot$TimeNextVT)& is.na(MCInFlareNot$TimePrevVT)),]
 
 MCInFlareNot = cbind(MCInFlareNot[,1:7], "InFlareNot"=NA, MCInFlareNot[,8:ncol(MCInFlareNot)])
@@ -672,25 +672,27 @@ for (i in 1:nrow(MCInFlareNot)){
 
 
 MCInFlareNot = MCInFlareNot[,c(1, 8, 2, 3, 5, 9:645)]
-write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # Creating tsv file for MaAsLin 
 
-## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
+```
+
+**MaAsLin analysis 1**
+```
 Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 1',strInputConfig = '1.MetaCyc.read.config', fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
 
-###### Analysis 2: categorical comparison of gut metagenome, all patients before a flare 
-######  with all patients during a flare 
-
+**Analysis 2: categorical comparison of gut metagenomic pathways, all patients before a flare with all patients during a flare**
+```
 MCInFlareNot = MetaCycVT
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have no documented previous and next flare 
 MCInFlareNot<-MCInFlareNot[!with(MCInFlareNot,is.na(MCInFlareNot$TimeNextVT)& is.na(MCInFlareNot$TimePrevVT)),]
 
-## Creating new column 'in flare/ not in flare >1 yr'
+# Creating new column 'in flare/ not in flare'
 MCInFlareNot = cbind(MCInFlareNot[,1:7], "TempColFlare"=NA, MCInFlareNot[,8:ncol(MCInFlareNot)])
-
-## Giving value to new column 'in flare/ not in flare >1 yr'
+# Giving value to new column 'in flare/ not in flare >1 yr'
 for (i in 1:nrow(MCInFlareNot)){
   if (is.na(MCInFlareNot$TimeNextVT[i])) {
     MCInFlareNot$TempColFlare[i]= "None"
@@ -720,29 +722,31 @@ for (i in 1:nrow(MCInFlareNot)){
   }
 }
 
-
+#Removing patients after a flare (this analysis only includes patients before and during)
 MCInFlareNot = MCInFlareNot[MCInFlareNot$TempColFlare!= "after a flare",]
 
 MCInFlareNot = MCInFlareNot[,c(1, 8, 2, 3, 5, 9:645)]
-write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
+```
 
-## MaAsLin analysis 2: between patients >1 year quiescent disease versus in a flare 
+**MaAsLin analysis 2**
+```
 Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 2',strInputConfig = '2.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
 
-###### Analysis 3: categorical comparison of gut metagenome, all patients during a flare with
-###### all patients before a flare
-
+**Analysis 3: categorical comparison of gut metagenomic pathways, all patients during a flare with all patients after a flare**
+```
 MCInFlareNot = MetaCycVT
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have no documented previous and next flare
 MCInFlareNot<-MCInFlareNot[!with(MCInFlareNot,is.na(MCInFlareNot$TimeNextVT)& is.na(MCInFlareNot$TimePrevVT)),]
 
-## Creating new column 'in flare/ not in flare >1 yr'
+# Creating new column 'in flare/ not in flare >1 yr'
 MCInFlareNot = cbind(MCInFlareNot[,1:7], "TempColFlare"=NA, MCInFlareNot[,8:ncol(MCInFlareNot)])
 
-## Giving value to new column 'in flare/ not in flare >1 yr'
+# Giving value to new column 'in flare/ not in flare >1 yr'
 for (i in 1:nrow(MCInFlareNot)){
   if (is.na(MCInFlareNot$TimeNextVT[i])) {
     MCInFlareNot$TempColFlare[i]= "None"
@@ -772,14 +776,17 @@ for (i in 1:nrow(MCInFlareNot)){
   }
 }
 
-
+# Removing all patients before a flare (this analysis only includes patients during and after a flare
 MCInFlareNot = MCInFlareNot[MCInFlareNot$TempColFlare!= "before a flare",]
 
 MCInFlareNot = MCInFlareNot[,c(1, 8, 2, 3, 5, 9:645)]
-write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
+```
 
-## MaAsLin analysis 3 
+**MaAsLin analysis 3**
+```
 Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 3',strInputConfig = '3.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
