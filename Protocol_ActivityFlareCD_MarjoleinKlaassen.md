@@ -2,7 +2,9 @@ Relating CD actvitiy to the gut microbiome
 -------------
 
 **Author of code:** Marjolein Klaassen.
+
 **Year:** 2018
+
 **Aim:** using MaAsLin to relate gut microbiome features to disease activity in Crohn's disease
 
 
