@@ -1158,7 +1158,7 @@ VFInFlareNot = VFInFlareNot[,c(1, 8, 2, 3, 5, 9: 899)]
 write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin
 ```
 
-**MaAsLin analysis 2: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+**MaAsLin analysis 2: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
 Maaslin('InFlareNot.tsv','nOud Final VF analysis 2',strInputConfig = '2.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
@@ -1214,7 +1214,7 @@ VFInFlareNot = VFInFlareNot[,c(1, 8, 2, 3, 5, 9: 899)]
 write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin 
 ```
 
-## MaAsLin analysis 3: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+## MaAsLin analysis 3: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
 Maaslin('InFlareNot.tsv','nOud Final VF analysis 3',strInputConfig = '3.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
@@ -1283,7 +1283,7 @@ VF_CDIIa = VF_CDIIa[,c(1, 7, 2, 3, 5, 9:899)]
 write.table(VF_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)# create tsv file for MaAsLin 
 
 ```
-**MaAsLin analysis 4:(NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+**MaAsLin analysis 4:(NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
 Maaslin('LinBeforein1Yr.tsv','nOud Vir Fac analyses 4a',strInputConfig = '2a.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
@@ -1345,7 +1345,7 @@ VF_LinAfterIIb = VF_LinAfterIIb[,c(1, 6, 2, 3, 5, 9:899)]
 write.table(VF_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
 ```
 
-**Analysis 5: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+**Analysis 5: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
 
 Maaslin('LinAfterin1Yr.tsv','nOud Virulence fac analyses 4b',strInputConfig = '2b.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
@@ -1355,6 +1355,428 @@ Maaslin('LinAfterin1Yr.tsv','nOud Virulence fac analyses 4b',strInputConfig = '2
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Growth Rates
+-------------  
+Important: In contrast to species and pathways, growth rate data are the peak-to-trough coverage ratios of species. So this is not relative abundaces data, but a ratio. 
+
+**Setting my working Directory**
+```  
+setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
+```  
+**Importing clinical database**
+```
+db = read.csv("VALFLO.csv", header = T, sep = ";")
+db = as.data.frame(db)
+```
+
+**Importing other clinical database**
+```
+VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
+VT = as.data.frame(VT)
+```
+
+**Merging clinical databases**
+```
+FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
+FinalVT=as.data.frame(FinalVT)
+FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
+FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
+FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+```
+
+**Importing metagenomic growth rates data**
+```
+GrowthRates = read.delim ("Growth_rates.txt", header = TRUE, sep = "\t")
+GrowthRates = as.data.frame(t(GrowthRates))
+```
+
+**Growth rate ratios do not need to be proportional for MaAsLin (so just put on strTransform=NULL). 
+```
+GrowthRates["UMCGIBDDNAID"] = row.names(GrowthRates)
+GrowthRates=GrowthRates[,c(101,1:100)]
+```
+
+**Merging Growth rate ratios data with clinical data**
+```
+GrowthRatesVT = merge (FinalVT, GrowthRates, by = "UMCGIBDDNAID", all = FALSE)
+```
+
+**Creating a loop to transfer all days that patients are in a flare, to the numeric value 0**
+```
+# Converting all negative numbers (patient is in a flare multiple days) into zero's (meaning that all patients in a flare are stated as just 'in a flare' = 0 days until last flare and 0 days until next flare)
+GrowthRatesVT = cbind(GrowthRatesVT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=GrowthRatesVT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, GrowthRatesVT[,8:ncol(GrowthRatesVT)])
+
+GrowthRatesVT$TimeEndPreviousExacerbation = as.numeric(as.character(GrowthRatesVT$TimeEndPreviousExacerbation))
+GrowthRatesVT$TimeToStartNextExacerbation = as.numeric(as.character(GrowthRatesVT$TimeToStartNextExacerbation))
+
+for (i in 1:nrow(GrowthRatesVT)) {
+  if (GrowthRatesVT$TimeEndPreviousExacerbation[i] < 0 & !is.na(GrowthRatesVT$TimeEndPreviousExacerbation[i])) {
+    GrowthRatesVT$TimePrevVT[i] = 0
+    GrowthRatesVT$TimeNextNegtoZer[i] = 0
+  } else {
+    GrowthRatesVT$TimePrevVT[i] = GrowthRatesVT$TimeEndPreviousExacerbation[i]
+    GrowthRatesVT$TimeNextNegtoZer[i] = GrowthRatesVT$TimeToStartNextExacerbation[i]
+  }
+}
+```
+
+** Creating a loop to transfer the days to the next exacerbation to negative numeric values**
+```
+GrowthRatesVT = cbind(GrowthRatesVT[,1:9], "TimeNextVT"=NA, GrowthRatesVT[,10:ncol(GrowthRatesVT)])
+for (i in 1:nrow(GrowthRatesVT)) {
+  if (GrowthRatesVT$TimeNextNegtoZer[i] > 0 & !is.na(GrowthRatesVT$TimeNextNegtoZer[i])) {
+    GrowthRatesVT$TimeNextVT[i] = ((GrowthRatesVT$TimeNextNegtoZer[i])*-1)
+  }
+  else {
+    GrowthRatesVT$TimeNextVT[i] = GrowthRatesVT$TimeNextNegtoZer[i]
+  }
+}
+
+GR_CD = GrowthRatesVT[GrowthRatesVT$DiagnosisCurrent == 'CD',]
+GR_CD = GR_CD[,c(1:5, 7, 10, 11:114)]
+```
+
+
+**When PPI use is not documented in patient, it is agreed that we report 'no PPI use'**
+```
+for (i in 1:nrow(GR_CD)){
+  if (is.na(GR_CD$MedicationPPI[i])){
+    GR_CD$MedicationPPI[i] = "no"
+  } else 
+    GR_CD$MedicationPPI[i] = GR_CD$MedicationPPI[i]
+}
+```
+
+**When Antibiotic use is not documented in patient, it is agreed that we report 'no antibiotic use'** 
+```
+for (i in 1:nrow(GR_CD)){
+  if (is.na(GR_CD$AntibioticsWithin3MonthsPriorToSampling[i])){
+    GR_CD$AntibioticsWithin3MonthsPriorToSampling[i] = "no"
+  } else 
+    GR_CD$AntibioticsWithin3MonthsPriorToSampling[i] = GR_CD$AntibioticsWithin3MonthsPriorToSampling[i]
+}
+```
+
+**Checking whether patients that are in an exacerbation, have both numeric value 0 to the last flare and next flare**
+```
+for (i in 1:nrow(GR_CD)){
+  if (!is.na(GR_CD$TimePrevVT[i]) & GR_CD$TimePrevVT[i] == 0 ){
+    GR_CD$TimeNextVT[i] = 0
+  } else 
+    GR_CD$TimeNextVT[i] = GR_CD$TimeNextVT[i]
+}
+
+for (i in 1:nrow(GR_CD)){
+  if (!is.na(GR_CD$TimeNextVT[i]) & GR_CD$TimeNextVT[i] == 0 ){
+    GR_CD$TimePrevVT[i] = 0
+  } else 
+    GR_CD$TimePrevVT[i] = GR_CD$TimePrevVT[i]
+}
+```
+
+
+**Filtering out growth rates that are abundant in <5% of patients**
+```
+GR_Filter = GR_CD[,c(1, 12: 111)]
+GR_Filter2 = GR_Filter[,-1]
+rownames(GR_Filter2) = GR_Filter[,1]
+GR_Filter2 = as.data.frame(t(GR_Filter2))
+GR_Filter2["NumberofNAs"] = rowSums(is.na(GR_Filter2))
+GR_Filter2 = GR_Filter2[,c(200, 1:199)]
+GR_Filter2 = GR_Filter2[GR_Filter2$NumberofNAs <=ncol(GR_Filter2)*0.95,]
+GR_Filter2 = as.data.frame(t(GR_Filter2))
+GR_Filter2["UMCGIBDDNAID"] = row.names(GR_Filter2)
+GR_Filter2 = GR_Filter2[,c(57, 1:56)]
+
+
+GR_VT = GR_CD[,c(1:11)]
+GR_VT = merge(GR_VT, GR_Filter2, by= "UMCGIBDDNAID", all = FALSE)
+```
+
+**Removing punctuation remarks (because MaAsLin can't handle these)**
+```
+names(GR_VT) = gsub(x = names(GR_VT), pattern = " ", replacement = "_") 
+```
+
+Growth Rate MaAsLin analyses
+-------------   
+
+**MaAsLin analysis 1: comparing all growth rate ratios of patients in a flare and patients in remission**
+```
+# Give this dataframe a new name. 
+GRFlare = GR_VT
+# I remove patients that have not a documented previous and next flare in the EHR. 
+GRFlare<-GRFlare[!with(GRFlare,is.na(GRFlare$TimeNextVT)& is.na(GRFlare$TimePrevVT)),]
+# I create a new column, so I can give a new value 'in a flare' or 'not in a flare' to all samples. 
+GRFlare = cbind(GRFlare[,1:7], "InFlareNot"=NA, GRFlare[,8:ncol(GRFlare)])
+# I make this column numeric. 
+GRFlare$InFlareNot = as.numeric(as.character(GRFlare$InFlareNot))
+# I create a loop, so that when both time until the next and since the last are 0, a patient is categorised to 
+# be in a flare, and when these are smaller and greater than 0, patients are categorized to not be in a flare. 
+for (i in 1:nrow(GRFlare)){
+  if (is.na(GRFlare$TimeNextVT[i]) | is.na(GRFlare$TimePrevVT[i])){
+    GRFlare$InFlareNot[i] = "Not in a flare"
+  } else if (GRFlare$TimeNextVT[i]== 0 | GRFlare$TimePrevVT==0){
+    GRFlare$InFlareNot[i] = "In a flare"
+  } else if (GRFlare$TimeNextVT[i] <0 & GRFlare$TimePrevVT >0) {
+    GRFlare$InFlareNot[i] = "Not in a flare"
+  } else
+    GRFlare$InFlareNot[i] = "Not in a flare"
+}
+
+# Now, I will format the column numbers for MaAsLin (rownames = first patientIDs, then clinical metadata and thereafter microbiome data).
+GRFlare = GRFlare[,c(1, 8, 2, 3, 5, 9:68)]
+
+write.table(GRFlare, "GRFlare.tsv", sep = "\t", quote = F, row.names = F)# MaAsLin requires a tsv/csv file as input file. 
+```
+**MaAsLin analysis 1 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
+Maaslin('GRFlare.tsv','nOud Final GR Analysis 1',strInputConfig = '1.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
+
+**Analysis 2: categorical comparison of growth rates of all patients before a flare with all patients during a flare**
+```
+GRFflare = GR_VT
+
+## Remove patients that have no documented prior and next flare 
+GRFflare<-GRFflare[!with(GRFflare,is.na(GRFflare$TimeNextVT)& is.na(GRFflare$TimePrevVT)),]
+
+# Creating new column 'in flare/ not in flare'
+GRFflare = cbind(GRFflare[,1:7], "TempColFlare"=NA, GRFflare[,8:ncol(GRFflare)])
+
+## Giving value to new column 'in flare/ not in flare'
+for (i in 1:nrow(GRFflare)){
+  if (is.na(GRFflare$TimeNextVT[i])) {
+    GRFflare$TempColFlare[i]= "None"
+    GRFflare$TimeNextVT[i] = "None"
+  } else if (is.na(GRFflare$TimePrevVT[i])){
+    GRFflare$TimePrevVT[i] = "None"
+  } else if (GRFflare$TimeNextVT[i]< 0) {
+    GRFflare$TempColFlare[i] = "before a flare"
+  } else {
+    GRFflare$TempColFlare[i] = "during a flare"
+  }
+}
+#
+for (i in 1:nrow(GRFflare)){
+  if (GRFflare$TimeNextVT[i] =="None"){
+    GRFflare$TempColFlare[i] = "after a flare"
+  } else if (GRFflare$TimePrevVT[i] =="None"){
+    GRFflare$TempColFlare[i] = "before a flare"
+  } else if (GRFflare$TimeNextVT[i] == 0){
+    GRFflare$TempColFlare[i] = "during a flare"
+  } else if ((GRFflare$TimeNextVT[i] != "None") & (GRFflare$TimePrevVT[i] != "None")){ 
+    if (as.numeric(GRFflare$TimeNextVT[i]) + as.numeric(GRFflare$TimePrevVT[i]) > 0){
+      GRFflare$TempColFlare[i] = "before a flare"
+    } else {
+      GRFflare$TempColFlare[i] = "after a flare"
+    }
+  }
+}
+
+GRFflare = GRFflare[GRFflare$TempColFlare!= "after a flare",]
+
+GRFflare = GRFflare[,c(1, 8, 2, 3, 5, 9: 68)]
+write.table(GRFflare, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # MaAsLin requires a tsv file 
+```
+
+**MaAsLin analysis 2 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
+Maaslin('InFlareNot.tsv','nOud Final GR analysis 2',strInputConfig = '2.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
+
+
+**Analysis 3: categorical comparison of growth rates of all patients during a flare with all patients after a flare**
+```
+GR_DA = GR_VT
+
+# Remove patients that have no documented prior and next flare 
+GR_DA<-GR_DA[!with(GR_DA,is.na(GR_DA$TimeNextVT)& is.na(GR_DA$TimePrevVT)),]
+
+# Creating new column 'in flare/ not in flare'
+GR_DA = cbind(GR_DA[,1:7], "TempColFlare"=NA, GR_DA[,8:ncol(GR_DA)])
+
+## Giving value to new column 'in flare/ not in flare'
+for (i in 1:nrow(GR_DA)){
+  if (is.na(GR_DA$TimeNextVT[i])) {
+    GR_DA$TempColFlare[i]= "None"
+    GR_DA$TimeNextVT[i] = "None"
+  } else if (is.na(GR_DA$TimePrevVT[i])){
+    GR_DA$TimePrevVT[i] = "None"
+  } else if (GR_DA$TimeNextVT[i]< 0) {
+    GR_DA$TempColFlare[i] = "before a flare"
+  } else {
+    GR_DA$TempColFlare[i] = "during a flare"
+  }
+}
+#
+for (i in 1:nrow(GR_DA)){
+  if (GR_DA$TimeNextVT[i] =="None"){
+    GR_DA$TempColFlare[i] = "after a flare"
+  } else if (GR_DA$TimePrevVT[i] =="None"){
+    GR_DA$TempColFlare[i] = "before a flare"
+  } else if (GR_DA$TimeNextVT[i] == 0){
+    GR_DA$TempColFlare[i] = "during a flare"
+  } else if ((GR_DA$TimeNextVT[i] != "None") & (GR_DA$TimePrevVT[i] != "None")){ 
+    if (as.numeric(GR_DA$TimeNextVT[i]) + as.numeric(GR_DA$TimePrevVT[i]) > 0){
+      GR_DA$TempColFlare[i] = "before a flare"
+    } else {
+      GR_DA$TempColFlare[i] = "after a flare"
+    }
+  }
+}
+
+GR_DA = GR_DA[GR_DA$TempColFlare!= "before a flare",]
+
+GR_DA = GR_DA[,c(1, 8, 2, 3, 5, 9: 68)]
+write.table(GR_DA, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin 
+```
+
+**MaAsLin analysis 3 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
+Maaslin('InFlareNot.tsv','nOud Final GR analysis 3',strInputConfig = '3.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
+
+
+**Analysis 4: all patients who have their next flare with time until next flare**
+```
+GRSixMoB = GR_VT
+#
+GRSixMoB<-GRSixMoB[!with(GRSixMoB,is.na(GRSixMoB$TimeNextVT)& is.na(GRSixMoB$TimePrevVT)),]
+#
+GRSixMoB = cbind(GRSixMoB[,1:7], "LinBefore"=NA, GRSixMoB[,8:ncol(GRSixMoB)])
+GRSixMoB$LinBefore = as.numeric(as.character(GRSixMoB$LinBefore))
+
+
+for (i in 1:nrow(GRSixMoB)){
+  if (is.na(GRSixMoB$TimeNextVT[i])) {
+    GRSixMoB$LinBefore[i]= "None"
+    GRSixMoB$TimeNextVT[i] = "None"
+  } else if (is.na(GRSixMoB$TimePrevVT[i])){
+    GRSixMoB$TimePrevVT[i] = "None"
+  } else if (GRSixMoB$TimeNextVT[i]< 0) {
+    GRSixMoB$LinBefore[i] = "before a flare"
+  } else {
+    GRSixMoB$LinBefore[i] = "during a flare"
+  }
+}
+
+for (i in 1:nrow(GRSixMoB)){
+  if (GRSixMoB$TimeNextVT[i] =="None"){
+    GRSixMoB$LinBefore[i] = "after a flare"
+  } else if (GRSixMoB$TimePrevVT[i] =="None"){
+    GRSixMoB$LinBefore[i] = "before a flare"
+  } else if (GRSixMoB$TimeNextVT[i] == 0){
+    GRSixMoB$LinBefore[i] = "during a flare"
+  } else if ((GRSixMoB$TimeNextVT[i] != "None") & (GRSixMoB$TimePrevVT[i] != "None")){ 
+    if (as.numeric(GRSixMoB$TimeNextVT[i]) + as.numeric(GRSixMoB$TimePrevVT[i]) > 0){
+      GRSixMoB$LinBefore[i] = "before a flare"
+    } else {
+      GRSixMoB$LinBefore[i] = "after a flare"
+    }
+  }
+}
+
+GRSixMoB = GRSixMoB[GRSixMoB$LinBefore!= "after a flare",]
+GRSixMoB = GRSixMoB[GRSixMoB$LinBefore!= "during a flare",]
+
+
+GRSixMoB$TimeNextVT = as.numeric(as.character(GRSixMoB$TimeNextVT))
+GRSixMoB$TimeNextVT[GRSixMoB$TimeNextVT< (-182.5)]<-NA
+GRSixMoB = GRSixMoB[!is.na(GRSixMoB$TimeNextVT),]
+
+
+GRSixMoB = GRSixMoB[,c(1, 7, 2, 3, 5, 9:68)]
+
+write.table(GRSixMoB, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
+```
+
+**MaAsLin analysis 4 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
+Maaslin('LinBeforein1Yr.tsv','nOud GR analyses 4a',strInputConfig = '2a.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+``````
+
+
+
+**MaAsLin analysis 5: patients who has last flare <0.5 year with time since last flare**
+```
+GRSixMoA = GR_VT
+
+#
+GRSixMoA<-GRSixMoA[!with(GRSixMoA,is.na(GRSixMoA$TimeNextVT)& is.na(GRSixMoA$TimePrevVT)),]
+#
+GRSixMoA = cbind(GRSixMoA[,1:7], "LinAfter"=NA, GRSixMoA[,8:ncol(GRSixMoA)])
+GRSixMoA$LinAfter = as.numeric(as.character(GRSixMoA$LinAfter))
+
+
+for (i in 1:nrow(GRSixMoA)){
+  if (is.na(GRSixMoA$TimeNextVT[i])) {
+    GRSixMoA$LinAfter[i]= "None"
+    GRSixMoA$TimeNextVT[i] = "None"
+  } else if (is.na(GRSixMoA$TimePrevVT[i])){
+    GRSixMoA$TimePrevVT[i] = "None"
+  } else if (GRSixMoA$TimeNextVT[i]< 0) {
+    GRSixMoA$LinAfter[i] = "before a flare"
+  } else {
+    GRSixMoA$LinAfter[i] = "during a flare"
+  }
+}
+
+for (i in 1:nrow(GRSixMoA)){
+  if (GRSixMoA$TimeNextVT[i] =="None"){
+    GRSixMoA$LinAfter[i] = "after a flare"
+  } else if (GRSixMoA$TimePrevVT[i] =="None"){
+    GRSixMoA$LinAfter[i] = "before a flare"
+  } else if (GRSixMoA$TimeNextVT[i] == 0){
+    GRSixMoA$LinAfter[i] = "during a flare"
+  } else if ((GRSixMoA$TimeNextVT[i] != "None") & (GRSixMoA$TimePrevVT[i] != "None")){ 
+    if (as.numeric(GRSixMoA$TimeNextVT[i]) + as.numeric(GRSixMoA$TimePrevVT[i]) > 0){
+      GRSixMoA$LinAfter[i] = "before a flare"
+    } else {
+      GRSixMoA$LinAfter[i] = "after a flare"
+    }
+  }
+}
+#
+GRSixMoA = GRSixMoA[GRSixMoA$LinAfter!= "before a flare",]
+GRSixMoA = GRSixMoA[GRSixMoA$LinAfter!= "during a flare",]
+
+
+GRSixMoA$TimePrevVT = as.numeric(as.character(GRSixMoA$TimePrevVT))
+GRSixMoA$TimePrevVT[GRSixMoA$TimePrevVT > (182.5)]<-NA
+GRSixMoA = GRSixMoA[!is.na(GRSixMoA$TimePrevVT),]
+#
+
+
+GRSixMoA = GRSixMoA[,c(1, 6, 2, 3, 5, 9:68)]
+write.table(GRSixMoA, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # create tsv file
+```
+**MaAsLin analysis 5 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
+Maaslin('LinAfterin1Yr.tsv','nOud GR analyses 4b',strInputConfig = '2b.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
