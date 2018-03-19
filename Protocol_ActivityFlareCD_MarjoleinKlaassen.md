@@ -8,14 +8,12 @@ Content:
 How to run MaAsLin on Taxonomy data, MetaCyc data, Virulence factors and growth rates 
 
 
-Setting my working Directory 
--------------
+**Setting my working Directory** 
 ```
 setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
 ```
 
-Importing clinical metadata databases
--------------
+**Importing clinical metadata databases**
 ```
 db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
@@ -23,15 +21,13 @@ VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)
 ```
 
-Merging clinical files 
--------------
+**Merging clinical files** 
 ```
 FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)
 ```
 
-Only include patients with certain phenotype
--------------
+**Only include patients with certain phenotype**
 ```
 FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
