@@ -17,11 +17,13 @@ db = as.data.frame(db)
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)```
 
-** Merging clinical files **
+ Merging clinical files 
+ -------------
 ```FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)```
 
-**only include patients with certain phenotype**
+only include patients with certain phenotype
+-------------
 ```FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
 
@@ -30,50 +32,35 @@ FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]```
 
 Taxonomy 
 -------------
-## 7. Next, I will import the database comprising the taxonomic data for each of the samples. 
-Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)
 
-##8. To merge this microbiome data with my VT Database, I will have to create a patientID column in the microbiome taxonomy database.
-# Now, the samples are columns and the taxons are rows. This should be transposed. To tranpose this, I firstly delete the 
-# first row (these are headers). 
-Taxa = Taxa[-1,]
-##8b. To transpose the data, I will make the first column (patientID: called "SID"), into the rownames. 
+Importing Taxonomy Data Metagenomics 
+-------------
+```Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)```
+
+Only keeping in species data (grep function)
+-------------
+```Taxa = Taxa[-1,]
 rownames(Taxa) = Taxa$SID
-##8c. Because SID is now the rownames, I can remove the column. Removing the column "SID". 
 Taxa = Taxa[,c(2:433)]
-##8d. I want to focuss on only species (so no higher taxons). Therefore, I use the function "grep" to only
-## retain columns with "s__", which is the annotation for species. 
 temp1 = Taxa[grep("s__", row.names(Taxa)),]
-##8e. Transposing the microbiome taxonomy database. 
 Taxa = as.data.frame(t(temp1))
-##8f. Making this microbiome taxonomy database numeric. 
 Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.character(x))))
-row.names(Taxa2) = row.names(Taxa)
+row.names(Taxa2) = row.names(Taxa)```
 
-##9a. MaAsLin requires relative abundances between 0 and 1. Therefore, I dvidie all rows by 100, to fulfill this
-## requirement. 
-Taxafinal = Taxa2/100
-##9b. To check whether the relative abundances are between 0 and 1 now, I calculate the sums of the rows (so per sample). 
-rowSums(Taxafinal)
+Making relative abundances of species between 0 and 1 
+-------------
+```Taxafinal = Taxa2/100
+rowSums(Taxafinal)```
 
+Merging clinical data with microbiome data 
+-------------
+```Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
+Taxafinal=Taxafinal[,c(1237, 1:1236)] 
+TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)```
 
-##10. Next, I want to merge the microbiome taxonomy database, with my VT database.  
-##To do this, I firstly have to create a column again from the Patient IDs (which is the rownames now). 
-##10a. Making the rownames (Patient ID numbers), into the first column. 
-Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
-Taxafinal=Taxafinal[,c(1237, 1:1236)]
-
-##10b. Merging the taxonomy microbiome database, with my VT database on basis of UMCGIBD numbers.  
-TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)
-
-##11. I only want to include the patients with Crohn's Disease (so hereby I exclude UC and IBDU/IBDI patients).
-TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]
-
-##12. When I was calculating the time between the date of the sampling and the date of the closest flare, 
-## I also encountered samples which were taken during a period of which the EHR reported a flare. Therefore, all 
-## patients who are in a flare at time of sampling, now have a negative number of days in respect to a flare (next 
-## flare = -12 days ago, means that the flare started 12 days before sampling and is still ongoing). In this next step,
-## all these patients in a flare are set to zero. 
+Only including CD patients 
+-------------
+```TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]```
 
 #12a. creating a new column in which this value will be. 
 TaxaVT = cbind(TaxaVT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=TaxaVT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, TaxaVT[,8:ncol(TaxaVT)])
