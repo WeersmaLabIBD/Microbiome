@@ -8,6 +8,13 @@ Content:
 How to run MaAsLin on Taxonomy data, MetaCyc data, Virulence factors and growth rates 
 
 
+
+
+
+
+
+
+
 **Setting my working Directory** 
 ```
 setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
