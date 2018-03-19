@@ -211,7 +211,9 @@ write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names =
 Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-**Analysis 2: comparison in MaAsLin patients before and patients in an exacerbation**  
+Analyses 2: comparison in MaAsLin patients before and patients in an exacerbation
+-------------
+
 
 ```
 InFlareNot = TaxaVT
