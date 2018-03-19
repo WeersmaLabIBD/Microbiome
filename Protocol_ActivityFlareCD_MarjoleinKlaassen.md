@@ -7,7 +7,9 @@ Year: 2018
 
 Setting my working Directory 
 -------------
-```setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")```
+```
+setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
+```
 
 Importing clinical metadata databases
 -------------
@@ -39,7 +41,9 @@ Taxonomy
 -------------
 
 **Importing Taxonomy Data Metagenomics** 
-```Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)```
+```
+Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)
+```
 
 **Only keeping in species data (grep function)**
 ```
@@ -66,7 +70,9 @@ TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)
 ```
 
 **Only including CD patients**
-```TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]```
+```
+TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]
+```
 
 **Creating a loop to transfer all days that patients are in a flare, to the numeric value 0**
 ```
@@ -158,16 +164,16 @@ TaxaVT = merge(TaxaVT, TaxonomyFilter2, by= "UMCGIBDDNAID", all = FALSE)
 Analyses MaAsLin Taxonomy 
 -------------
 
-##20.1.a Give this dataframe a new name. 
-TaxaInFlareNot = TaxaVT
-##20.1.b I remove patients that have not a documented previous and next flare in the EHR. 
+** Removing all patients that have no documented exacerbation** 
+```
+TaxaInFlareNot = TaxaVT 
 TaxaInFlareNot<-TaxaInFlareNot[!with(TaxaInFlareNot,is.na(TaxaInFlareNot$TimeNextVT)& is.na(TaxaInFlareNot$TimePrevVT)),]
-#20.1.c. I create a new column, so I can give a new value 'in a flare' or 'not in a flare' to all samples. 
+```
+** Creating a loop to create new phenotype 'in flare/ not in flare'**
+```
 TaxaInFlareNot = cbind(TaxaInFlareNot[,1:7], "InFlareNot"=NA, TaxaInFlareNot[,8:ncol(TaxaInFlareNot)])
-#20.1.d. I make this column numeric. 
 TaxaInFlareNot$InFlareNot = as.numeric(as.character(TaxaInFlareNot$InFlareNot))
-#20.1.e. I create a loop, so that when both time until the next and since the last are 0, a patient is categorised to 
-# be in a flare, and when these are smaller and greater than 0, patients are categorized to not be in a flare. 
+
 for (i in 1:nrow(TaxaInFlareNot)){
   if (is.na(TaxaInFlareNot$TimeNextVT[i]) | is.na(TaxaInFlareNot$TimePrevVT[i])){
     TaxaInFlareNot$InFlareNot[i] = "Not in a flare"
@@ -178,17 +184,22 @@ for (i in 1:nrow(TaxaInFlareNot)){
   } else
     TaxaInFlareNot$InFlareNot[i] = "Not in a flare"
 }
+```
 
-#20.1.f. Now, I will format the column numbers for MaAsLin (rownames = first patientIDs, then clinical metadata and thereafter microbiome data).
+** Creating order of data suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data) **
+```
 TaxaInFlareNot = TaxaInFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
-#20.1.g MaAsLin requires a tsv/csv file as input file. 
-write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+```
 
-#20.1.h MaAsLin requires a tsv/csv file as input file, a name for the created output file and a file in which he reads
-# to read which columns and which rows. Furthermore, I forced a zero inflation test, a minimal sample abundance of 25%, and I forced
-# the correction for my clinical data. 
-## MaAsLin analysis 1: in a flare not in a flare. 
+** MaAsLin requires a tsv/csv file as input file of all the data (the R-database you just made)** 
+```
+write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+```
+
+** MaAsLin requires the tsv/csv file, the name of the output file in which MaAsLin puts all the results, and the R-script which says which columns/rows he should analyze (i.e. file.read.config). Furthermore, I forced a zero inflated model (fZeroInlfated = T) and set a minimal abundance of the microbiome feature at 25% of samples. I also force correction of phenotypes. **
+```
 Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
