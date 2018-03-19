@@ -539,15 +539,15 @@ MetacycProp1["UMCGIBDDNAID"] = row.names(MetacycProp1)
 MetacycProp1=MetacycProp1[,c(784,1:783)]
 ```
 
-**Merging 
-
-## Merging the taxonomy file and the metadata file 'time until flare'. 
+**Merging taxonomy data with the clinical metadata**
+```
 MetaCycVTFin = merge (FinalVT, MetacycProp1, by= "UMCGIBDDNAID", all = FALSE)
+```
 
 
-## Converting all negative numbers (patient is in a flare multiple days) into 
-## zero's (meaning that all patients in a flare are stated as just 'in a flare' =
-## 0 days until last flare and 0 days until next flare)
+**Creating a loop to transfer all days that patients are in a flare, to the numeric value 0**
+```
+# Converting all negative numbers (patient is in a flare multiple days) into zero's (meaning that all patients in a flare are stated as just 'in a flare' = 0 days until last flare and 0 days until next flare)
 MetaCycVTFin = cbind(MetaCycVTFin[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=MetaCycVTFin$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, MetaCycVTFin[,8:ncol(MetaCycVTFin)])
 
 MetaCycVTFin$TimeEndPreviousExacerbation = as.numeric(as.character(MetaCycVTFin$TimeEndPreviousExacerbation))
@@ -562,8 +562,10 @@ for (i in 1:nrow(MetaCycVTFin)) {
     MetaCycVTFin$TimeNextNegtoZer[i] = MetaCycVTFin$TimeToStartNextExacerbation[i]
   }
 }
+```
 
-## Making 'days to the next flare' all zero. 
+**Creating a loop to transfer all days 'before an exacerbation' to negative numeric values**
+```
 MetaCycVTFin = cbind(MetaCycVTFin[,1:9], "TimeNextVT"=NA, MetaCycVTFin[,10:ncol(MetaCycVTFin)])
 for (i in 1:nrow(MetaCycVTFin)) {
   if (MetaCycVTFin$TimeNextNegtoZer[i] > 0 & !is.na(MetaCycVTFin$TimeNextNegtoZer[i])) {
@@ -576,25 +578,30 @@ for (i in 1:nrow(MetaCycVTFin)) {
 
 MetaCycCD = MetaCycVTFin[MetaCycVTFin$DiagnosisCurrent == 'CD',]
 MetaCycCD = MetaCycCD[,c(1:5, 7, 10, 11:797)]
+```
 
-
-# When PPI use is not documented in patient, it is agreed that we report 'no PPI use'.
+**When it is not documented whether patient is on PPI, we agreed to report 'no PPI use'**
+```
 for (i in 1:nrow(MetaCycCD)){
   if (is.na(MetaCycCD$MedicationPPI[i])){
     MetaCycCD$MedicationPPI[i] = "no"
   } else 
     MetaCycCD$MedicationPPI[i] = MetaCycCD$MedicationPPI[i]
 }
+```
 
-# When Antibiotic use is not documented in patient, it is agreed that we report 'no ab use'. 
+**When Antibiotic use is not documented in patient, it is agreed that we report 'no antibiotic use'**
+```
 for (i in 1:nrow(MetaCycCD)){
   if (is.na(MetaCycCD$AntibioticsWithin3MonthsPriorToSampling[i])){
     MetaCycCD$AntibioticsWithin3MonthsPriorToSampling[i] = "no"
   } else 
     MetaCycCD$AntibioticsWithin3MonthsPriorToSampling[i] = MetaCycCD$AntibioticsWithin3MonthsPriorToSampling[i]
 }
+```
 
-# Zorgen dat het helemaal klopt, dan alle NextVT die 0 zijn, dan ook PrevVT hebben die nul is.
+**Checking whether patients that are in an exacerbation, have both numeric value 0 to the last flare and next flare**
+```
 for (i in 1:nrow(MetaCycCD)){
   if (!is.na(MetaCycCD$TimePrevVT[i]) & MetaCycCD$TimePrevVT[i] == 0 ){
     MetaCycCD$TimeNextVT[i] = 0
@@ -610,8 +617,10 @@ for (i in 1:nrow(MetaCycCD)){
 }
 
 MetaCycVT = MetaCycCD
+```
 
-### Filtering out species that are abundant in <5% of patients
+**Filtering out pathways that are abundant in <5% of patients**
+```
 MCFilter = MetaCycCD[,c(1, 12: 794)]
 MCFilter2 = MCFilter[,-1]
 rownames(MCFilter2) = MCFilter[,1]
@@ -624,10 +633,10 @@ MCFilter2=MCFilter2[,c(634, 1:633)]
 
 MetaCycVT = MetaCycCD[,c(1:11)]
 MetaCycVT = merge(MetaCycVT, MCFilter2, by= "UMCGIBDDNAID", all = FALSE)
+```
 
-
-## Er zijn dubbele punten in de kolomnamen. Hier kan MaAslin niet mee werken
-## Nu wil ik dus alle ':' vervangen door '_'.
+**Removing punctuationmarks because MaAsLin can not handle them**
+```
 names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = ":", replacement = "_") 
 names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = " ", replacement = "_") 
 names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = "-", replacement = "_") 
@@ -635,8 +644,9 @@ names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = ")", replacement = "_")
 names(MetaCycVT) = gsub(x = names(MetaCycVT), pattern = "/", replacement = "_")
 MetaCycVTTidy = make.names(colnames(MetaCycVT), unique = TRUE)
 colnames(MetaCycVT) = MetaCycVTTidy 
+```
 
-
+**
 
 
 ###### Analysis 1: categorical comparison of gut metagenome, all patients in a flare with
