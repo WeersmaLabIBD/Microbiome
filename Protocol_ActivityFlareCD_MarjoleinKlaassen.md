@@ -5,7 +5,7 @@ Name author of code: Marjolein Klaassen.
 Date: 19-3-2018
 
 
-Setting my working Directory.  
+Setting my working Directory 
 -------------
 ```setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")```
 
@@ -20,15 +20,19 @@ VT = as.data.frame(VT)
 
  Merging clinical files 
 -------------
-```FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
-FinalVT=as.data.frame(FinalVT)```
+```
+FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
+FinalVT=as.data.frame(FinalVT)
+```
 
-only include patients with certain phenotype
+Only include patients with certain phenotype
 -------------
-```FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
+```
+FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
 
-FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]```
+FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+```
 
 
 Taxonomy 
@@ -41,35 +45,43 @@ Importing Taxonomy Data Metagenomics
 
 Only keeping in species data (grep function)
 -------------
-```Taxa = Taxa[-1,]
+```
+Taxa = Taxa[-1,]
 rownames(Taxa) = Taxa$SID
 Taxa = Taxa[,c(2:433)]
 temp1 = Taxa[grep("s__", row.names(Taxa)),]
 Taxa = as.data.frame(t(temp1))
 Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.character(x))))
-row.names(Taxa2) = row.names(Taxa)```
+row.names(Taxa2) = row.names(Taxa)
+```
 
 Making relative abundances of species between 0 and 1 
 -------------
-```Taxafinal = Taxa2/100
-rowSums(Taxafinal)```
+```
+Taxafinal = Taxa2/100
+rowSums(Taxafinal)
+```
 
 Merging clinical data with microbiome data 
 -------------
-```Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
+```
+Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
 Taxafinal=Taxafinal[,c(1237, 1:1236)] 
-TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)```
+TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)
+```
 
 Only including CD patients 
 -------------
 ```TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]```
 
-#12a. creating a new column in which this value will be. 
+Creating a loop to transfer all days that patients are in a flare, to the numeric value 0
+-------------
+```
 TaxaVT = cbind(TaxaVT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=TaxaVT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, TaxaVT[,8:ncol(TaxaVT)])
-#12b. Making these new columns numeric. 
+
 TaxaVT$TimeEndPreviousExacerbation = as.numeric(as.character(TaxaVT$TimeEndPreviousExacerbation))
 TaxaVT$TimeToStartNextExacerbation = as.numeric(as.character(TaxaVT$TimeToStartNextExacerbation))
-#12c. Creating a loop: for each sample when the next flare is < 0, the time to flare is 0. 
+
 for (i in 1:nrow(TaxaVT)) {
   if (TaxaVT$TimeEndPreviousExacerbation[i] < 0 & !is.na(TaxaVT$TimeEndPreviousExacerbation[i])) {
     TaxaVT$TimePrevVT[i] = 0
@@ -79,11 +91,11 @@ for (i in 1:nrow(TaxaVT)) {
     TaxaVT$TimeNextNegtoZer[i] = TaxaVT$TimeToStartNextExacerbation[i]
   }
 }
+```
 
-
-##13. Furthermore, when calculating numbers until the next flare, the flare has not occured yet. E.g. when the next flare
-## is in 20 days, the sample will be valued as '-20'.
-## This loop is then created to perform this. 
+Creating a loop to transfer all days 'before an exacerbation' to negative numeric values 
+-------------
+```
 TaxaVT = cbind(TaxaVT[,1:9], "TimeNextVT"=NA, TaxaVT[,10:ncol(TaxaVT)])
 for (i in 1:nrow(TaxaVT)) {
   if (TaxaVT$TimeNextNegtoZer[i] > 0 & !is.na(TaxaVT$TimeNextNegtoZer[i])) {
@@ -93,28 +105,32 @@ for (i in 1:nrow(TaxaVT)) {
     TaxaVT$TimeNextVT[i] = TaxaVT$TimeNextNegtoZer[i]
   }
 }
-
-##14. Only keeping the columns I need. 
 TaxaCD = TaxaVT[,c(1:5, 7, 10, 11:1250)]
-
-#15. When PPI use is not documented in patient, it is agreed that we report 'no PPI use'.
+```
+When it is not documented whether patient is on PPI, we agreed to report 'no PPI use'
+-------------
+```
 for (i in 1:nrow(TaxaCD)){
   if (is.na(TaxaCD$MedicationPPI[i])){
     TaxaCD$MedicationPPI[i] = "no"
   } else 
     TaxaCD$MedicationPPI[i] = TaxaCD$MedicationPPI[i]
 }
+```
 
-#16.When Antibiotic use is not documented in patient, it is agreed that we report 'no ab use'. 
+When it is not documented whether patient is on antibiotics, we agreed to report 'no antibiotic use'
+-------------
+```
 for (i in 1:nrow(TaxaCD)){
   if (is.na(TaxaCD$AntibioticsWithin3MonthsPriorToSampling[i])){
     TaxaCD$AntibioticsWithin3MonthsPriorToSampling[i] = "no"
   } else 
     TaxaCD$AntibioticsWithin3MonthsPriorToSampling[i] = TaxaCD$AntibioticsWithin3MonthsPriorToSampling[i]
 }
+```
 
-##17. When a patient is in a flare, the days until the next flare as well as the days since the last flare, should be zero. 
-## In this step, I just make sure that it is. 
+**Checking whether patients that are in an exacerbation, have both numeric value 0 to the last flare and next flare**
+
 for (i in 1:nrow(TaxaCD)){
   if (!is.na(TaxaCD$TimePrevVT[i]) & TaxaCD$TimePrevVT[i] == 0 ){
     TaxaCD$TimeNextVT[i] = 0
