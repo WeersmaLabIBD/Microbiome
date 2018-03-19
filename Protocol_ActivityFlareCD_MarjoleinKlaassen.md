@@ -2,7 +2,7 @@ Project Name: Relating CD actvitiy to the gut microbiome
 -------------
 
 Name author of code: Marjolein Klaassen.
-Date: 19-3-2018
+Year: 2018
 
 
 Setting my working Directory 
@@ -38,13 +38,10 @@ FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
 Taxonomy 
 -------------
 
-Importing Taxonomy Data Metagenomics 
-------------- 
-
+**Importing Taxonomy Data Metagenomics** 
 ```Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)```
 
-Only keeping in species data (grep function)
--------------
+**Only keeping in species data (grep function)**
 ```
 Taxa = Taxa[-1,]
 rownames(Taxa) = Taxa$SID
@@ -55,27 +52,23 @@ Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.c
 row.names(Taxa2) = row.names(Taxa)
 ```
 
-Making relative abundances of species between 0 and 1 
--------------
+**Making relative abundances of species between 0 and 1 **
 ```
 Taxafinal = Taxa2/100
 rowSums(Taxafinal)
 ```
 
-Merging clinical data with microbiome data 
--------------
+**Merging clinical data with microbiome data** 
 ```
 Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
 Taxafinal=Taxafinal[,c(1237, 1:1236)] 
 TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)
 ```
 
-Only including CD patients 
--------------
+**Only including CD patients**
 ```TaxaVT = TaxaVT[TaxaVT$DiagnosisCurrent== "CD",]```
 
-Creating a loop to transfer all days that patients are in a flare, to the numeric value 0
--------------
+**Creating a loop to transfer all days that patients are in a flare, to the numeric value 0**
 ```
 TaxaVT = cbind(TaxaVT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=TaxaVT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, TaxaVT[,8:ncol(TaxaVT)])
 
@@ -93,8 +86,7 @@ for (i in 1:nrow(TaxaVT)) {
 }
 ```
 
-Creating a loop to transfer all days 'before an exacerbation' to negative numeric values 
--------------
+**Creating a loop to transfer all days 'before an exacerbation' to negative numeric values**
 ```
 TaxaVT = cbind(TaxaVT[,1:9], "TimeNextVT"=NA, TaxaVT[,10:ncol(TaxaVT)])
 for (i in 1:nrow(TaxaVT)) {
@@ -107,8 +99,7 @@ for (i in 1:nrow(TaxaVT)) {
 }
 TaxaCD = TaxaVT[,c(1:5, 7, 10, 11:1250)]
 ```
-When it is not documented whether patient is on PPI, we agreed to report 'no PPI use'
--------------
+**When it is not documented whether patient is on PPI, we agreed to report 'no PPI use'**
 ```
 for (i in 1:nrow(TaxaCD)){
   if (is.na(TaxaCD$MedicationPPI[i])){
@@ -118,8 +109,7 @@ for (i in 1:nrow(TaxaCD)){
 }
 ```
 
-When it is not documented whether patient is on antibiotics, we agreed to report 'no antibiotic use'
--------------
+**When it is not documented whether patient is on antibiotics, we agreed to report 'no antibiotic use'**
 ```
 for (i in 1:nrow(TaxaCD)){
   if (is.na(TaxaCD$AntibioticsWithin3MonthsPriorToSampling[i])){
@@ -130,7 +120,7 @@ for (i in 1:nrow(TaxaCD)){
 ```
 
 **Checking whether patients that are in an exacerbation, have both numeric value 0 to the last flare and next flare**
-
+```
 for (i in 1:nrow(TaxaCD)){
   if (!is.na(TaxaCD$TimePrevVT[i]) & TaxaCD$TimePrevVT[i] == 0 ){
     TaxaCD$TimeNextVT[i] = 0
@@ -144,36 +134,29 @@ for (i in 1:nrow(TaxaCD)){
   } else 
     TaxaCD$TimePrevVT[i] = TaxaCD$TimePrevVT[i]
 }
+```
 
-
-##18. Now, I filter out all species that are abundant in <5% of patients.
-## To do this, I filter out all patients who have a rowsum of 0.000 in more than 95% of samples. 
-#18a. To do this, I firstly have to transpore the microbiome data. So I firstly take out the clinical metadata.
+**Filtering out all microbiome species who are present in <5% of patients**
+```
 TaxonomyFilter = TaxaCD[,c(1, 12: 1247)]
 TaxonomyFilter2 = TaxonomyFilter[,-1]
 rownames(TaxonomyFilter2) = TaxonomyFilter[,1]
-#18b. Now I can transpose the database. 
 TaxonomyFilter2 = as.data.frame(t(TaxonomyFilter2))
-#18c. To make sure all zeros are the same, I say that all zeros with 8 0's behind the comma, should be zero's with 9
-# zero's behind the coma. 
 TaxonomyFilter2[TaxonomyFilter2==0.00000000] =0.000000000
 TaxonomyFilter2[TaxonomyFilter2==0] =0.000000000
 
-#18d. Now, I keep only the rows (which are now species) which have values > 0 in more than 5% of patients. 
 TaxonomyFilter2 = TaxonomyFilter2[rowSums(TaxonomyFilter2==0.000000000)<=ncol(TaxonomyFilter2)*0.95,]
-#18e. I transpose the databasebase, so that samples are rows again and species columns.  
+
 TaxonomyFilter2 = as.data.frame(t(TaxonomyFilter2))
 TaxonomyFilter2["UMCGIBDDNAID"] = row.names(TaxonomyFilter2)
 TaxonomyFilter2=TaxonomyFilter2[,c(301, 1:300)]
 
-##19. Now I merge this "filtered" database again with the clinical metadata. 
 TaxaVT = TaxaCD[,c(1:11)]
 TaxaVT = merge(TaxaVT, TaxonomyFilter2, by= "UMCGIBDDNAID", all = FALSE)
+```
 
-
-###20. Now, I will start performing the analyses. 
-##20.1 Analysis 1: categorical comparison of gut metagenome, all patients in a flare with all patients not in a flare. 
-## using MaAsLin.
+Analyses MaAsLin Taxonomy 
+-------------
 
 ##20.1.a Give this dataframe a new name. 
 TaxaInFlareNot = TaxaVT
