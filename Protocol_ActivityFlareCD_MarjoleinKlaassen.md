@@ -482,29 +482,37 @@ Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputCon
 
 
 
+MetaCyc-pathways 
+-------------
 
-
-
-
-## ____________________________________________________________________________
-###Next, I will perform the exact same analyses for functional pathways. 
+**Importing clinical database**
+``` 
 db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
+``` 
 
+**Importing clinical database** 
+``` 
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)
-
+``` 
+**Merging clinical files** 
+``` 
 FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)
 FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
 FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+``` 
 
-## Importing Kraken metagenomic sequencing file 'MetaCycpathways'. 
+**Importing metagenomic MetaCyc pathways data (Kraken)** 
+``` 
 Metacyc = read.delim ("Metacyc_paths.txt", header = TRUE, sep = "\t")
 Metacyc = as.data.frame(Metacyc)
+``` 
 
-## Since MaAsLin requires proportional data, I make the data proportional. 
+**Making data proportional (relative abundances) for MaAsLin** 
+```
 MetacycProp= data.frame(matrix(nrow=nrow(Metacyc), ncol=ncol(Metacyc)))
 colsum = colSums(Metacyc)
 for (i in 1:ncol(Metacyc)) {
@@ -516,15 +524,22 @@ colnames(MetacycProp) = colnames(Metacyc)
 colSums(MetacycProp)
 
 MetacycProp1 = MetacycProp
-## Nu is de data proportional. Nu nog aan de vereiste voldoen om de data tussen
-## 0 en 1 aan te leveren. 
+```
+
+**Making relative abundances between 0 and 1**
+```
 MetacycProp1= MetacycProp1/100
 colSums(MetacycProp1)
+```
 
-## zorgen dat de kolommen dezelfde naam hebben voor het mergen
+**Making patientID's columns the same names for the merging** 
+```
 MetacycProp1 = as.data.frame(t(MetacycProp1))
 MetacycProp1["UMCGIBDDNAID"] = row.names(MetacycProp1)
 MetacycProp1=MetacycProp1[,c(784,1:783)]
+```
+
+**Merging 
 
 ## Merging the taxonomy file and the metadata file 'time until flare'. 
 MetaCycVTFin = merge (FinalVT, MetacycProp1, by= "UMCGIBDDNAID", all = FALSE)
