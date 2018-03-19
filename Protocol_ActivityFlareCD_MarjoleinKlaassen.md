@@ -22,24 +22,24 @@ setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
 
 **Importing clinical metadata databases**
 ```
-db = read.csv("VALFLO.csv", header = T, sep = ";")
-db = as.data.frame(db)
-VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
-VT = as.data.frame(VT)
+db = read.csv("VALFLO.csv", header = T, sep = ";") # importing clinical database
+db = as.data.frame(db) # making database into dataframe
+VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";") # importing clinical database
+VT = as.data.frame(VT) # making database into dataframe
 ```
 
 **Merging clinical files** 
 ```
-FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
-FinalVT=as.data.frame(FinalVT)
+FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE) # merging clinical databases based on hospital patient number
+FinalVT=as.data.frame(FinalVT) # making database into dataframe
 ```
 
 **Only including certain phenotypes for which we want to correct**
 ```
-FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
-FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
+FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',] # Excluding patients who fulfilled exlusion criteria 
+FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")] # We want to correct for sex, read depth, Age, disease location, PPI use and antibiotic use. 
 
-FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)] # changing the order of the columns
 ```
 
 
@@ -48,18 +48,18 @@ Taxonomy
 
 **Importing Taxonomy Data Metagenomics** 
 ```
-Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)
+Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE) # Importing the metagenomic taxonomy data 
 ```
 
 **Only keeping in species data (grep function)**
 ```
-Taxa = Taxa[-1,]
-rownames(Taxa) = Taxa$SID
-Taxa = Taxa[,c(2:433)]
-temp1 = Taxa[grep("s__", row.names(Taxa)),]
-Taxa = as.data.frame(t(temp1))
-Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.character(x))))
-row.names(Taxa2) = row.names(Taxa)
+Taxa = Taxa[-1,] # making the rownames the UMCG research IDs 
+rownames(Taxa) = Taxa$SID  # making the rownames the UMCG research IDs 
+Taxa = Taxa[,c(2:433)] # removing patients ID numbers 
+temp1 = Taxa[grep("s__", row.names(Taxa)),] # only keeping column names with s__, i.e. species
+Taxa = as.data.frame(t(temp1)) # transposing data again 
+Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.character(x)))) # making all data numeric
+row.names(Taxa2) = row.names(Taxa) 
 ```
 
 **Making relative abundances of species between 0 and 1 **
@@ -70,9 +70,9 @@ rowSums(Taxafinal)
 
 **Merging clinical data with microbiome data** 
 ```
-Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal)
+Taxafinal["UMCGIBDDNAID"] = row.names(Taxafinal) # making new column for UMCG patient numbers 
 Taxafinal=Taxafinal[,c(1237, 1:1236)] 
-TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE)
+TaxaVT = merge (FinalVT, Taxafinal, by = "UMCGIBDDNAID", all = FALSE) # merging clinical data with species metagenomic data
 ```
 
 **Only including CD patients**
