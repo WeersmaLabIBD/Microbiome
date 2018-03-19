@@ -27,7 +27,7 @@ FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)
 ```
 
-**Only include patients with certain phenotype**
+**Only including certain phenotypes for which we want to correct**
 ```
 FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
