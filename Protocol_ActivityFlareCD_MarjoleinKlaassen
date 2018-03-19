@@ -1,10 +1,11 @@
 
-## Project Name: Relating CD actvitiy to the gut microbiome.
+## Project Name: Relating CD actvitiy to the gut microbiome
+-------------
+
 ## Name Manuscript: Increased abundance of gut microbial virulence genes and pro-inflammatory pathways during Crohn’s disease exacerbations 
 ## Name author of code: Marjolein Klaassen.
 ## Date of this update: 11-12-2017 
 
-#### _______________________________________________________________________________
 
 ##1.  Setting my working Directory.  
 setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
