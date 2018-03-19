@@ -18,7 +18,7 @@ VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)```
 
  Merging clinical files 
- -------------
+-------------
 ```FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)```
 
