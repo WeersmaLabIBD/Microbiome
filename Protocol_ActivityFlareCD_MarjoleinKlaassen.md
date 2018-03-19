@@ -791,16 +791,12 @@ Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 3',strInputConfig = '3.Met
 
 
 
-
-
-
-
-############## Linear analysis 2a
-### (Patients who have next flare < 1 year) - (time until next flare). 
+**Analysis 4: patients who have next flare < 1 year with time until next flare** 
+```
 MCCDIIa = MetaCycVT
 
 MCCDIIa<-MCCDIIa[!with(MCCDIIa,is.na(MCCDIIa$TimeNextVT)& is.na(MCCDIIa$TimePrevVT)),]
-#
+
 MCCDIIa = cbind(MCCDIIa[,1:7], "LinBefore"=NA, MCCDIIa[,8:ncol(MCCDIIa)])
 MCCDIIa$LinBefore = as.numeric(as.character(MCCDIIa$LinBefore))
 
@@ -844,23 +840,22 @@ MCCDIIa = MCCDIIa[!is.na(MCCDIIa$TimeNextVT),]
 
 MCCDIIa = MCCDIIa[,c(1, 7, 2, 3, 5, 9:645)]
 
-write.table(MCCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
+write.table(MCCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAslin
+```
 
-### MaAsLin run 2a (Patients who have next flare < 6 mo) - (time until next flare). 
+**MaAsLin run 4**
+```
 Maaslin('LinBeforein1Yr.tsv','nOud Final MetaCyc analyses 4a',strInputConfig = '2a.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
-
-
-
-
-
-##### Analyses 2b: (Patients who had last flare < 1 year) - (time since last flare). 
+**Analysis 5: patients who had last flare < 1 year with time since last flare**
+```
 MCLinAfterIIb = MetaCycVT
 
-#
+
 MCLinAfterIIb<-MCLinAfterIIb[!with(MCLinAfterIIb,is.na(MCLinAfterIIb$TimeNextVT)& is.na(MCLinAfterIIb$TimePrevVT)),]
-#
+
 MCLinAfterIIb = cbind(MCLinAfterIIb[,1:7], "LinAfter"=NA, MCLinAfterIIb[,8:ncol(MCLinAfterIIb)])
 MCLinAfterIIb$LinAfter = as.numeric(as.character(MCLinAfterIIb$LinAfter))
 
@@ -904,9 +899,13 @@ MCLinAfterIIb = MCLinAfterIIb[!is.na(MCLinAfterIIb$TimePrevVT),]
 
 
 MCLinAfterIIb = MCLinAfterIIb[,c(1, 6, 2, 3, 5, 9:645)]
-write.table(MCLinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
-##2b 
+write.table(MCLinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
+```
+
+**MaAsLin analysis 5**
+```
 Maaslin('LinAfterin1Yr.tsv','nOud Final Metacyc Analysis 4b',strInputConfig = '2b.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
