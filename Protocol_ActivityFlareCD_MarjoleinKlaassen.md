@@ -194,7 +194,7 @@ for (i in 1:nrow(TaxaInFlareNot)){
 }
 ```
 
-**Creating order of columns suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data) **
+**Creating order of columns suited for MaAsLin (first patientIDs, then clinical metadata, then microbiome data)**
 ```
 TaxaInFlareNot = TaxaInFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 ```
@@ -209,7 +209,7 @@ write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names =
 Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-**Analysis 2: comparison in MaAsLin patients before and patients in an exacerbation **  
+**Analysis 2: comparison in MaAsLin patients before and patients in an exacerbation**  
 
 ```
 InFlareNot = TaxaVT
@@ -256,7 +256,7 @@ InFlareNot = InFlareNot[,c(1, 8, 2, 3, 5, 9:312)]
 write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
-**MaAsLin analysis 2 **
+**MaAsLin analysis 2**
 ```
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 2',strInputConfig = '2.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
@@ -376,25 +376,26 @@ TaxaCDIIa = TaxaCDIIa[,c(1, 6, 2:5, 8:311)]
 write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
-**MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare) ** 
+**MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare)**
+```
 Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
+Analysis 5: MaAsLin patients who had last flare <1 year with time since last flare 
+-------------
 
-
-
-##20.5. Analyses 2b: (Patients who had last flare < 1 year) - (time since last flare). 
-##20.5.a Give this dataframe a new name. 
+```
 LinAfterIIb = TaxaVT
 
-##20.5.b I remove patients that have not a documented previous and next flare in the EHR.
+# I remove patients that have not a documented previous and next flare in the EHR.
 LinAfterIIb<-LinAfterIIb[!with(LinAfterIIb,is.na(LinAfterIIb$TimeNextVT)& is.na(LinAfterIIb$TimePrevVT)),]
-##20.5.d. I create a new column, so I can give a new value 'before a flare' or 'in a flare' to all samples. 
+# I create a new column, so I can give a new value 'before a flare' or 'in a flare' to all samples. 
 # When time to next flare is na, the new column is "none" (just so that these samples have a variable).
 # Furthermore, when the time til the next flare is < 0, this patient is before a flare. 
 LinAfterIIb = cbind(LinAfterIIb[,1:7], "LinAfter"=NA, LinAfterIIb[,8:ncol(LinAfterIIb)])
 LinAfterIIb$LinAfter = as.numeric(as.character(LinAfterIIb$LinAfter))
 
-##20.5.e Now, Again I ascribe samples to which flare is closest. 
+# Now, Again I ascribe samples to which flare is closest. 
 for (i in 1:nrow(LinAfterIIb)){
   if (is.na(LinAfterIIb$TimeNextVT[i])) {
     LinAfterIIb$LinAfter[i]= "None"
@@ -424,26 +425,30 @@ for (i in 1:nrow(LinAfterIIb)){
   }
 }
 
-# 20.5.e For this analysis, I only want to include patients who are in the 6 months after their prior flare. Therefore,
+# For this analysis, I only want to include patients who are in the 6 months after their prior flare. Therefore,
 # i remove patients who are closer to their next flare or are in a flare. 
 LinAfterIIb = LinAfterIIb[LinAfterIIb$LinAfter!= "before a flare",]
 LinAfterIIb = LinAfterIIb[LinAfterIIb$LinAfter!= "during a flare",]
-# 20.5.f Now, I only want to include patients who have their next flare in the next half year. Therefore, I firstly make the
+# Now, I only want to include patients who have their next flare in the next half year. Therefore, I firstly make the
 # days until the next flare numeric again.
 LinAfterIIb$TimePrevVT = as.numeric(as.character(LinAfterIIb$TimePrevVT))
 
-# 20.5.g Then,I make all days that are more than 182.5 (half year) days away from their last flare, into NAs.  
+# Then,I make all days that are more than 182.5 (half year) days away from their last flare, into NAs.  
 LinAfterIIb$TimePrevVT[LinAfterIIb$TimePrevVT> 182.5]<-NA
-#20.5.h Then, I remove those samples that have NAs (i.e. are further away from their next flare than 6 months), by
+# Then, I remove those samples that have NAs (i.e. are further away from their next flare than 6 months), by
 # only maintaining samples with complete values, instead of NAs. 
 LinAfterIIb = LinAfterIIb[!is.na(LinAfterIIb$TimePrevVT),]
 
-# 20.5.j I create the order of columns suitable for MaAsLin. 
+# I create the order of columns suitable for MaAsLin. 
 LinAfterIIb = LinAfterIIb[,c(1, 6, 2, 3, 5, 9:311)]
-write.table(LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
-##2b 
-Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 
+write.table(LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin
+```
+
+**MaAsLin run 5**
+```
+Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+```
 
 
 
