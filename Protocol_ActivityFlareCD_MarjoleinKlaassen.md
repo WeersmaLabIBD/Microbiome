@@ -311,7 +311,7 @@ write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-**Analysis MaAsLin 4: Linear analysis of patients who have their next flare <6 months - time until next flare**
+**Analysis MaAsLin 4: Linear analysis of patients who have their next flare <0.5 year - time until next flare**
 
 ```
 TaxaCDIIa = TaxaVT
@@ -376,7 +376,7 @@ write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = 
 Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
-**Analysis 5: MaAsLin patients who had last flare <1 year with time since last flare**
+**Analysis 5: MaAsLin patients who had last flare <0.5 year with time since last flare**
 
 ```
 LinAfterIIb = TaxaVT
@@ -791,7 +791,7 @@ Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 3',strInputConfig = '3.Met
 
 
 
-**Analysis 4: patients who have next flare < 1 year with time until next flare** 
+**Analysis 4: patients who have next flare < 0.5 year with time until next flare** 
 ```
 MCCDIIa = MetaCycVT
 
@@ -849,7 +849,7 @@ Maaslin('LinBeforein1Yr.tsv','nOud Final MetaCyc analyses 4a',strInputConfig = '
 ```
 
 
-**Analysis 5: patients who had last flare < 1 year with time since last flare**
+**Analysis 5: patients who had last flare < 0.5 year with time since last flare**
 ```
 MCLinAfterIIb = MetaCycVT
 
@@ -931,32 +931,35 @@ Important: In contrast to species and metabolic pathways, virulence factor genes
 
 
 
-
-
-##--------------------------------------------------------------------------
-######## Virulence factors
-## Setting my working Directory.  
+**Setting my working Directory**
+``` 
 setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
+``` 
 
-## Importing Valerie's/Floris/ Phenotype file.
+**Importing clinical database**
+``` 
 db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
+``` 
 
-## Importing my metadata file (time relative to a flare).
+**Importing clinical database**
+``` 
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)
+``` 
 
-## Merging Valerie's file with my file, to filter the patients who have
-## no metagenomic sequencing data available. 
+**Merging clinical databases**
+``` 
 FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
 FinalVT=as.data.frame(FinalVT)
 FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
 FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
+``` 
 
 
-## Importing Kraken metagenomic sequencing file 'Virulence Factors'. 
-## This file is imported from Arnau. 
+**Importing Kraken metagenomic sequencing file 'Virulence Factors'**
+``` 
 VirulenceFac = read.delim("virulence.txt", header = T, sep = "\t")
 rownames(VirulenceFac) = paste(VirulenceFac$Gene, VirulenceFac$Product,VirulenceFac$VF_Name,VirulenceFac$Origin, sep = '_')
 VirulenceFac = VirulenceFac[,5:ncol(VirulenceFac)]
@@ -964,13 +967,16 @@ VirulenceFac = as.data.frame(t(VirulenceFac))
 
 VirulenceFac["UMCGIBDDNAID"] = row.names(VirulenceFac)
 VirulenceFac = VirulenceFac[,c(1715, 1:1714)]
-
+``` 
+**Merging clinical database with virulence factor microbiome data**
+``` 
 VirulenceFacVT = merge (FinalVT, VirulenceFac, by = "UMCGIBDDNAID", all = FALSE)
+``` 
 
 
-## Converting all negative numbers (patient is in a flare multiple days) into 
-## zero's (meaning that all patients in a flare are stated as just 'in a flare' =
-## 0 days until last flare and 0 days until next flare)
+**Creating a loop to transfer all days that patients are in a flare, to the numeric value 0**
+```
+#Converting all negative numbers (patient is in a flare multiple days) into zero's (meaning that all patients in a flare are stated as just 'in a flare' =0 days until last flare and 0 days until next flare)
 VirulenceFacVT = cbind(VirulenceFacVT[,1:6], "TimePrevVT"=NA, "TimeToStartNextExacerbation"=VirulenceFacVT$TimeToStartNextExacerbation, "TimeNextNegtoZer"=NA, VirulenceFacVT[,8:ncol(VirulenceFacVT)])
 
 VirulenceFacVT$TimeEndPreviousExacerbation = as.numeric(as.character(VirulenceFacVT$TimeEndPreviousExacerbation))
@@ -985,8 +991,10 @@ for (i in 1:nrow(VirulenceFacVT)) {
     VirulenceFacVT$TimeNextNegtoZer[i] = VirulenceFacVT$TimeToStartNextExacerbation[i]
   }
 }
+```
 
-## Making 'days to the next flare' all zero. 
+**Creating a loop to transfer all days to the next exacerbation to negative numeric values**
+```
 VirulenceFacVT = cbind(VirulenceFacVT[,1:9], "TimeNextVT"=NA, VirulenceFacVT[,10:ncol(VirulenceFacVT)])
 for (i in 1:nrow(VirulenceFacVT)) {
   if (VirulenceFacVT$TimeNextNegtoZer[i] > 0 & !is.na(VirulenceFacVT$TimeNextNegtoZer[i])) {
@@ -1000,24 +1008,30 @@ for (i in 1:nrow(VirulenceFacVT)) {
 
 VirFacCD = VirulenceFacVT[VirulenceFacVT$DiagnosisCurrent == 'CD',]
 VirFacCD = VirFacCD[,c(1:5, 7, 10, 11:1728)]
+```
 
-# When PPI use is not documented in patient, it is agreed that we report 'no PPI use'.
+**When PPI use is not documented in patient, it is agreed that we report 'no PPI use'**
+```
 for (i in 1:nrow(VirFacCD)){
   if (is.na(VirFacCD$MedicationPPI[i])){
     VirFacCD$MedicationPPI[i] = "no"
   } else 
     VirFacCD$MedicationPPI[i] = VirFacCD$MedicationPPI[i]
 }
+```
 
-# When Antibiotic use is not documented in patient, it is agreed that we report 'no ab use'. 
+**When Antibiotic use is not documented in patient, it is agreed that we report 'no antibiotic use'**
+```
 for (i in 1:nrow(VirFacCD)){
   if (is.na(VirFacCD$AntibioticsWithin3MonthsPriorToSampling[i])){
     VirFacCD$AntibioticsWithin3MonthsPriorToSampling[i] = "no"
   } else 
     VirFacCD$AntibioticsWithin3MonthsPriorToSampling[i] = VirFacCD$AntibioticsWithin3MonthsPriorToSampling[i]
 }
+```
 
-# Zorgen dat het helemaal klopt, dan alle NextVT die 0 zijn, dan ook PrevVT hebben die nul is.
+**Checking whether patients that are in an exacerbation, have both numeric value 0 to the last flare and next flare**
+```
 for (i in 1:nrow(VirFacCD)){
   if (!is.na(VirFacCD$TimePrevVT[i]) & VirFacCD$TimePrevVT[i] == 0 ){
     VirFacCD$TimeNextVT[i] = 0
@@ -1031,8 +1045,10 @@ for (i in 1:nrow(VirFacCD)){
   } else 
     VirFacCD$TimePrevVT[i] = VirFacCD$TimePrevVT[i]
 }
+```
 
-### Filtering out species that are abundant in <5% of patients
+**Filtering out virulence factor genes that are abundant in <5% of patients**
+```
 VF_Filter = VirFacCD[,c(1, 12: 1725)]
 VF_Filter2 = VF_Filter[,-1]
 rownames(VF_Filter2) = VF_Filter[,1]
@@ -1046,25 +1062,25 @@ VF_Filter2=VF_Filter2[,c(888, 1:887)]
 
 VF_VT = VirFacCD[,c(1:11)]
 VF_VT = merge(VF_VT, VF_Filter2, by= "UMCGIBDDNAID", all = FALSE)
+```
 
-
-
-## Er zijn spaties en slashes in de kolomnamen. Hier kan MaAslin niet mee werken
-## Nu wil ik dus alle ':' vervangen door '_'.
+**Removing all punctuation remarks (because MaAsLin can't handle these)**
+```
 names(VF_VT) = gsub(x = names(VF_VT), pattern = " ", replacement = "_") 
 names(VF_VT) = gsub(x = names(VF_VT), pattern = "/", replacement = "_") 
 names(VF_VT) = gsub(x = names(VF_VT), pattern = ")", replacement = "_")
 VFTidy = make.names(colnames(VF_VT), unique = TRUE)
 colnames(VF_VT) = VFTidy
+```
 
 
+MaAsLin Analyses Virulence Factors
+------------- 
 
-
-
-###### Analysis 1: categorical comparison of gut metagenome, all patients in a flare with all patients not in a flare
-
+**Analysis 1: categorical comparison of gut metagenome virulence factors of all patients in a flare with all patients in remission**
+```
 VFInFlareNot = VF_VT
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have no documented prior and next flare
 VFInFlareNot<-VFInFlareNot[!with(VFInFlareNot,is.na(VFInFlareNot$TimeNextVT)& is.na(VFInFlareNot$TimePrevVT)),]
 
 VFInFlareNot = cbind(VFInFlareNot[,1:7], "InFlareNot"=NA, VFInFlareNot[,8:ncol(VFInFlareNot)])
@@ -1083,26 +1099,27 @@ for (i in 1:nrow(VFInFlareNot)){
 
 
 VFInFlareNot = VFInFlareNot[,c(1, 8, 2, 3, 5, 9:899)]
-write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin 
+```
 
-
-## MaAsLin analysis 1: between patients >1 year quiescent disease versus in a flare 
+**MaAsLin analysis 1 (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
+```
 Maaslin('InFlareNot.tsv','nOud Final VF analysis 1',strInputConfig = '1.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
 
 
 
 
 
 
-
-###### Analysis 2: categorical comparison of gut metagenome, all patients before flare with
-###### all patients during a flare
+**Analysis 2: categorical comparison of gut metagenome virulence factors, all patients before flare with all patients during a flare**
+```
 VFInFlareNot = VF_VT
 
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have no documented prior and next exacerbation 
 VFInFlareNot<-VFInFlareNot[!with(VFInFlareNot,is.na(VFInFlareNot$TimeNextVT)& is.na(VFInFlareNot$TimePrevVT)),]
 
-## Creating new column 'in flare/ not in flare >1 yr'
+#  Creating new column 'in flare/ not '
 VFInFlareNot = cbind(VFInFlareNot[,1:7], "TempColFlare"=NA, VFInFlareNot[,8:ncol(VFInFlareNot)])
 
 ## Giving value to new column 'in flare/ not in flare >1 yr'
@@ -1138,27 +1155,30 @@ for (i in 1:nrow(VFInFlareNot)){
 VFInFlareNot = VFInFlareNot[VFInFlareNot$TempColFlare!= "after a flare",]
 
 VFInFlareNot = VFInFlareNot[,c(1, 8, 2, 3, 5, 9: 899)]
-write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin
+```
 
-## MaAsLin analysis 2: between patients >1 year quiescent disease versus in a flare 
+**MaAsLin analysis 2: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+```
 Maaslin('InFlareNot.tsv','nOud Final VF analysis 2',strInputConfig = '2.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
 
 
 
 
 
 
-###### Analysis 3: categorical comparison of gut metagenome, all patients before flare with
-###### all patients during a flare
+**Analysis 3: categorical comparison of gut metagenome, all patients before flare with all patients during a flare**
+```
 VFInFlareNot = VF_VT
 
-## Remove patients that have NA in both Prev/Next <1 yr flare
+# Remove patients that have no documented prior and next flare 
 VFInFlareNot<-VFInFlareNot[!with(VFInFlareNot,is.na(VFInFlareNot$TimeNextVT)& is.na(VFInFlareNot$TimePrevVT)),]
 
-## Creating new column 'in flare/ not in flare >1 yr'
+# Creating new column 'in flare/ not in flare'
 VFInFlareNot = cbind(VFInFlareNot[,1:7], "TempColFlare"=NA, VFInFlareNot[,8:ncol(VFInFlareNot)])
 
-## Giving value to new column 'in flare/ not in flare >1 yr'
+# Giving value to new column 'in flare/ not in flare >1 yr'
 for (i in 1:nrow(VFInFlareNot)){
   if (is.na(VFInFlareNot$TimeNextVT[i])) {
     VFInFlareNot$TempColFlare[i]= "None"
@@ -1191,10 +1211,13 @@ for (i in 1:nrow(VFInFlareNot)){
 VFInFlareNot = VFInFlareNot[VFInFlareNot$TempColFlare!= "before a flare",]
 
 VFInFlareNot = VFInFlareNot[,c(1, 8, 2, 3, 5, 9: 899)]
-write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
+write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # creating tsv file for MaAsLin 
+```
 
-## MaAsLin analysis 3: between patients >1 year quiescent disease versus in a flare 
+## MaAsLin analysis 3: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+```
 Maaslin('InFlareNot.tsv','nOud Final VF analysis 3',strInputConfig = '3.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
 
 
 
@@ -1207,12 +1230,12 @@ Maaslin('InFlareNot.tsv','nOud Final VF analysis 3',strInputConfig = '3.VirFac.r
 
 
 
-############## Linear analysis 2a
-### (Patients who have next flare < 1 year) - (time until next flare). 
+**Analysis 4: Patients who have next flare < 0.5 year with time until next flare.** 
+```
 VF_CDIIa = VF_VT
-#
+
 VF_CDIIa<-VF_CDIIa[!with(VF_CDIIa,is.na(VF_CDIIa$TimeNextVT)& is.na(VF_CDIIa$TimePrevVT)),]
-#
+
 VF_CDIIa = cbind(VF_CDIIa[,1:7], "LinBefore"=NA, VF_CDIIa[,8:ncol(VF_CDIIa)])
 VF_CDIIa$LinBefore = as.numeric(as.character(VF_CDIIa$LinBefore))
 
@@ -1257,22 +1280,24 @@ VF_CDIIa = VF_CDIIa[!is.na(VF_CDIIa$TimeNextVT),]
 
 VF_CDIIa = VF_CDIIa[,c(1, 7, 2, 3, 5, 9:899)]
 
-write.table(VF_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
-### MaAsLin run 2a (Patients who have next flare < 1 year) - (time until next flare). 
+write.table(VF_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)# create tsv file for MaAsLin 
+
+```
+**MaAsLin analysis 4:(NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+```
 Maaslin('LinBeforein1Yr.tsv','nOud Vir Fac analyses 4a',strInputConfig = '2a.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
 
 
 
 
 
-
-
-##### Analyses 2b: (Patients who had last flare < 1 year) - (time since last flare). 
+**Analysis 5: patients who have last flare <0.5 year with time since last flare**
+```
 VF_LinAfterIIb = VF_VT
 
-#
 VF_LinAfterIIb<-VF_LinAfterIIb[!with(VF_LinAfterIIb,is.na(VF_LinAfterIIb$TimeNextVT)& is.na(VF_LinAfterIIb$TimePrevVT)),]
-#
+
 VF_LinAfterIIb = cbind(VF_LinAfterIIb[,1:7], "LinAfter"=NA, VF_LinAfterIIb[,8:ncol(VF_LinAfterIIb)])
 VF_LinAfterIIb$LinAfter = as.numeric(as.character(VF_LinAfterIIb$LinAfter))
 
@@ -1317,9 +1342,14 @@ VF_LinAfterIIb = VF_LinAfterIIb[!is.na(VF_LinAfterIIb$TimePrevVT),]
 
 
 VF_LinAfterIIb = VF_LinAfterIIb[,c(1, 6, 2, 3, 5, 9:899)]
-write.table(VF_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
-##2b 
+write.table(VF_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F) # create tsv file for MaAsLin
+```
+
+**Analysis 5: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation**
+```
+
 Maaslin('LinAfterin1Yr.tsv','nOud Virulence fac analyses 4b',strInputConfig = '2b.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+```
 
 
 
