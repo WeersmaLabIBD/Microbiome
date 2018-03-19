@@ -18,20 +18,19 @@ db = as.data.frame(db)
 VT = read.csv("VIRTUALTIMELINERDEF.csv", header = T, sep = ";")
 VT = as.data.frame(VT)```
 
-Merging clinical files 
-**
-FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
-FinalVT=as.data.frame(FinalVT)
+**Merging clinical files **
+```FinalVT = merge (db, VT, by="UMCGNoFromZIC", all = FALSE)
+FinalVT=as.data.frame(FinalVT)```
 
-## only include patients with certain phenotype
-FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
-
-##6. only including specific phenotypes 
+**only include patients with certain phenotype**
+```FinalVT = FinalVT[FinalVT$IncludedSamples == 'yes',]
 FinalVT = FinalVT[,c("Sex", "UMCGIBDDNAID", "PFReads", "AgeAtFecalSampling", "TimeEndPreviousExacerbation", "TimeToStartNextExacerbation", "DiagnosisCurrent", "DiseaseLocation", "MedicationPPI", "AntibioticsWithin3MonthsPriorToSampling", "BMI")]
 
-FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]
-##7b.I will refer to this database as 'Virtual Timeline (VT) Database'. 
+FinalVT = FinalVT[,c(2, 1, 3, 7, 4, 5, 6, 11, 8, 9, 10)]```
 
+
+Taxonomy 
+-------------
 ## 7. Next, I will import the database comprising the taxonomic data for each of the samples. 
 Taxa = read.table ("IBD_brakenCompar.txt", header = TRUE)
 
