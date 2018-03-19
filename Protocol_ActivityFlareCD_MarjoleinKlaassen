@@ -1,19 +1,18 @@
 
-## Project Name: Relating CD actvitiy to the gut microbiome
+Project Name: Relating CD actvitiy to the gut microbiome
 -------------
 
-## Name Manuscript: Increased abundance of gut microbial virulence genes and pro-inflammatory pathways during Crohn’s disease exacerbations 
-## Name author of code: Marjolein Klaassen.
-## Date of this update: 11-12-2017 
+Name author of code: Marjolein Klaassen.
+Date: 19-3-2018
 
 
-##1.  Setting my working Directory.  
+Setting my working Directory.  
+-------------
 setwd("~/Documents/Pilot Project - Virtual Time Line/working directory")
 
-##2. For my clinical metadata, I will be using a file created by Valerie Colly and Floris Imhann. In this database,
-## is clinical data from LifeLines Deep, but also from the IBD cohort (the latter is the one I will be using).
-## From this database, I will use the following clinical parameters: age, sex, Read Depth (PFReads), the location of Disease and use of PPI and antibiotics. 
-## Firstly, I will import this database. 
+-------------
+Importing clinical metadata database
+-------------
 db = read.csv("VALFLO.csv", header = T, sep = ";")
 db = as.data.frame(db)
 
