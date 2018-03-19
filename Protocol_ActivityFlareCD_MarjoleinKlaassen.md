@@ -62,7 +62,7 @@ Taxa2 <- as.data.frame(apply(Taxa, MARGIN = 2, FUN = function(x) as.numeric(as.c
 row.names(Taxa2) = row.names(Taxa) 
 ```
 
-**Making relative abundances of species between 0 and 1 **
+**Making relative abundances of species between 0 and 1**
 ```
 Taxafinal = Taxa2/100
 rowSums(Taxafinal)
