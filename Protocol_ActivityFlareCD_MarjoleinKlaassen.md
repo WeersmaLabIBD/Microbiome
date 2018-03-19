@@ -170,7 +170,9 @@ TaxaVT = merge(TaxaVT, TaxonomyFilter2, by= "UMCGIBDDNAID", all = FALSE)
 Analyses MaAsLin Taxonomy 
 -------------
 
-**Comparing patients in a flare with patients in remission** 
+Analyses 1: Comparing patients in a flare with patients in remission
+-------------
+
 
 **Removing all patients that have no documented exacerbation** 
 ```
