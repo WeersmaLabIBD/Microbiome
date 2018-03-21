@@ -197,96 +197,81 @@ for(i in 1:length(file.names)){
 }
 ```
 
-7.Run MaasLin
+7.Run linear models
 ----------------
 
-**Model 1: Evaluate each medication forcing Age, Sex, Read Depth, BMI as co-variates**
+**Loop testing 3 things: 
+1) Associations per drug with Age, Sex, BMI, Read Depth as co-variates
+2) Associations per drug with Age, Sex, BMI, Read Depth as co-variates and the interaction between drug and sex
+3) Associations considering all drugs together Age, Sex, BMI, Read Depth as co-variates**
 
-**Maaslin arguments**
-
-*-F Force variables as covariates*
-
-*-a evaluate one variable at a time*
-
-*-l none -> no data transformation (we already did when merging the data with the phenotypes)*
-
-*-z non-inflated model, since there's a lot of bacteria with high-percentage of zeors*
-
-**Example config file MODEL 1**
-```{bash}
-Matrix: Metadata
-Delimiter: TAB
-Read_TSV_Columns: Age-vitamin_K_antagonist
-
-Matrix: Abundance
-Delimiter: TAB
-Read_TSV_Columns: k__Archaea|p__Euryarchaeota-
+**Example for IBD associations**
 ```
+library(outliers)
 
-**Examples commands**
-```{bash}
-Taxonomies
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_1_IBD
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_1_LLD
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -z -s none -i model_1_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_1_MIBS
+# 1) 1 drug per cohort
+# 2) Interaction per sex (Med*Sex)
+# 3) Multi-drug
+# 
+# QC, iterate over taxa
+IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+IBD2=IBD
+IBD2$cohort=NULL
+results_IBD=matrix(,ncol = 11, nrow = 256)
+x=0
+for (i in 47:ncol(IBD2)){
+  x=x+1
+  results_IBD[x,1]=length(IBD2[,i])
+  results_IBD[x,2]=sum(IBD2[,i]!=0)
+  outliers=grubbs.test(IBD2[,i])
+  myOutliers = outlier( IBD2[,i], logical = TRUE )
+  IBD2[,i][myOutliers] <- NA
+}
 
-
-Pathways
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config IBD_filtered_path_pheno.txt ./Model_1_IBD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config LLD_filtered_path_pheno.txt ./Model_1_LLD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -F Age,BMI,PFReads,Sex -a -l none -r 0 -d 1 -p 0 -s none -i model_1_path.read.config MIBS_filtered_path_pheno.txt ./Model_1_MIBS_path
-```
-
-**Model 2: Top-10 medication in the same linear model (microbiome ~ Med1+Med2+Med3,Age,Sex,RD,BMI)**
-
-**Example config file MODEL 2**
-```{bash}
-Matrix: Metadata
-Delimiter: TAB
-Read_TSV_Columns: Age,BMI,PFReads,Sex,ACE_inhibitor,angII_receptor_antagonist,anti_histamine,antibiotics_merged,benzodiazepine_derivatives_related,beta_blockers,cohort,metformin,NSAID,PPI,SSRI_antidepressant,statin
-
-Matrix: Abundance
-Delimiter: TAB
-Read_TSV_Columns: k__Archaea|p__Euryarchaeota-
-```
-
-
-**Examples commands**
-```{bash}
-Taxonomies
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_2_LLD
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_2_MIBS
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_2_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_2_IBD
-
-Pathways
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config MIBS_filtered_path_pheno.txt ./Model_2_MIBS_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config IBD_filtered_path_pheno.txt ./Model_2_IBD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_2_paths.read.config LLD_filtered_path_pheno.txt ./Model_2_LLD_path
-```
-
-**Model 3: All medication in the same linear model (microbiome ~ Med1+Med2+Med3,Age,Sex,RD,BMI)**
-
-**Example config file MODEL 3**
-```{bash}
-Matrix: Metadata
-Delimiter: TAB
-Read_TSV_Columns: Age-vitamin_K_antagonist
-
-Matrix: Abundance
-Delimiter: TAB
-Read_TSV_Columns: k__Archaea|p__Euryarchaeota-
-
-**Examples commands**
-```{bash}
-Taxonomies
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_3_taxa.read.config LLD_filtered_taxonomy_pheno.txt ./Model_3_LLD
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_3_taxa_m.read.config MIBS_filtered_taxonomy_pheno.txt ./Model_3_MIBS
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -z -s none -i model_3_taxa.read.config IBD_filtered_taxonomy_pheno.txt ./Model_3_IBD
-
-Pathways
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_3_paths.read.config MIBS_filtered_path_pheno.txt ./Model_3_MIBS_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_3_paths.read.config IBD_filtered_path_pheno.txt ./Model_3_IBD_path
-/Applications/Maaslin_0.5/R/Maaslin.R -l none -r 0 -d 1 -p 0 -s none -i model_3_paths.read.config LLD_filtered_path_pheno.txt ./Model_3_LLD_path
+for (a in 5:46){
+  results_IBD[,3]=sum(IBD2[,a]=="User")
+  results_IBD[,4]=sum(IBD2[,a]!="User")
+  drug=colnames(IBD2[a])
+  z=0
+  for (b in 47:ncol(IBD2)){
+    z=z+1
+    temp=IBD2[,c(b,1:4,a)] 
+    df2<-temp[complete.cases(temp),]
+    test=table(df2[,6],df2$Sex )
+    if (sum (test[1,])==0 | sum (test[2,])==0){
+      results_IBD[z,5]="No users"
+      results_IBD[z,6]="No users"
+      results_IBD[z,7]="No users"
+      results_IBD[z,8]="No users"
+      results_IBD[z,9]="No users"
+      results_IBD[z,10]="No users"
+      results_IBD[z,11]="No users"
+      
+    } else {
+    v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+    vv=summary(v)
+    results_IBD[z,11]=vv$coefficients[a+1,4]
+    y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex, data = df2)
+    yy=summary(y)
+    results_IBD[z,5]=yy$coefficients[2,1]
+    results_IBD[z,6]=yy$coefficients[2,2]
+    results_IBD[z,7]=yy$coefficients[2,4]
+    results_IBD[z,8]=p.adjust( results_IBD[z,7], method = "fdr")
+    if( sum (test[2,1]) == 0 | sum (test[2,2])==0){
+      results_IBD[z,9]="No sex-user"
+      results_IBD[z,10]="No sex-user"
+    } else{
+      w=lm(df2[,1]~df2[,6]*Sex+Age+BMI+PFReads, data = df2)
+      ww=summary(w)
+      results_IBD[z,9]=ww$coefficients[2,4]
+      results_IBD[z,10]=ww$coefficients[7,4]
+    }
+    }
+  }
+  colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact", "pval_sex_drug", "pval_correcting_all")
+  rownames(results_IBD)=colnames(IBD2)[47:ncol(IBD2)]
+  assign(paste('IBD',drug , sep = '_'), results_IBD)
+}
 ```
 
 8.Extract beta's and SE for meta-analysis from Maaslin log files
