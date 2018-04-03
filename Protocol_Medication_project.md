@@ -209,68 +209,130 @@ for(i in 1:length(file.names)){
 ```
 library(outliers)
 
+
 # 1) 1 drug per cohort
 # 2) Interaction per sex (Med*Sex)
 # 3) Multi-drug
 # 
 # QC, iterate over taxa
-IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/MIBS_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+
+myOutliers=TRUE
 IBD2=IBD
 IBD2$cohort=NULL
-results_IBD=matrix(,ncol = 11, nrow = 256)
+IBD3=IBD2
+results_IBD=matrix(,ncol = 12, nrow = length(colnames(IBD2)[47:ncol(IBD2)]))
 x=0
+d=4
+#Change 47 for the first column containing taxa
+#Loop detecting outliers
 for (i in 47:ncol(IBD2)){
   x=x+1
+  #Get initial statistics of 0 and non-0 per taxa
   results_IBD[x,1]=length(IBD2[,i])
   results_IBD[x,2]=sum(IBD2[,i]!=0)
-  outliers=grubbs.test(IBD2[,i])
-  myOutliers = outlier( IBD2[,i], logical = TRUE )
-  IBD2[,i][myOutliers] <- NA
+  #Test outliers, but if all are marked as outliers keep the original values... If you want to perform strict analysis you may want to remove them or pre-filter the table
+  while (any(myOutliers==T)){
+    if (sum(is.na(IBD2[,i]))==length(IBD2[,i])){
+        IBD2[,i]=IBD3[,i]
+        break
+    }
+    outliers=grubbs.test(IBD2[,i])
+    myOutliers = outlier( IBD2[,i], logical = TRUE )
+    # Threshold for outlier identification
+    if (outliers$p.value < 0.05){
+      #Transform relative abundances to NA's in case of outliers
+      IBD2[,i][myOutliers] <- NA
+    } else {
+      break
+    }
+  }
 }
-
+#Change 5:46 for the phenotypes to test (here 41 meds)
+#Loop per medication
 for (a in 5:46){
   results_IBD[,3]=sum(IBD2[,a]=="User")
   results_IBD[,4]=sum(IBD2[,a]!="User")
   drug=colnames(IBD2[a])
+  results_IBD[,12]=drug
   z=0
-  for (b in 47:ncol(IBD2)){
-    z=z+1
-    temp=IBD2[,c(b,1:4,a)] 
-    df2<-temp[complete.cases(temp),]
-    test=table(df2[,6],df2$Sex )
-    if (sum (test[1,])==0 | sum (test[2,])==0){
-      results_IBD[z,5]="No users"
-      results_IBD[z,6]="No users"
-      results_IBD[z,7]="No users"
-      results_IBD[z,8]="No users"
-      results_IBD[z,9]="No users"
-      results_IBD[z,10]="No users"
-      results_IBD[z,11]="No users"
-      
-    } else {
-    v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
-    vv=summary(v)
-    results_IBD[z,11]=vv$coefficients[a+1,4]
-    y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex, data = df2)
-    yy=summary(y)
-    results_IBD[z,5]=yy$coefficients[2,1]
-    results_IBD[z,6]=yy$coefficients[2,2]
-    results_IBD[z,7]=yy$coefficients[2,4]
-    results_IBD[z,8]=p.adjust( results_IBD[z,7], method = "fdr")
-    if( sum (test[2,1]) == 0 | sum (test[2,2])==0){
-      results_IBD[z,9]="No sex-user"
-      results_IBD[z,10]="No sex-user"
-    } else{
-      w=lm(df2[,1]~df2[,6]*Sex+Age+BMI+PFReads, data = df2)
-      ww=summary(w)
-      results_IBD[z,9]=ww$coefficients[2,4]
-      results_IBD[z,10]=ww$coefficients[7,4]
-    }
+  temp=IBD2[,c(4,a)] 
+  test=table (temp)
+  if ( ncol(test)<2){
+    results_IBD[,5]="No users"
+    results_IBD[,6]="No users"
+    results_IBD[,7]="No users"
+    results_IBD[,8]="No users"
+    results_IBD[,9]="No users"
+    results_IBD[,10]="No users"
+    results_IBD[,11]="No users"
+  } else if (sum (test[,2])==0 ){
+    results_IBD[,5]="No users"
+    results_IBD[,6]="No users"
+    results_IBD[,7]="No users"
+    results_IBD[,8]="No users"
+    results_IBD[,9]="No users"
+    results_IBD[,10]="No users"
+    results_IBD[,11]="No users"
+  }else {
+  #Loop per taxa / feature
+  #check line 79
+  d=d+1
+    for (b in 47:ncol(IBD2)){
+      z=z+1
+      temp=IBD2[,c(b,1:4,a)] 
+      df2<-temp[complete.cases(temp),]
+      test=table(df2[,6],df2$Sex )
+      if (sum (test[2,])==0){
+        results_IBD[z,5]="NA"
+        results_IBD[z,6]="NA"
+        results_IBD[z,7]="NA"
+        results_IBD[z,8]="NA"
+        results_IBD[z,9]="NA"
+        results_IBD[z,10]="NA"
+        results_IBD[z,11]="NA"
+        } else {
+    #TO BE FIX, CHECK HOW TO DEAL WITH VARIABLES WITH ONLY 1 FEATURE, REMOVE THOSE WITH ONLY ONE LEVEL, ETC.!!
+    #strict test using all the phenotypes
+    #IBD/LLD
+        v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+    #MIBS
+        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+laxatives+mesalazines+metformin+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+        vv=summary(v)
+        bla=as.data.frame(vv$coefficients)
+        selection_drug=try(bla[grep(drug, rownames(bla)), ])
+        if (nrow(selection_drug)==0){
+          results_IBD[z,11]="Only one user"
+        } else {
+          results_IBD[z,11]=selection_drug[nrow(selection_drug),4]
+        }
+        results_IBD[,12]=drug
+        y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex, data = df2)
+        yy=summary(y)
+        results_IBD[z,5]=yy$coefficients[2,1]
+        results_IBD[z,6]=yy$coefficients[2,2]
+        results_IBD[z,7]=yy$coefficients[2,4]
+        
+        if( sum (test[2,1]) == 0 | sum (test[2,2])==0){
+          results_IBD[z,9]="No sex-user"
+          results_IBD[z,10]="No sex-user"
+        } else{
+          w=lm(df2[,1]~df2[,6]*Sex+Age+BMI+PFReads, data = df2)
+          ww=summary(w)
+          results_IBD[z,9]=ww$coefficients[2,4]
+          results_IBD[z,10]=ww$coefficients[7,4]
+        }
+      }
     }
   }
-  colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact", "pval_sex_drug", "pval_correcting_all")
+  results_IBD[,8]=p.adjust( results_IBD[,7], method = "fdr")
+  colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact", "pval_sex_drug", "pval_correcting_all", "drug")
   rownames(results_IBD)=colnames(IBD2)[47:ncol(IBD2)]
-  assign(paste('IBD',drug , sep = '_'), results_IBD)
+  ## CHANGE PREFIX OF THE RESULT FILE 
+  #assign(paste('MIBS',drug , sep = '_'), results_IBD)
+  write.table(results_IBD, file=paste('LLD',drug , sep = '_'), sep="\t", quote=F)
 }
 ```
 
