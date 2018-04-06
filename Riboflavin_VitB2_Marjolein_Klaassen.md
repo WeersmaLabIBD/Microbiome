@@ -1,15 +1,15 @@
-## Effects of vitamin B2 (Riboflavin) supplementation on the gut microbiome of CD Patients
-## Authors: Marjolein Klaassen and Ranko Gacesa
-## Date: 05-04-2018 
+Effects of vitamin B2 (Riboflavin) supplementation on the gut microbiome of CD Patients
+Authors: Marjolein Klaassen and Ranko Gacesa
+Date: 05-04-2018 
 
 
-#_________________________________________________________________________________________________________________
-# ________________________________________________TAXONOMY________________________________________________________
-#_________________________________________________________________________________________________________________
-# Setting working directory 
+Taxonomy
+-------------  
+
+*Setting working directory*
 setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
 
-# Importing microbiome taxonomy data 
+*Importing microbiome taxonomy data* 
 db_VitB2 = read.csv("metaphlanmerged.txt", header = T, sep = "\t", stringsAsFactors = F)
 db_VitB2 = as.data.frame(db_VitB2)
 
