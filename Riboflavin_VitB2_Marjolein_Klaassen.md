@@ -6,22 +6,29 @@ Date: 05-04-2018
 Taxonomy
 -------------  
 
-*Setting working directory*
+Setting working directory
+``` 
 setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
+``` 
 
-*Importing microbiome taxonomy data* 
+Importing microbiome taxonomy data
+``` 
 db_VitB2 = read.csv("metaphlanmerged.txt", header = T, sep = "\t", stringsAsFactors = F)
 db_VitB2 = as.data.frame(db_VitB2)
+``` 
 
-# Making the first column (i.e. microbiome features) the rownames. 
+Making the first column (i.e. microbiome features) the rownames. 
+``` 
 rownames(db_VitB2) = db_VitB2$ID
-# Removing the first column. 
+``` 
+Removing the first column. 
+``` 
 db_VitB2$ID = NULL
-
-# Only selecting the taxonomical level we are interested in (all). 
-# The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data. Firstly, this has
-# to run. 
-
+``` 
+Only selecting the taxonomical level we are interested in (all). 
+The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data. Firstly, this has
+to run. 
+``` 
 #_____________________________ R-script part of Ranko Gacesa _____________________________
 filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=0.0, rescaleTaxa=F,verbose=T,
                                keepDomains=c('Bacteria'),
@@ -174,9 +181,10 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=
 }
 
 #_____________________________ end of R-script of Ranko Gacesa _____________________________
+``` 
 
-
-
+Now, I will subset all the microbiome data in the different taxonomical files.
+``` 
 tTrans = t(db_VitB2)
 db_VitB2_King = filterMetaGenomeDF(inDF=tTrans,presPerc = 0.10, minMRelAb = -1,minMedRelAb = -1,keepLevels = c("K"))
 db_VitB2_King = as.data.frame(db_VitB2_King)
@@ -201,26 +209,31 @@ rowSums(db_VitB2_Order, na.rm = FALSE, dims = 1)
 rowSums(db_VitB2_Family, na.rm = FALSE, dims = 1)
 rowSums(db_VitB2_Genus, na.rm = FALSE, dims = 1)
 rowSums(db_VitB2_Species, na.rm = FALSE, dims = 1)
+``` 
 
-# SPECIES
-# Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
+**SPECIES**
+Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
+``` 
 db_VitB2_Species = t(db_VitB2_Species)
 for (c in c(1:nrow(db_VitB2_Species))) {
   db_VitB2_Species[c,] <- asin(sqrt(db_VitB2_Species[c,]))
 }
 db_VitB2_Species[is.na(db_VitB2_Species)] <- 0.0
+``` 
 
-
-# Making t=1 and t=4 time groups 
+Making t=1 and t=4 time groups 
+``` 
 t1 = db_VitB2_Species[,c(1, grep("M1", colnames(db_VitB2_Species)))]
 rownames(t1) = rownames(db_VitB2_Species)
 t1 = as.data.frame(t1)
 t4 = db_VitB2_Species[,c(1, grep("M4", colnames(db_VitB2_Species)))]
 rownames(t4) = rownames(db_VitB2_Species)
 t4 = as.data.frame(t4)
+``` 
 
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
+Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
+These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
+``` 
 colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
 colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
 
@@ -228,12 +241,11 @@ InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
 
-
-# Filter out species that are present in less than <10% of the samples.
-# Q: <10% of which samples? Only T1? 
-
 res =  NULL
-# Comparing (wilcoxon, paired): between t1 and t4 (species) 
+``` 
+
+Now, I will compare T1 with T4, using a paired Wilcoxon. This was written together with Ranko Gacesa. 
+``` 
 for (c in c(1:nrow(t1)) ) {
   #for (c in c(1:10)) {
   taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
@@ -271,11 +283,11 @@ for (c in c(1:nrow(t1)) ) {
 res$FDR <- p.adjust(res$p.value,method = "fdr")
 
 write.table(res,file = 'VitB2_Results_Species.csv',row.names = F,sep=",")
+``` 
 
 
-
-
-# ________________________________________ GENUS _________________________________________#
+**Genus** 
+``` 
 # Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
 db_VitB2_Genus = t(db_VitB2_Genus)
 for (c in c(1:nrow(db_VitB2_Genus))) {
@@ -344,29 +356,31 @@ for (c in c(1:nrow(t1)) ) {
 res$FDR <- p.adjust(res$p.value,method = "fdr")
 
 write.table(res,file = 'VitB2_Results_Genus.csv',row.names = F,sep=",")
+``` 
 
-# ________________________________________ GENUS _________________________________________#
-
-
-# ________________________________________ Family_________________________________________#
-# Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
+**Family**
+Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
+``` 
 db_VitB2_Family = t(db_VitB2_Family)
 for (c in c(1:nrow(db_VitB2_Family))) {
   db_VitB2_Family[c,] <- asin(sqrt(db_VitB2_Family[c,]))
 }
 db_VitB2_Family[is.na(db_VitB2_Family)] <- 0.0
+``` 
 
-
-# Making t=1 and t=4 time groups 
+Making t=1 and t=4 time groups 
+``` 
 t1 = db_VitB2_Family[,c(1, grep("M1", colnames(db_VitB2_Family)))]
 rownames(t1) = rownames(db_VitB2_Family)
 t1 = as.data.frame(t1)
 t4 = db_VitB2_Family[,c(1, grep("M4", colnames(db_VitB2_Family)))]
 rownames(t4) = rownames(db_VitB2_Family)
 t4 = as.data.frame(t4)
+``` 
 
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
+Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
+These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
+``` 
 colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
 colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
 
@@ -374,12 +388,11 @@ InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
 
-
-# Filter out species that are present in less than <10% of the samples.
-# Q: <10% of which samples? Only T1? 
-
 res =  NULL
-# Comparing (wilcoxon, paired): between t1 and t4 (species) 
+``` 
+
+Comparing (wilcoxon, paired): between t1 and t4 (species) 
+``` 
 for (c in c(1:nrow(t1)) ) {
   #for (c in c(1:10)) {
   taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
@@ -417,12 +430,10 @@ for (c in c(1:nrow(t1)) ) {
 res$FDR <- p.adjust(res$p.value,method = "fdr")
 
 write.table(res,file = 'VitB2_Results_Family.csv',row.names = F,sep=",")
+``` 
 
-# ________________________________________ Family_________________________________________#
-
-
-# ________________________________________ Order_________________________________________#
-
+**Order**
+``` 
 # Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
 db_VitB2_Order = t(db_VitB2_Order)
 for (c in c(1:nrow(db_VitB2_Order))) {
@@ -491,16 +502,11 @@ for (c in c(1:nrow(t1)) ) {
 res$FDR <- p.adjust(res$p.value,method = "fdr")
 
 write.table(res,file = 'VitB2_Results_Order.csv',row.names = F,sep=",")
-# ________________________________________ Order_________________________________________#
+``` 
 
 
-
-
-
-
-# ________________________________________ Class _________________________________________#
-
-
+**Class**
+``` 
 # Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
 db_VitB2_Class = t(db_VitB2_Class)
 for (c in c(1:nrow(db_VitB2_Class))) {
@@ -569,45 +575,44 @@ for (c in c(1:nrow(t1)) ) {
 res$FDR <- p.adjust(res$p.value,method = "fdr")
 
 write.table(res,file = 'VitB2_Results_Class.csv',row.names = F,sep=",")
-
-# ________________________________________ Class _________________________________________#
-
+``` 
 
 
 
+Pathways 
+------------- 
 
-
-
-
-
-
-
-#_________________________________________________________________________________________________________________
-# ________________________________________________PATHWAYS________________________________________________________
-#_________________________________________________________________________________________________________________
-# Setting working directory 
+Setting working directory 
+```
 setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
+```
 
-# Importing microbiome taxonomy data 
+Importing microbiome taxonomy data 
+```
 db_VitB2_Pathw <- read.csv(file = '_p_pathways_abundances.tsv',sep='\t',stringsAsFactors = F)
 db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
-
+```
+Now, I want to remove all the different levels of pathways.
+```
 rownames(db_VitB2_Pathw) = db_VitB2_Pathw$Pathway; db_VitB2_Pathw$Pathway = NULL
-
-# remove redundant rows
-db_VitB2_Pathw <- db_VitB2_Pathw[grep("__",rownames(db_VitB2_Pathw),invert = T),]
+```
+Remove redundant rows
+```db_VitB2_Pathw <- db_VitB2_Pathw[grep("__",rownames(db_VitB2_Pathw),invert = T),]
 db_VitB2_Pathw <- db_VitB2_Pathw[grep("unclassified",rownames(db_VitB2_Pathw),invert = T),]
 
 db_VitB2_Pathw = t(db_VitB2_Pathw)
 db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
+```
 
-# Make it relative abundances 
+Make it relative abundances 
+```
 for (rn in c(1:nrow(db_VitB2_Pathw))) {
   db_VitB2_Pathw[rn,] <- db_VitB2_Pathw[rn,]/sum(db_VitB2_Pathw[rn,])
 }
+```
 
-####### CODE BY RANKO ##########
-# ================================================================================
+Below, is code of Ranko Gacesa, in which he filters the pathways for presence, relative abundance, mean and median.
+```
 filterHumannDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=0.0,minSum=90.0, rescale=T,verbose=T) {
   tCols = grep('PWY',colnames(inDF)) # colums with pathways
   tColsNMG = grep('PWY',colnames(inDF),invert = T) # colums without pathways
@@ -710,33 +715,34 @@ filterHumannDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=0.0,
   #  print(sorted(a)[1:100])
   inDF
 }
-
-########## END CODE RANKO #######
-
+```
+```
 db_VitB2_Pathw = t(db_VitB2_Pathw)
 db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
+```
 
-
-# Perform arc sine square root transformation (identical to what MaAsLin does)
+Perform arc sine square root transformation (identical to what MaAsLin does)
+```
 for (c in c(1:nrow(db_VitB2_Pathw))) {
   db_VitB2_Pathw[c,] <- asin(sqrt(db_VitB2_Pathw[c,]))
 }
 db_VitB2_Pathw[is.na.data.frame(db_VitB2_Pathw)] <- 0.0
+```
 
-# prep for statistical tests
+Only keep samples that have T1 and T4. 
+```
 t1 <- db_VitB2_Pathw[,c(grep("M1",colnames(db_VitB2_Pathw)))]
 colnames(t1) <- gsub("_M1","",colnames(t1))
 t1 = as.data.frame(t1)
 t2 <- db_VitB2_Pathw[,c(grep("M4",colnames(db_VitB2_Pathw)))]
 colnames(t2) <- gsub("_M4","",colnames(t2))
 t4 = as.data.frame(t2) 
-# find shared
-inCommonT1T2 <- intersect(colnames(t1),colnames(t2))
 
-# =========== DO TESTS ===============
-# T1 vs T2 vs T3
-# --------------------------------------
-# take in common
+inCommonT1T2 <- intersect(colnames(t1),colnames(t2))
+```
+
+**Now, we will perform pairedd Wilcoxon tests on T1 and T4. Furthermore, we will let R create images right away**. 
+```
 t1c <- t1[,inCommonT1T2]
 t2c <- t2[,inCommonT1T2]
 
@@ -850,3 +856,4 @@ for (c in resPA$N)
   ggsave(g2,filename = paste('VitB2_pathways',plotNR,'_','pairs','.png', sep=''))
   print ('    --> plotting done')
 }
+```
