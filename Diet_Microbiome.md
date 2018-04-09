@@ -3,9 +3,8 @@ Diet-Microbiome Project
  
 Creator: Laura Bolte
 
-Year: 2018 
-
-
+Year: 2018
+Last updated: 9 April 2018
  
  
  1.Phenotypic Metadata  
@@ -372,7 +371,7 @@ setwd("~/Desktop/Data/Maaslin Files")
 write.csv(metatable, '../Maaslin Files/Maaslin_Food_Tax/MergedLargeTable.csv')
 ```
 
- 6.Metaanalysis   
+ 6.Metaanalysis   (small fix: 2-side meta-p-values)
  -------------
 
 - Random effect meta-analysis 
