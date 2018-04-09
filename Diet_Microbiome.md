@@ -928,8 +928,9 @@ write.table(Clusters_All_Spec,'../Data/Clustering/Clusters_All_Specs_H_0.8.txt',
 ```
 
 **11.4. CORRELATING FOOD CLUSTERS WITH SPECIES CLUSTERS**
+
+*1. Load Input Files* 
 ```
-#1. Load Input Files 
 setwd("~/Desktop/Data")
 food=read.table('../Data/Clustering/Centr_Corr/Centroids_All_Foods.txt', sep='\t', header=T)
 row.names(food)=food$Row.Names
