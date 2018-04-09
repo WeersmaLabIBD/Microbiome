@@ -207,6 +207,7 @@ for(i in 1:length(file.names)){
 
 **Example for IBD associations**
 ```
+library(gamlss)
 library(outliers)
 
 
@@ -215,20 +216,20 @@ library(outliers)
 # 3) Multi-drug
 # 
 # QC, iterate over taxa
-#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
 #IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/MIBS_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
-IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
 
 myOutliers=TRUE
 IBD2=IBD
-IBD2$cohort=NULL
+#IBD2$cohort=NULL
 IBD3=IBD2
-results_IBD=matrix(,ncol = 12, nrow = length(colnames(IBD2)[47:ncol(IBD2)]))
+results_IBD=matrix(,ncol = 16, nrow = length(colnames(IBD2)[48:ncol(IBD2)]))
 x=0
 d=4
 #Change 47 for the first column containing taxa
 #Loop detecting outliers
-for (i in 47:ncol(IBD2)){
+for (i in 48:ncol(IBD2)){
   x=x+1
   #Get initial statistics of 0 and non-0 per taxa
   results_IBD[x,1]=length(IBD2[,i])
@@ -252,7 +253,7 @@ for (i in 47:ncol(IBD2)){
 }
 #Change 5:46 for the phenotypes to test (here 41 meds)
 #Loop per medication
-for (a in 5:46){
+for (a in 5:47){
   results_IBD[,3]=sum(IBD2[,a]=="User")
   results_IBD[,4]=sum(IBD2[,a]!="User")
   drug=colnames(IBD2[a])
@@ -280,7 +281,7 @@ for (a in 5:46){
   #Loop per taxa / feature
   #check line 79
   d=d+1
-    for (b in 47:ncol(IBD2)){
+    for (b in 48:ncol(IBD2)){
       z=z+1
       temp=IBD2[,c(b,1:4,a)] 
       df2<-temp[complete.cases(temp),]
@@ -294,21 +295,25 @@ for (a in 5:46){
         results_IBD[z,10]="NA"
         results_IBD[z,11]="NA"
         } else {
-    #TO BE FIX, CHECK HOW TO DEAL WITH VARIABLES WITH ONLY 1 FEATURE, REMOVE THOSE WITH ONLY ONE LEVEL, ETC.!!
-    #strict test using all the phenotypes
+    ##CHECK HERE AS WELL: If variable less than 2 errors will give an error      
     #IBD/LLD
-        v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
     #MIBS
-        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+laxatives+mesalazines+metformin+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+        v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+laxatives+mesalazines+metformin+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
         vv=summary(v)
         bla=as.data.frame(vv$coefficients)
         selection_drug=try(bla[grep(drug, rownames(bla)), ])
         if (nrow(selection_drug)==0){
-          results_IBD[z,11]="Only one user"
+          results_IBD[z,13]="Only one user"
+          results_IBD[z,14]="Only one user"
+          results_IBD[z,15]="Only one user"
         } else {
-          results_IBD[z,11]=selection_drug[nrow(selection_drug),4]
+          results_IBD[z,13]=selection_drug[nrow(selection_drug),4]
+          results_IBD[z,14]=selection_drug[nrow(selection_drug),1]
+          results_IBD[z,15]=selection_drug[nrow(selection_drug),2]
+          ## ADD SE AND COEF HERE!!
         }
-        results_IBD[,12]=drug
+        results_IBD[,16]=drug
         y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex, data = df2)
         yy=summary(y)
         results_IBD[z,5]=yy$coefficients[2,1]
@@ -318,21 +323,25 @@ for (a in 5:46){
         if( sum (test[2,1]) == 0 | sum (test[2,2])==0){
           results_IBD[z,9]="No sex-user"
           results_IBD[z,10]="No sex-user"
+          results_IBD[z,11]="No sex-user"
+          results_IBD[z,12]="No sex-user"
         } else{
           w=lm(df2[,1]~df2[,6]*Sex+Age+BMI+PFReads, data = df2)
           ww=summary(w)
           results_IBD[z,9]=ww$coefficients[2,4]
-          results_IBD[z,10]=ww$coefficients[7,4]
+          results_IBD[z,10]=ww$coefficients[2,1]
+          results_IBD[z,11]=ww$coefficients[2,2]
+          results_IBD[z,12]=ww$coefficients[7,4]
         }
       }
     }
   }
   results_IBD[,8]=p.adjust( results_IBD[,7], method = "fdr")
-  colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact", "pval_sex_drug", "pval_correcting_all", "drug")
-  rownames(results_IBD)=colnames(IBD2)[47:ncol(IBD2)]
+  colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact","coeff_drug_interact","SE.drug_interact", "pval_drug_sex_test", "pval_correcting_all", "coeff_correcting_all", "SE.correcting_all", "drug")
+  rownames(results_IBD)=colnames(IBD2)[48:ncol(IBD2)]
   ## CHANGE PREFIX OF THE RESULT FILE 
   #assign(paste('MIBS',drug , sep = '_'), results_IBD)
-  write.table(results_IBD, file=paste('LLD',drug , sep = '_'), sep="\t", quote=F)
+  write.table(results_IBD, file=paste('MIBS',drug , sep = '_'), sep="\t", quote=F)
 }
 ```
 
