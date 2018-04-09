@@ -711,10 +711,8 @@ ggsave(g,filename = paste('plot_species_diet_',diet,'.png',sep=''),width = 8,hei
 
 Speciesmap=Species_temp
 ```
- 11.Hierarchial Clustering (to be fixed)
- -------------
- 
- 11.Hierarchial Clustering (to be fixed)
+
+ 11.Hierarchial Clustering
  -------------
  
 **11.1 Subset**
