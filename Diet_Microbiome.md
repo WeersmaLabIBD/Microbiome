@@ -711,11 +711,12 @@ ggsave(g,filename = paste('plot_species_diet_',diet,'.png',sep=''),width = 8,hei
 Speciesmap=Species_temp
 ```
 
- 11.Hierarchial Clustering
+ 11.Cluster Analyses
  -------------
  
 **11.1 Subset**
-Input files 
+
+Input files: 
 rows: matched IDs, columns: foods
 
 **11.2 CLUSTERING DIET** 
@@ -949,7 +950,7 @@ covariates=read.table("../Data/Clustering/Covariates.txt", sep='\t', header=T)
 ```
 
 *3. Load libraries*
-Consider that in the cluster analysis part, cutting the tree lower (lower h), will create more clusters and stronger correlation
+Consider that in the cluster analysis part, cutting the tree lower (lower h=), will create more clusters and stronger correlation
 
 ```
 library(gdata)
@@ -999,19 +1000,18 @@ write.table(my_results_fdr, "~/Desktop/Data/Clustering/Centr_Corr/Corr_FDR.txt",
 
 *7. Show number of significant correlations (fdr <0.05)*
 ```
-sum(my_results_fdr <= 0.05)  #53 significant results  #compared to representative method which yields 23 results
+sum(my_results_fdr <= 0.05)    
+```
 
-#Correlation plot 
+*8. Corrplot* 
+```
 dev.off()
 #Color
 display.brewer.all() #display all colour schemes
 col1 = rev(brewer.pal(n=6, name="RdYlBu")) #reverse colors so that positive association = red, negative = blue)
 color = c(col1,col1,col1) #repeat col to extend the range
 #cl.pos="b"               #plots legenda below plot instead of right side
-```
 
-*8. Corrplot* 
-```
 #Leave insignificant results blanc by insig='blank'
 CorrClust_sign=corrplot(my_results, p.mat=my_results_fdr, sig.level=0.05, insig='blank',cl.lim=c(-0.3, 0.3), method="color",tl.cex = 0.6, cl.cex=0.5,cl.align.text = "l",col = color,mar=c(0, 0, 0, 0),na.label= "square", na.label.col = "white")
 #mar = c(2,0,1,0)
