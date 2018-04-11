@@ -1,3 +1,4 @@
+
 ####################################################################################################################
 #------------------------------------------------------------------------------------------------------------------#
 #----------------------------------------------------cookbook metagenomics-----------------------------------------#
@@ -5,7 +6,7 @@
 ####################################################################################################################
 
 # this is the most convincible script
-# based on Alex's pipeline with a little change
+# based on Alex's
 # sample numbers and names are double-checked, so no worries any more
 
 ###---------------------------IBD----------------------------------------------------------------------------------
@@ -36,6 +37,11 @@ id_change=merge(id_change,ibd_meta_ID,by="Original")
 outliers=read.table("IBD_ancenstry_outliers.txt",header = T,sep = "\t")
 colnames(outliers)[1]="Sample_ID"
 id_change=id_change[!id_change$Sample_ID %in% outliers$Sample_ID,]
+
+# remove sex-problematic individuals
+sex=read.table("IBD_sex_problematic.txt",header = T,sep = " ")
+colnames(sex)[1]="Sample_ID"
+id_change=id_change[!id_change$Sample_ID %in% sex$Sample_ID,]
 
 # extract final 504 samples with both exome and metagenomics data
 ibd_sub_meta=ibd_meta[,colnames(ibd_meta) %in% id_change$Original]
@@ -166,30 +172,36 @@ lld_pheno=read.table(file = "eqtl_LLD_pheno.txt",as.is = T,header = T,check.name
 colnames(lld_pheno)[1]="exome"
 
 # check ID
-new=read.table("LLD_ID_list.txt",sep="\t",header = F)
+new=as.data.frame(unlist(lld_pheno$exome),stringsAsFactors = F)
 colnames(new)="exome"
-old=read.table("LLD_metaphlan_list.txt",sep = "\t",header = F,check.names = F)
+old=as.data.frame(unlist(colnames(lld_meta)[-1]),stringsAsFactors = F)
+colnames(old)="metaphlan"
+#old=read.table("LLD_metaphlan_list.txt",sep = "\t",header = F,check.names = F)
 change=read.table("rename_LLD.txt",sep = "\t",header = T,check.names = F)
 
-depth=read.table("depth_LLD.txt",sep = "\t",header = T)
-colnames(depth)[1]="exome"
+depth=read.table("LLD_reads_summary.txt",sep = "\t",header = F)
+colnames(depth)[1]="ID"
 
 change$metaphlan=paste(change$ID,"metaphlan",sep = "_")
-colnames(old)="metaphlan"
 
 compare=merge(change,old,by="metaphlan")
 colnames(compare)[3]="exome"
 intersect=merge(compare,new,by="exome")
-intersect=merge(intersect,depth,by="exome")
+intersect=merge(intersect,depth,by="ID")
 
 outliers=read.table("LLD_ancenstry_outliers.txt",sep = "\t",header = T)
 intersect=intersect[!intersect$exome %in% outliers$IID,]
+
+# remove sex-problematic individuals
+sex=read.table("LLD_sex_problmatic.txt",header = T,sep = "\t")
+colnames(sex)[1]="exome"
+intersect=intersect[!intersect$exome %in% sex$exome,]
 
 pheno=merge(intersect,lld_pheno,by="exome")[,c(1,5,7,9)]
 rownames(pheno)=pheno[,1]
 
 covariate=merge(pheno,intersect,by="exome")
-covariate=covariate[,1:4]
+covariate=covariate[,c(1,2,3,7)]
 rownames(covariate)=covariate$exome
 covariate=covariate[,-1]
 
@@ -213,10 +225,10 @@ write.table(t(mm),file = "LLD_filtered_logTrans.txt",sep = "\t",quote = F)
 
 # generate coupling
 
-coupling=intersect[,c(1,1)]
+coupling=intersect[,c(2,2)]
 
 write.table(coupling,file = "coupling_file.txt",row.names = F,col.names = F,sep = "\t",quote = F)
-write.table(intersect[,1:2],"eqtl_LLD_linkage.txt",row.names = F,col.names = F,sep = "\t",quote = F)
+write.table(intersect[,2:3],"eqtl_LLD_linkage.txt",row.names = F,col.names = F,sep = "\t",quote = F)
 
 # correct and split
 
@@ -279,5 +291,3 @@ write.table(annot,file = "tax_numeric.txt.annot",sep="\t",row.names=F,quote = F)
 
 write.table(binary_data, file = "tax_binary.txt",sep="\t",row.names = F,quote = F)
 write.table(binary_annot,file = "tax_binary.txt.annot",sep="\t",row.names=F,quote = F)
-
-
