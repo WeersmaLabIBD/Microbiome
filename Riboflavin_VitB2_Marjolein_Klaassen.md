@@ -243,14 +243,13 @@ InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
 
-res =  NULL
+res =  NULL # this will be the master table where all the results will go. 
 ``` 
 
 Now, I will compare T1 with T4, using a paired Wilcoxon. This was written together with Ranko Gacesa. 
 ``` 
 for (c in c(1:nrow(t1)) ) {
-  #for (c in c(1:10)) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
+  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])] # taking out the taxa 
   print (paste('testing',taxName))
   tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
   tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
