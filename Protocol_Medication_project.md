@@ -366,25 +366,7 @@ for (a in 5:47){
 
 ```
 
-8.Extract beta's and SE for meta-analysis from Maaslin log files
---------------------------------------------------------------
-
-Run in each Maaslin's output folder: https://github.com/WeersmaLabIBD/Microbiome/blob/master/Tools/extract_info_logs_Maaslin.sh 
-
-**Manually step** 
-
-```
-Remove columns and add number of cases and controls per drug and calculate the Neff as: Neff=4/(1/Ncontrols+1/Ncases)
-The resulting files have the follwing header: 
-Factor	Taxa	Coef	N	N0	Pval	Qval	SE	Controls	Cases	Neff	Ref	Alt
-(Drug)  (Bact)  (Betas) (N Bact) (Num zeors)	(Pval)	(FDR-pval)	(Stand. error)	(Ncontrols) (Ncases)	(Neff)	(A)	(C)
-```
-**Replace new line symbols if you use Excel**
-```
-for i in *.txt; do tr '\105' '\n' < $i >tmp && mv tmp $i; done
-```
-
-9.Meta-analysis and Heterogeneity mesure
+8..Meta-analysis and Heterogeneity mesure
 --------------------------------------------
 
 ```{R}
@@ -467,74 +449,6 @@ for (a in drug_list){
 write.table(selection, file=paste(a, "_meta.txt", sep=""), sep="\t", quote=F)
 }
 
-```
-*Without modifying MaasLin output files (No compatible with METAL)*
-
-First select columns
-```{bash}
-for i in *.txt; do less $i | awk -F "\t" '{print $1,$2,$4,$5,$6,$7,$8,$13}' > ./temp/$i ; done
-```
-Run meta-analysis
-```{R}
-drug_list=c("ACE_inhibitor","alpha_blockers","angII_receptor_antagonist","anti_androgen_oral_contraceptive","anti_epileptics","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","beta_sympathomimetic_inhaler","bisphosphonates","ca_channel_blocker","calcium","ferrum","IUD_that_includes_hormones","K_saving_diuretic","laxatives","melatonine","mesalazines","metformin","NSAID","opiat","oral_anti_diabetics","oral_steroid","other_antidepressant","paracetamol","platelet_aggregation_inhibitor","PPI","SSRI_antidepressant","statin","steroid_inhaler","steroid_nose_spray","thiazide_diuretic","thyrax","tricyclic_antidepressant","triptans","vitamin_D","vitamin_K_antagonist")
-path="./"
-flag=1
-for (a in drug_list){
-	file.names = dir(path,pattern=a)
-	my_IBD=grep("IBD",file.names, value = T )
-	my_MIBS=grep("MIBS",file.names, value = T )
-	my_LLD=grep("LLD",file.names, value = T )
-	IBD=read.table(my_IBD, header = F, row.names = 2)
-	LLD=read.table(my_LLD, header = F, row.names = 2)
-	MIBS=read.table(my_MIBS, header = F, row.names = 2)
-	IBD_MIBS=merge(IBD,MIBS, by = "row.names")
-	rownames(IBD_MIBS)=IBD_MIBS$Row.names
-	IBD_MIBS$Row.names=NULL
-	all=merge(IBD_MIBS,LLD, by = "row.names")
- 
-	selection=all
-
-	colnames(selection)=c("Taxa","Factor.IBD","Coef.IBD","N.IBD","N0.IBD","Pval.IBD","Qval.IBD","SE.IBD","Factor.MIBS","Coef.MIBS","N.MIBS","N0.MIBS","Pval.MIBS","Qval.MIBS","SE.MIBS","Factor.LLD","Coef.LLD","N.LLD","N0.LLD","Pval.LLD","Qval.LLD","SE.LLD")  
-
-	#Calculate Inverse variance 
-	selection$inverse_var.ibd=1/selection$SE.IBD^2
-	selection$inverse_var.mibs=1/selection$SE.MIBS^2
-	selection$inverse_var.lld=1/selection$SE.LLD^2
-
-	#Calculate SE
-	selection$se=sqrt(1/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld))
-
-	#Calculate Beta
-	selection$beta=(selection$inverse_var.ibd*selection$Coef.IBD+selection$inverse_var.mibs*selection$Coef.MIBS+selection$inverse_var.lld*selection$Coef.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
-	
-	#Calculate Z-score
-	selection$Z=selection$beta/selection$se
-	
-	#Calculate meta p-value
-	selection$P=2*pnorm(-abs(selection$Z))
-	
-	#Adjust pvalue with FDR
-	selection$FDR=p.adjust(selection$P,method = "fdr")
-	
-	#Create empty columns
-	selection$Het.Q="NS"
-	selection$Het.I2="NS"
-	selection$Het.Pval="NS"
-
-	#Heterogeneity using Cochran's Q-test for meta-FDR < 0.1
-	for (i in 1:length(rownames(selection))){
-		if (selection$FDR[i]<0.1){
-			TE=c( selection[i,3], selection[i,10], selection[i,17])
-			SE=c( selection[i,8], selection[i,15], selection[i,22])
-			het=metagen(TE,SE)
-			selection[i,32]=het$I2
-			selection[i,31]=het$Q 
-			#Calculate p-value from Q calculation
-			selection[i,33]=pchisq(het$Q,df=2,lower.tail=F)
-		}
-	}
-write.table(selection, file=paste(a, "_meta.txt", sep=""), sep="\t", quote=F)
-}
 ```
 
 11.Plot heatmap
