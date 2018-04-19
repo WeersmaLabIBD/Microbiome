@@ -257,7 +257,87 @@ write.table(HC_foodtax, "HC_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
 
 
  
- 4.MaAsLin  
+ 6.Association Studies in R
+ -------------
+```
+library(gamlss)
+library(outliers)
+setwd("~/Desktop/Data/Association Analyses/Inputfiles")
+
+#     #CHANGE FILE NAME
+IBD=read.table("../Inputfiles/CD_Food_Tax.txt", sep="\t", header = T, row.names=1)
+IBD=IBD[,-4]  #corrected for kcal, so column kcal can go out 
+# Pathways
+#IBD=read.table("../Association Analyses/CD_Food_Path.txt", sep = "\t", header = T, row.names = 1)
+
+QC, iterate over taxa
+
+setwd("~/Desktop/Data/Association Analyses/")
+myOutliers=TRUE
+IBD2=IBD
+IBD3=IBD2
+#colnames(IBD)
+results_IBD=matrix(,ncol = 9, nrow = length(colnames(IBD2)[179:ncol(IBD2)]))#179 = 1st col containing taxa
+x=0
+#d=4
+#Change 47 for the first column containing taxa. 
+#Loop detecting outliers
+for (i in 179:ncol(IBD2)){
+  x=x+1
+  #Get initial statistics of 0 and non-0 per taxa
+  results_IBD[x,1]=length(IBD2[,i])
+  results_IBD[x,2]=sum(IBD2[,i]!=0)
+  #Test outliers, but if all are marked as outliers keep the original values... If you want to perform strict analysis you may want to remove them or pre-filter the table
+  while (any(myOutliers==T)){
+    if (sum(is.na(IBD2[,i]))==length(IBD2[,i])){
+      IBD2[,i]=IBD3[,i]
+      break
+    }
+    outliers=grubbs.test(IBD2[,i])
+    myOutliers = outlier( IBD2[,i], logical = TRUE )
+    # Threshold for outlier identification
+    if (outliers$p.value < 0.05){
+      #Transform relative abundances to NA's in case of outliers
+      IBD2[,i][myOutliers] <- NA
+    } else {
+      break
+    }
+  }
+}
+#There were 50 or more warnings (use warnings() to see the first 50). 50 times: In sqrt(s) : NaNs produced
+
+#Change 5:46 for the phenotypes to test   
+#Loop per food 
+for (a in 4:178){                  #Food: col 4:178 (175 foods)
+  if (is.na(mean(IBD2[,a]))==T){
+    IBD2[,a][is.na(IBD2[,a])] =median(IBD2[,a], na.rm=TRUE)
+  }
+  results_IBD[,3]=mean(IBD2[,a])    
+  results_IBD[,4]=sd(IBD2[,a])     
+  food=colnames(IBD2[a])
+  results_IBD[,9]=food
+  z=0
+  
+for (b in 179:ncol(IBD2)){
+  z=z+1
+  if (sum(IBD2[,i]!=0, na.rm = T)!=0){        #if sum of non-zeros is > zero = taxa present in cohort) 
+    temp=IBD2[,c(b,1:3,a)] 
+    df2<-temp[complete.cases(temp),]
+    y=lm(df2[,1]~df2[,5]+Sex+AgeAtFecalSampling+PFReads,data = df2)
+    yy=summary(y)
+    results_IBD[z,5]=yy$coefficients[2,1]
+    results_IBD[z,6]=yy$coefficients[2,2]
+    results_IBD[z,7]=yy$coefficients[2,4]
+    }
+  }
+  results_IBD[,8]=p.adjust( results_IBD[,7], method = "fdr")
+  colnames(results_IBD)=c("N","non-zeros", "Mean", "SD", "Coef", "StdError","pvalue", "qvalue","food")
+  rownames(results_IBD)=colnames(IBD2)[179:ncol(IBD2)]
+  ## CHANGE PREFIX OF THE RESULT FILE 
+  write.table(results_IBD, file=paste('CD',food, sep = '_'), sep="\t", quote=F)
+}
+ 
+ 7.Association Studies using MaAsLin  
  -------------
 
 
@@ -292,7 +372,7 @@ Maaslin('CD_Food_Tax.tsv','CD_Food_Tax_output',strInputConfig ='input.read.confi
 - Growth rates are run without fZeroInflated=TRUE*
 
  
- 5.Import all Maaslin output files into R 
+ 7.1 Import all Maaslin output files into R 
  -------------
  
 *Import files from folder, put them into a list, and merge them into one dataframe*
@@ -372,7 +452,7 @@ setwd("~/Desktop/Data/Maaslin Files")
 write.csv(metatable, '../Maaslin Files/Maaslin_Food_Tax/MergedLargeTable.csv')
 ```
 
- 6.Metaanalysis   (small fix: 2-side meta-p-values)
+ 8.Metaanalysis using 1-sided meta-p-values, sample size based
  -------------
 
 - Random effect meta-analysis 
