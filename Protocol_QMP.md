@@ -5,7 +5,7 @@ QMP Absolute quantification project
 *Year: 2018* 
 
 1. Read table 
-==============
+-----------------------------------------------
 ```
 # Read table
 IBD_samples_all <- read.table("IBD_taxonomy_metaphlan2.txt", header = T, sep="\t", as.is=TRUE, row.names = 1)
