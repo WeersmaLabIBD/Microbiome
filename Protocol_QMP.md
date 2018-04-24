@@ -1,8 +1,8 @@
 QMP Absolute quantification project
 =====================================
 
-* Creator: Anne Boddeke *
-* Year: 2018 *
+*Creator: Anne Boddeke 
+*Year: 2018 
 
 1. Read table 
 ---------------
