@@ -241,21 +241,8 @@ CD_foodtax = merge (CD_Food, tax, by = "row.names", all = FALSE)
 #all = FALSE implies that only rownames that are common in both dataframes will be kept
 write.table(CD_foodtax, "CD_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
 ```
-*2. UC-Food-Tax:*
-```
-UC_foodtax = merge (UC_Food, tax, by = "row.names", all = FALSE)
-write.table(UC_foodtax, "UC_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
-```
-*3. IBS_Food_Tax:* 
-```
-IBS_foodtax = merge (IBS_Food, tax, by = "row.names", all = FALSE)
-write.table(IBS_foodtax, "IBS_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
-```
-*4. HC-Food-Tax:* 
-```
-HC_foodtax = merge (HC_Food, tax, by = "row.names", all = FALSE)
-write.table(HC_foodtax, "HC_Food_Tax.tsv", sep= "\t", quote = F, row.names=F)
-```
+*The same for UC, IBS and HC files*
+
 **Merge Food with Species, Pathways and Growth rates, accordingly!**
 
 
@@ -355,7 +342,7 @@ for (b in 179:ncol(IBD2)){
 5.Metaanalysis - Inverse variance based 
  -------------
 
-*Load libraries and input files*
+**Load libraries and input files**
 ```
 library (meta)
 library (dplyr) 
@@ -363,23 +350,23 @@ library (dplyr)
 setwd("~/Desktop/Data/Association Analyses/Taxonomy/")
 setwd("./")
 ```
-*Create Food list* 
-**Step 1**
+**Create Food list** 
+*Step 1*
 - In Excel: Select column names -> press format -> cells -> custom -> type: \"@\"
 - Paste colmun names in R (evt. replace ” by ") 
 
-**Step 2** 
+*Step 2* 
 Using the food names as before will give an Error: "invalid 'description' argument.
 This is because bread and group_bread OR yoghurt_lf and yoghurt_lf_fruit will match with each other. 
 Change file names in folder to e.g. bread_x and yoghurt_lf_x and so forth
 
-**Step 3**
+*Step 3*
 Adapt those food names which needed an X, accordingly in the food list
 ```
 food_list=c("often_breakfast", "often_bread",	"often_hot_meal",	"how_often_alcohol",	"how_often_chocomilk_sweetened_milk_drinks",	"how_often_coffee",	"how_often_fruits",	"how_often_milk_or_buttermilk",	"how_often_muesli",	"how_often_nuts",	"how_often_pasta",	"how_often_pulses",	"how_often_rice",	"how_often_soda",	"how_often_tea",	"how_often_vegetables",	"how_often_yoghurt_milk_based_puddings",	"crackers_x",	"rolls",	"bread_x",	"cheese_20",	"cheese_40",	"cheese_48",	"cheese_other",	"meats_fat",	"meats_other",	"peanutbutter",	"sandwichspread",	"chocolatespreads",	"spreads_sweet",	"egg_cooked",	"egg_baked",	"breakfast_drink",	"cereals_x",	"milk_whole",	"milk_semiskimmed",	"milk_skimmed",	"buttermilk_x",	"chocolatemilk",	"yoghurt_drink_added_sugar",	"yoghurt_drink_other",	"custard_ff",	"yoghurt_ff",	"yoghurt_lf_x",	"yoghurt_lf_fruits",	"fromage_frais_fruits",	"porridge",	"other_custard_yoghurt_fromagefrais",	"icecream_dairy",	"whipped_cream",	"sugar_yoghurt",	"coffee_x",	"sugar_coffee",	"coffeecreamer_hf",	"coffeecreamer_p",	"coffeecreamer_ff",	"milk_coffee",	"tea_x",	"sugar_tea",	"soup_legumes",	"soup_x",	"ready_meals_chinese_indian",	"meals_fast_food",	"ready_meals_other",	"pizza_x",	"pasta_x",	"rice_x",	"legumes_x",	"potato_cooked_mashed",	"potato_baked_fries",	"vegetables_cooked_nobutter",	"herring_salted",	"fish_white_fried",	"fish_lean",	"fish_fatty",	"fish_other",	"meat_x",	"sausage_smoked",	"beef_lean",	"beef_fat",	"pork_lean",	"pork_fat",	"pork_processed",	"chicken",	"other_meat_poultry",	"gravy",	"sauce_hot",	"mayonaise_x",	"non_red_sauces_x",	"saladdressing_f",	"saladdressing_w",	"nut_d",	"cheese_d",	"fruit_x",	"applesauce",	"biscuits_s",	"cake_x",	"pastry_x",	"spiced_cake",	"candybars",	"chocolate_x",	"sweets_x",	"snack_savoury_hot",	"mayonaise_snack",	"non_red_sauces_snack",	"snack_nut",	"crisps_x",	"snack_cheese",	"snack_meats",	"salad_toast",	"softdrink_sugar",	"softdrink_no_sugar",	"fruitjuice", "beer_x",	"beer_af",	"wine_red",	"wine_white",	"wine_fort",	"spirits",	"other_alc_drinks",	"butter_b",	"margarine_lfb",	"butter_ob",	"vegetables_stirfried",	"fish_prepared_fat",	"vegetables_cooked_butter",	"group_alcohol",	"group_breads",	"group_cereals",	"group_cheese",	"group_coffee",	"group_dairy",	"group_eggs",	"group_fish",	"group_fruits",	"group_legumes",	"group_meat",	"group_nonalc_drinks",	"group_nuts",	"group_pasta",	"group_pastry",	"group_potatoes",	"group_prepared_meal",	"group_rice",	"group_sauces",	"group_savoury_snacks",	"group_soup",	"group_spreads",	"group_sugar_sweets",	"group_tea",	"group_vegetables",	"SUMOFEIWITTOT",	"SUMOFEIWITPLANT",	"SUMOFEIWITDIER",	"SUMOFVETTOT",	"SUMOFKHTOT",	"SUMOFALCOHOL",	"Prot_en",	"P_plant_en",	"P_animal_en",	"Fat_en",	"Carb_en",	"Alc_en",	"how_often_boiled_potatos",	"how_often_crisps_savory_crackers",	"how_often_fish",	"how_often_juice",	"how_often_meat",	"how_often_baked_fried_potatoes",	"how_often_chocolate",	"how_often_eggs",	"how_often_icecream",	"how_often_pizza")
 ```
 
-*Loop to meta-analyse*
+**Loop to meta-analyse**
 ```
 path="./"
 flag=1
@@ -406,7 +393,7 @@ for (a in food_list){                     #all in one folder
   
   list_coef=all[,c(1,6,15,24,33)] 
   list_coef[list_coef == 0] <- NA
-  list_coef2=na.omit(list_coef) #coef zero means that bacteria are not present in cohort -> remove rows that are zero i.e. remove row if coef is zero 
+  list_coef2=na.omit(list_coef) #coef zero means bacteria are not present in cohort -> remove rows if coef is zero 
   
   #selection=all[list_coef2$Row.names]
   selection = all %>% semi_join(list_coef2, by = "Row.names")
@@ -443,9 +430,7 @@ for (a in food_list){                     #all in one folder
        selection$inverse_var.uc+
        selection$inverse_var.ibs+
        selection$inverse_var.hc)
-  #selection$beta=(selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
-  #Error in `$<-.data.frame`(`*tmp*`, "beta", value = numeric(0)) : 
-  #  replacement has 0 rows, data has 287
+  #selection$beta=   (selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
   
   #Calculate Z-score #44
   selection$Z=selection$beta/selection$se
@@ -468,9 +453,9 @@ for (a in food_list){                     #all in one folder
   for (i in 1:length(rownames(selection))){
     if (selection$FDR[i]<0.1){
       #Select coefficients
-      TE=c( selection[i,6], selection[i,15], selection[i,24], selection[i,33])  #select cols of coefficients e.g. coef CD is 5
+      TE=c( selection[i,6], selection[i,15], selection[i,24], selection[i,33])  #select cols of coefficients e.g. coef CD= 5
       #Select Standart error
-      SE=c( selection[i,7], selection[i,16], selection[i,25], selection[i,34] ) #select cols of standart error e.g. coef CD is 6
+      SE=c( selection[i,7], selection[i,16], selection[i,25], selection[i,34] ) #select cols of standard error e.g. coef CD= 6
       het=metagen(TE,SE)
       #Change the number here depending of the number of columns in your data, should match with column Het.I2
       selection[i,48]=het$I2   
@@ -487,10 +472,10 @@ for (a in food_list){                     #all in one folder
 7.Merge all results in BASH
  ------------- 
  
-*All results incl. non-significant meta-results*
+**All results incl. non-significant meta-results**
 
-**Results that were significant in one cohort but not in the metaanalysis, are also important to check
-in order to spot differences between cohorts**
+*Results that were significant in one cohort but not in the metaanalysis, are also important to check
+in order to spot differences between cohorts*
 
 ```
 cd /Users/laurabolte/Desktop/Data/Association\ Analyses/Taxonomy/meta 
@@ -504,7 +489,7 @@ Tax1=Tax[!grepl("N.CD",Tax$Taxa),]                                              
 write.table(Tax1,"../Desktop/Data/Association Analyses/tax_all_results.txt", sep='\t')
 ```
 
-*Only significant results* 
+**Only significant results** 
 ```
 cd /Users/laurabolte/Desktop/Data/Association\ Analyses/Taxonomy/meta 
 mv *meta.txt ./meta/
@@ -518,7 +503,7 @@ for i in *.txt ; do  less $i | awk -F "\t" '{if ($47<0.1){print $0}}' >> ../tax_
  
 **8.1 Subset**
 
-Input files: rows: matched IDs, columns: foods
+As previously described. Input files: rows: matched IDs, columns: foods
 
 **8.2 CLUSTERING DIET** 
 
