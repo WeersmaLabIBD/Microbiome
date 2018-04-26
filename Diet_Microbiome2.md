@@ -1,7 +1,9 @@
 Diet-Microbiome Project (2)
 -------------
  
-Linear Models for Association Studies in R                                                                                      Inverse variance based Meta-anlysis                                                                                         Cluster Analyses
+Linear Models for Association Studies in R                                                                                  
+Inverse variance based Meta-anlysis                                                                                         
+Cluster Analyses
 
 Creator: Laura Bolte
 
