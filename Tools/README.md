@@ -25,6 +25,8 @@ Description
 
 *composition_barplots.R* : barplots of microbial composition
 
+*convert_Braken_to_relative_abundances.py* : from Braken output to relative abundances
+
 *create_samplesheet.sh* : samplesheet for qtl pipeline
 
 *create_scripts_metagenomics.sh* : create SLURM scripts for our metagenomic pipeline (2017)
