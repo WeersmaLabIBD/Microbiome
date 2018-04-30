@@ -15,6 +15,8 @@ Description
 
 *Shannon_index_calculation.R* : calculates richness ( or other eveness/richness measurement) and creates violin plots
 
+*add_missing_taxa_levels.py* : based on mpa-like taxonomies, adds the missing taxonomical levels. 
+
 *annotate_metacyc.py* : connects to MetaCYC database and download relevant information of microbial pathways
 
 *bamTofastq.sh* : file formating conversion bam -> fastq (SLURM cluster)
