@@ -41,3 +41,5 @@ Description
 
 *pricess_reads_count.sh* : same as parse_log_files_metagenomic_pipe.sh
 
+*transform_taxaid_to_mpa_taxonomy.py* : transform taxaID from NCBI and transform it to mpa-like taxonomy names
+
