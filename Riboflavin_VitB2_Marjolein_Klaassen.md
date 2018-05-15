@@ -242,619 +242,164 @@ colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
 InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
+```
 
-res =  NULL # this will be the master table where all the results will go. 
-``` 
 
-Now, I will compare T1 with T4, using a paired Wilcoxon. This was written together with Ranko Gacesa. 
-``` 
-for (c in c(1:nrow(t1)) ) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])] # taking out the taxa 
-  print (paste('testing',taxName))
-  tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
-  tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
-  tt1df <- as.data.frame(tt1)
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt4df <- as.data.frame(tt4)
-  tt4df$Time <- "T4"
-  tt4df$PairNR <- c(1:nrow(tt4df))
-  colnames(tt4df) <- c("Value","Time","PairNR")
-  toPlotDF <- rbind.data.frame(tt1df,tt4df)
-  wc <- wilcox.test(tt1,tt4,alternative = "two.sided",paired = T)
-  print(wc)
-  # plot groups
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  #ggsave(filename = paste('p_results/plot_',c,'.png', sep=''))
-  # plot changes, drop 0s
-  toPlotDF2 <- toPlotDF
-  g2 <- ggplot(data=toPlotDF2,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point()
-  #ggsave(g2,filename = paste('p_results/plot_',c,'_','pairs','.png', sep=''))
+
+
+
+
+
+**Adonis Analyses (taxa)**
+I will check if there is a larger proportion of explained variance by M1/M3 difference than by interindividual difference (Pnumber). I will split patients who are active at baseline and patients who are in remission at baseline. 
+
+
+```
+tt1 = as.data.frame(t(t1))
+tt1["Pnumber"] = rownames(tt1)
+tt1 = tt1[,c(164, 1:163)]
+```
+
+```
+t0_Clin = merge(db_Clin_Jul, tt1, by="Pnumber", all = FALSE)
+t0_Clin = t0_Clin[,c(1:4, 6,7, 9:173)]
+```
+
+```
+t0_Clin["DiseaseActivityAtBaseLine"] = NA
+t0_Clin = t0_Clin[,c(1, 172, 2:171)]
+
+for (i in 1:nrow(t0_Clin)){
+  if(t0_Clin$Lab1Calprotectin[i] > 200){
+    t0_Clin$DiseaseActivityAtBaseLine[i] = "Active_baseline"
+  } else 
+    t0_Clin$DiseaseActivityAtBaseLine[i] = "Remission_baseline"
+}
+
+t0_Clin["Pnumber_tp"] = t0_Clin$Pnumber
+t0_Clin = t0_Clin[,c(173, 1:172)]
+t0_Clin$Pnumber_tp = paste0("T0_", t0_Clin$Pnumber_tp)
+```
+
+```
+tt4 = as.data.frame(t(t4))
+tt4["Pnumber"] = rownames(tt4)
+tt4 = tt1[,c(164, 1:163)]
+
+t3_Clin = merge (db_Clin_Jul, tt4, by="Pnumber", all= FALSE)
+t3_Clin = t3_Clin[,c(1:3, 5, 6, 8:173)]
+
+t3_Clin["Pnumber_tp"] = t3_Clin$Pnumber
+t3_Clin = t3_Clin[,c(172, 1:171)]
+t3_Clin$Pnumber_tp = paste0("T3_", t3_Clin$Pnumber_tp)
+```
+```
+t3_Clin["DiseaseActivityAtBaseLine"] = NA
+t3_Clin = t3_Clin[,c(1, 173, 2:172)]
+
+for (i in 1:nrow(t3_Clin)){
+  if(t0_Clin$Lab1Calprotectin[i] > 200){
+    t3_Clin$DiseaseActivityAtBaseLine[i] = "Active_baseline"
+  } else 
+    t3_Clin$DiseaseActivityAtBaseLine[i] = "Remission_baseline"
+}
+```
+
+Active at baseline n=29, remission at baseline n=38. 
+
+Adding phenotype M1 or M3. 
+```
+t0_Clin["time_point"] = "M1"
+t0_Clin = t0_Clin[,c(1, 174, 2:173)]
+
+t3_Clin["time_point"] = "M3"
+t3_Clin = t3_Clin[,c(1, 174, 3, 2, 4:173)]
+```
+
+Making similar columnames in T0 and T3. 
+```
+colnames(t0_Clin)[7] = "LabCalprotectin"
+colnames(t3_Clin)[7] = "LabCalprotectin"
+
+colnames(t0_Clin)[9] = "HBI"
+colnames(t3_Clin)[9] = "HBI"
+```
+
+Binding databases. 
+```
+Active_Rib_M1 = t0_Clin[t0_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
+ActiveRib_M3_wantM1 = t3_Clin[t3_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
+
+Rem_Rib_M1 = t0_Clin[t0_Clin$DiseaseActivityAtBaseLine == "Remission_baseline",]
+Rem_Rib_M3_wantM1 = t3_Clin[t3_Clin$DiseaseActivityAtBaseLine == "Remission_baseline",]
+
+Act_AdonisRiboSpecies = rbind(Active_Rib_M1, ActiveRib_M3_wantM1)
+Rem_AdonisRiboSpecies = rbind(Rem_Rib_M1, Rem_Rib_M3_wantM1)
+```
+
+Adonis based on remission
+```
+Rem_species = Rem_AdonisRiboSpecies[,c(12:174)]
+
+#### phenotype data
+Phenotype_dat = Rem_AdonisRiboSpecies[,c(2, 3, 5, 6, 8)]
+
+
+my_results <- matrix(ncol = 3, nrow=ncol(Phenotype_dat))       
+
+library(vegan)
+
+#For each column in factor_table (factor)  
+for (i in 1:ncol(Phenotype_dat)) {
   
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c,"taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-  }
-}
-# p-value adjust
-res$FDR <- p.adjust(res$p.value,method = "fdr")
-
-write.table(res,file = 'VitB2_Results_Species.csv',row.names = F,sep=",")
-``` 
-
-
-**Genus** 
-``` 
-# Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
-db_VitB2_Genus = t(db_VitB2_Genus)
-for (c in c(1:nrow(db_VitB2_Genus))) {
-  db_VitB2_Genus[c,] <- asin(sqrt(db_VitB2_Genus[c,]))
-}
-db_VitB2_Genus[is.na(db_VitB2_Genus)] <- 0.0
-
-
-# Making t=1 and t=4 time groups 
-t1 = db_VitB2_Genus[,c(1, grep("M1", colnames(db_VitB2_Genus)))]
-rownames(t1) = rownames(db_VitB2_Genus)
-t1 = as.data.frame(t1)
-t4 = db_VitB2_Genus[,c(1, grep("M4", colnames(db_VitB2_Genus)))]
-rownames(t4) = rownames(db_VitB2_Genus)
-t4 = as.data.frame(t4)
-
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
-colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
-colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
-
-InBothSamples = intersect(colnames(t1), colnames(t4))
-t1 = t1[,InBothSamples]
-t4 = t4[,InBothSamples]
-
-
-# Filter out species that are present in less than <10% of the samples.
-# Q: <10% of which samples? Only T1? 
-
-res =  NULL
-# Comparing (wilcoxon, paired): between t1 and t4 (species) 
-for (c in c(1:nrow(t1)) ) {
-  #for (c in c(1:10)) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
-  print (paste('testing',taxName))
-  tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
-  tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
-  tt1df <- as.data.frame(tt1)
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt4df <- as.data.frame(tt4)
-  tt4df$Time <- "T4"
-  tt4df$PairNR <- c(1:nrow(tt4df))
-  colnames(tt4df) <- c("Value","Time","PairNR")
-  toPlotDF <- rbind.data.frame(tt1df,tt4df)
-  wc <- wilcox.test(tt1,tt4,alternative = "two.sided",paired = T)
-  print(wc)
-  # plot groups
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  #ggsave(filename = paste('p_results/plot_',c,'.png', sep=''))
-  # plot changes, drop 0s
-  toPlotDF2 <- toPlotDF
-  g2 <- ggplot(data=toPlotDF2,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point()
-  #ggsave(g2,filename = paste('p_results/plot_',c,'_','pairs','.png', sep=''))
+  #Create a table for complete cases
+  final_factor_table = Phenotype_dat[complete.cases(Phenotype_dat[,i]),]
   
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c,"taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-  }
-}
-# p-value adjust
-res$FDR <- p.adjust(res$p.value,method = "fdr")
-
-write.table(res,file = 'VitB2_Results_Genus.csv',row.names = F,sep=",")
-``` 
-
-**Family**
-Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
-``` 
-db_VitB2_Family = t(db_VitB2_Family)
-for (c in c(1:nrow(db_VitB2_Family))) {
-  db_VitB2_Family[c,] <- asin(sqrt(db_VitB2_Family[c,]))
-}
-db_VitB2_Family[is.na(db_VitB2_Family)] <- 0.0
-``` 
-
-Making t=1 and t=4 time groups 
-``` 
-t1 = db_VitB2_Family[,c(1, grep("M1", colnames(db_VitB2_Family)))]
-rownames(t1) = rownames(db_VitB2_Family)
-t1 = as.data.frame(t1)
-t4 = db_VitB2_Family[,c(1, grep("M4", colnames(db_VitB2_Family)))]
-rownames(t4) = rownames(db_VitB2_Family)
-t4 = as.data.frame(t4)
-``` 
-
-Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
-``` 
-colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
-colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
-
-InBothSamples = intersect(colnames(t1), colnames(t4))
-t1 = t1[,InBothSamples]
-t4 = t4[,InBothSamples]
-
-res =  NULL
-``` 
-
-Comparing (wilcoxon, paired): between t1 and t4 (species) 
-``` 
-for (c in c(1:nrow(t1)) ) {
-  #for (c in c(1:10)) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
-  print (paste('testing',taxName))
-  tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
-  tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
-  tt1df <- as.data.frame(tt1)
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt4df <- as.data.frame(tt4)
-  tt4df$Time <- "T4"
-  tt4df$PairNR <- c(1:nrow(tt4df))
-  colnames(tt4df) <- c("Value","Time","PairNR")
-  toPlotDF <- rbind.data.frame(tt1df,tt4df)
-  wc <- wilcox.test(tt1,tt4,alternative = "two.sided",paired = T)
-  print(wc)
-  # plot groups
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  #ggsave(filename = paste('p_results/plot_',c,'.png', sep=''))
-  # plot changes, drop 0s
-  toPlotDF2 <- toPlotDF
-  g2 <- ggplot(data=toPlotDF2,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point()
-  #ggsave(g2,filename = paste('p_results/plot_',c,'_','pairs','.png', sep=''))
+  filter_tax_table = Rem_species[rownames(final_factor_table),]
   
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c,"taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-  }
-}
-# p-value adjust
-res$FDR <- p.adjust(res$p.value,method = "fdr")
-
-write.table(res,file = 'VitB2_Results_Family.csv',row.names = F,sep=",")
-``` 
-
-**Order**
-``` 
-# Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
-db_VitB2_Order = t(db_VitB2_Order)
-for (c in c(1:nrow(db_VitB2_Order))) {
-  db_VitB2_Order[c,] <- asin(sqrt(db_VitB2_Order[c,]))
-}
-db_VitB2_Order[is.na(db_VitB2_Order)] <- 0.0
-
-
-# Making t=1 and t=4 time groups 
-t1 = db_VitB2_Order[,c(1, grep("M1", colnames(db_VitB2_Order)))]
-rownames(t1) = rownames(db_VitB2_Order)
-t1 = as.data.frame(t1)
-t4 = db_VitB2_Order[,c(1, grep("M4", colnames(db_VitB2_Order)))]
-rownames(t4) = rownames(db_VitB2_Order)
-t4 = as.data.frame(t4)
-
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
-colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
-colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
-
-InBothSamples = intersect(colnames(t1), colnames(t4))
-t1 = t1[,InBothSamples]
-t4 = t4[,InBothSamples]
-
-
-# Filter out species that are present in less than <10% of the samples.
-# Q: <10% of which samples? Only T1? 
-
-res =  NULL
-# Comparing (wilcoxon, paired): between t1 and t4 (species) 
-for (c in c(1:nrow(t1)) ) {
-  #for (c in c(1:10)) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
-  print (paste('testing',taxName))
-  tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
-  tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
-  tt1df <- as.data.frame(tt1)
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt4df <- as.data.frame(tt4)
-  tt4df$Time <- "T4"
-  tt4df$PairNR <- c(1:nrow(tt4df))
-  colnames(tt4df) <- c("Value","Time","PairNR")
-  toPlotDF <- rbind.data.frame(tt1df,tt4df)
-  wc <- wilcox.test(tt1,tt4,alternative = "two.sided",paired = T)
-  print(wc)
-  # plot groups
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  #ggsave(filename = paste('p_results/plot_',c,'.png', sep=''))
-  # plot changes, drop 0s
-  toPlotDF2 <- toPlotDF
-  g2 <- ggplot(data=toPlotDF2,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point()
-  #ggsave(g2,filename = paste('p_results/plot_',c,'_','pairs','.png', sep=''))
+  ad = adonis(formula = filter_tax_table ~ final_factor_table[,i] , data = final_factor_table, permutations = 1000, method = "bray")
+  aov_table = ad$aov.tab
   
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c,"taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-  }
-}
-# p-value adjust
-res$FDR <- p.adjust(res$p.value,method = "fdr")
-
-write.table(res,file = 'VitB2_Results_Order.csv',row.names = F,sep=",")
-``` 
-
-
-**Class**
-``` 
-# Normalize data (so that it will be normally distributed) via arcsine square root transformation (similar to MaAsLin)
-db_VitB2_Class = t(db_VitB2_Class)
-for (c in c(1:nrow(db_VitB2_Class))) {
-  db_VitB2_Class[c,] <- asin(sqrt(db_VitB2_Class[c,]))
-}
-db_VitB2_Class[is.na(db_VitB2_Class)] <- 0.0
-
-
-# Making t=1 and t=4 time groups 
-t1 = db_VitB2_Class[,c(1, grep("M1", colnames(db_VitB2_Class)))]
-rownames(t1) = rownames(db_VitB2_Class)
-t1 = as.data.frame(t1)
-t4 = db_VitB2_Class[,c(1, grep("M4", colnames(db_VitB2_Class)))]
-rownames(t4) = rownames(db_VitB2_Class)
-t4 = as.data.frame(t4)
-
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
-colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
-colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
-
-InBothSamples = intersect(colnames(t1), colnames(t4))
-t1 = t1[,InBothSamples]
-t4 = t4[,InBothSamples]
-
-
-# Filter out species that are present in less than <10% of the samples.
-# Q: <10% of which samples? Only T1? 
-
-res =  NULL
-# Comparing (wilcoxon, paired): between t1 and t4 (species) 
-for (c in c(1:nrow(t1)) ) {
-  #for (c in c(1:10)) {
-  taxName <- strsplit(rownames(t1)[c],'\\|')[[1]][length(strsplit(rownames(t1)[c],'\\|')[[1]])]
-  print (paste('testing',taxName))
-  tt1 <-as.numeric(as.vector(t1[c,2:ncol(t1)]))
-  tt4 <- as.numeric(as.vector(t4[c,2:ncol(t4)]))
-  tt1df <- as.data.frame(tt1)
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt4df <- as.data.frame(tt4)
-  tt4df$Time <- "T4"
-  tt4df$PairNR <- c(1:nrow(tt4df))
-  colnames(tt4df) <- c("Value","Time","PairNR")
-  toPlotDF <- rbind.data.frame(tt1df,tt4df)
-  wc <- wilcox.test(tt1,tt4,alternative = "two.sided",paired = T)
-  print(wc)
-  # plot groups
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  #ggsave(filename = paste('p_results/plot_',c,'.png', sep=''))
-  # plot changes, drop 0s
-  toPlotDF2 <- toPlotDF
-  g2 <- ggplot(data=toPlotDF2,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point()
-  #ggsave(g2,filename = paste('p_results/plot_',c,'_','pairs','.png', sep=''))
+  my_results[i,1]=aov_table[1,1]
+  my_results[i,2]=aov_table[1,5]
+  my_results[i,3]=aov_table[1,6]
   
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c,"taxon"=taxName,"means.delta"=mean(tt1)-mean(tt4),"p-value"=wc$p.value)
-  }
 }
-# p-value adjust
-res$FDR <- p.adjust(res$p.value,method = "fdr")
-
-write.table(res,file = 'VitB2_Results_Class.csv',row.names = F,sep=",")
-``` 
 
 
+rownames(my_results) = colnames(Phenotype_dat)
+colnames(my_results) = c("Df", "R2", "Pr(>F)")
 
-Pathways 
-------------- 
+Adonis_Remission_Species <- as.data.frame(my_results)
 
-Setting working directory 
-```
-setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
-```
+write.table(Adonis_Remission_Species, file="~/remspeciesadonis.txt", quote=F, sep = "\t")
 
-Importing microbiome taxonomy data 
-```
-db_VitB2_Pathw <- read.csv(file = '_p_pathways_abundances.tsv',sep='\t',stringsAsFactors = F)
-db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
-```
-Now, I want to remove all the different levels of pathways.
-```
-rownames(db_VitB2_Pathw) = db_VitB2_Pathw$Pathway; db_VitB2_Pathw$Pathway = NULL
-```
-Remove redundant rows
-```db_VitB2_Pathw <- db_VitB2_Pathw[grep("__",rownames(db_VitB2_Pathw),invert = T),]
-db_VitB2_Pathw <- db_VitB2_Pathw[grep("unclassified",rownames(db_VitB2_Pathw),invert = T),]
 
-db_VitB2_Pathw = t(db_VitB2_Pathw)
-db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
-```
 
-Make it relative abundances 
-```
-for (rn in c(1:nrow(db_VitB2_Pathw))) {
-  db_VitB2_Pathw[rn,] <- db_VitB2_Pathw[rn,]/sum(db_VitB2_Pathw[rn,])
-}
-```
+### P-value correction
 
-Below, is code of Ranko Gacesa, in which he filters the pathways for presence, relative abundance, mean and median.
-```
-filterHumannDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=0.0,minSum=90.0, rescale=T,verbose=T) {
-  tCols = grep('PWY',colnames(inDF)) # colums with pathways
-  tColsNMG = grep('PWY',colnames(inDF),invert = T) # colums without pathways
-  # replaces NAs with 0s
-  for (c in tCols) {
-    inDF[,c][is.na(inDF[,c])] <- 0.0
-  }
-  # rescale to rel ab (if rescale = T)
-  if (rescale==T) {
-    for (r in seq(1,nrow(inDF))) {
-      if (verbose) {
-        print(r)
-      }
-      if (sum(inDF[r,tCols]) == 0) {
-        print(paste('r=',r,'sum pathways=0'))
-        inDF[r,tCols] <- 0.0
-      }
-      else {
-        inDF[r,tCols] <- inDF[r,tCols]/sum(inDF[r,tCols])*100.0
-      }
-    }
-  }
-  # filter for presence
-  # -----------------
-  nrRemoved = 0
-  toRemove = c()
-  for (c in tCols) {
-    nrnZ = as.numeric(sum(inDF[,c]!=0.0))
-    #print(nrnZ)
-    if (nrnZ/as.numeric(nrow(inDF)) < presPerc) {
-      #if (verbose) {
-      #  print (paste('col',c,': ',colnames(inDF)[c],'; nr non Zero:',nrnZ,'=',nrnZ/as.numeric(nrow(inDF)),'>> Column removed!'))
-      #}
-      nrRemoved = nrRemoved + 1
-      toRemove <- c(toRemove,c)
-    }
-  }
-  if (length(toRemove) > 0) {
-    inDF <- inDF[,-toRemove]
-  }
-  tCols = grep('PWY',colnames(inDF)) # colums with pathways
-  if (verbose) {print (paste(' > presence filter: Removed',nrRemoved,'pathways!, ',length(tCols),'pathways left!')); }
-  
-  # filter for abundance (mean)
-  # ---------------------------
-  nrRemoved = 0
-  toRemove = c()
-  for (c in tCols) {
-    mn = mean(inDF[,c])
-    if ( mn < minMRelAb) {
-      #if (verbose) {
-      #  print (paste('col',c,': ',colnames(inDF)[c],'; mean rel abundance:',mn,' >> Column removed!'))
-      #}
-      nrRemoved = nrRemoved + 1
-      toRemove <- c(toRemove,c)
-    }
-  }
-  if (length(toRemove) > 0) {
-    inDF <- inDF[,-toRemove]
-  }
-  tCols = grep('PWY',colnames(inDF)) # colums with microbiome
-  if (verbose) {print (paste(' > mean abundance filter: Removed',nrRemoved,'pathways!, ',length(tCols),'pathways left!')); }
-  
-  # filter for abundance (median)
-  # -----------------------------
-  nrRemoved = 0
-  toRemove = c()
-  for (c in tCols) {
-    mn = median(inDF[,c])
-    if ( mn < minMedRelAb) {
-      #if (verbose) {
-      #  print (paste('col',c,': ',colnames(inDF)[c],'; median rel abundance:',mn,' >> Column removed!'))
-      #}
-      nrRemoved = nrRemoved + 1
-      toRemove <- c(toRemove,c)
-    }
-  }
-  if (length(toRemove) > 0) {
-    inDF <- inDF[,-toRemove]
-  }
-  tCols = grep('PWY',colnames(inDF)) # colums with pwy
-  if (verbose) {print (paste(' > median abundance filter: Removed',nrRemoved,'pathways!, ',length(tCols),'pathways left!')); }  
-  # filter for final sum
-  nrRemoved = 0
-  toRemove = c()
-  #a = c()
-  for (r in seq(1,nrow(inDF))) {
-    s <- sum(inDF[r,tCols])
-    #a = c(a,s)
-    #print(s)
-    if (s < minSum) {
-      print(paste('r=',r,'sum pathways=',s))
-      toRemove <- c(toRemove,r)
-    }
-  }
-  if (length(toRemove) > 0) {
-    inDF <- inDF[-toRemove,]
-  }
-  if (verbose) {print (paste(' > sum filter: Removed',length(toRemove),'rows!, ',nrow(inDF),'rows left!')); }
-  #  print(sorted(a)[1:100])
-  inDF
-}
-```
-```
-db_VitB2_Pathw = t(db_VitB2_Pathw)
-db_VitB2_Pathw = as.data.frame(db_VitB2_Pathw)
-```
+library(stats)
 
-Perform arc sine square root transformation (identical to what MaAsLin does)
-```
-for (c in c(1:nrow(db_VitB2_Pathw))) {
-  db_VitB2_Pathw[c,] <- asin(sqrt(db_VitB2_Pathw[c,]))
-}
-db_VitB2_Pathw[is.na.data.frame(db_VitB2_Pathw)] <- 0.0
-```
+p_correction_fdr <- as.data.frame(p.adjust(Adonis_Remission_Species$`Pr(>F)`, method = "fdr"))
+rownames(p_correction_fdr) <- rownames(Adonis_Remission_Species)
 
-Only keep samples that have T1 and T4. 
-```
-t1 <- db_VitB2_Pathw[,c(grep("M1",colnames(db_VitB2_Pathw)))]
-colnames(t1) <- gsub("_M1","",colnames(t1))
-t1 = as.data.frame(t1)
-t2 <- db_VitB2_Pathw[,c(grep("M4",colnames(db_VitB2_Pathw)))]
-colnames(t2) <- gsub("_M4","",colnames(t2))
-t4 = as.data.frame(t2) 
+p_correction_bonferroni <- as.data.frame(p.adjust(Adonis_Remission_Species$`Pr(>F)`, method = "bonferroni"))
+rownames(p_correction_bonferroni) <- rownames(Adonis_Remission_Species)
 
-inCommonT1T2 <- intersect(colnames(t1),colnames(t2))
-```
 
-**Now, we will perform pairedd Wilcoxon tests on T1 and T4. Furthermore, we will let R create images right away**. 
-```
-t1c <- t1[,inCommonT1T2]
-t2c <- t2[,inCommonT1T2]
+#Merge with adonis_results table
 
-# iterate over entries!
-res <- NULL
-for (c in c(1:nrow(t1c)) ) {
-  taxName <- rownames(t1c)[c]
-  print (paste(' -> testing',taxName,' NR = ',c))
-  tt1df <- as.data.frame(t(t1c[c,]))
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt2df <- as.data.frame(t(t2c[c,]))
-  tt2df$Time <- "T2"
-  tt2df$PairNR <- c(1:nrow(tt2df))
-  colnames(tt2df) <- c("Value","Time","PairNR")
-  # get rid of all-zero columns <for plotting>
-  print (' --> removing all-zero cases')
-  getrid <- c()
-  for (r in c(1:nrow(tt2df))) {
-    if (tt1df$Value[r] == 0 & tt2df$Value[r] == 0) {
-      getrid <- c(getrid,r)
-    }
-  }
-  if (!is.null(getrid)) {
-    tt2df <- tt2df[-getrid,]
-    tt1df <- tt1df[-getrid,]
-  }
-  print (nrow(tt1df))
-  if (nrow(tt1df) == 0) {
-    print ('  WARNING: no cases after removal of 0s')
-    next
-  }
-  print ('  --> doing tests')
-  # do tests
-  wcT1T2 <- wilcox.test(tt1df$Value,tt2df$Value,alternative = "two.sided",paired = T)
-  #wcT1T2 <- t.test(tt1df$Value,tt2df$Value,alternative = "two.sided",paired = T)
-  
-  print ('     --> tests done')
-  # save result
-  if (!is.null(res)) {
-    res2 <- data.frame("N"=c, "taxon"=taxName,pValue=wcT1T2$p.value)
-    #if (is.nan(wc$p.value)) {res2$p.value = 1.0}
-    res <- rbind.data.frame(res2,res)
-  } else {
-    res <- data.frame("N"=c, "taxon"=taxName,pValue=wcT1T2$p.value)
-  }
-}
-res[is.nan.data.frame(res)] <- 1.0
-resPA <- res
-resPA$FDR <- p.adjust(resPA$pValue,method = "fdr")
-#resPA$N <- NULL
-resPA <- resPA[order(resPA$pValue),]
-#resPA$N <- c(1:nrow(resPA))
-write.table(resPA,file = paste('PWY_results_taxa.csv',sep=''),row.names = F,sep=",")
+final_adonis_results <- merge(Adonis_Remission_Species, p_correction_fdr, by="row.names")
+rownames(final_adonis_results) <- final_adonis_results[,1]
+final_adonis_results <- final_adonis_results[,-1]
 
-# now plot, sort by FDR
-plotNR <- 0
-for (c in resPA$N)
-{
-  plotNR <- plotNR + 1
-  taxName <- rownames(t1c)[c]
-  print (paste(' -> plotting',taxName,' NR = ',c))
-  tt1df <- as.data.frame(t(t1c[c,]))
-  tt1df$Time <- "T1"
-  tt1df$PairNR <- c(1:nrow(tt1df))
-  colnames(tt1df) <- c("Value","Time","PairNR")
-  tt2df <- as.data.frame(t(t2c[c,]))
-  tt2df$Time <- "T2"
-  tt2df$PairNR <- c(1:nrow(tt2df))
-  colnames(tt2df) <- c("Value","Time","PairNR")
-  
-  # get rid of all-zero columns <for plotting>
-  print (' --> removing all-zero cases')
-  getrid <- c()
-  for (r in c(1:nrow(tt1df))) {
-    if (tt1df$Value[r] == 0 & tt2df$Value[r] == 0) {
-      getrid <- c(getrid,r)
-    }
-  }
-  if (!is.null(getrid)) {
-    tt2df <- tt2df[-getrid,]
-    tt1df <- tt1df[-getrid,]
-  }
-  print (nrow(tt1df))
-  if (nrow(tt1df) == 0) {
-    print ('  WARNING: no cases after removal of 0s')
-    next
-  }
-  toPlotDF <- rbind.data.frame(tt1df,tt2df)
-  ypos <- max(toPlotDF$Value)*(1.05)
-  pv <- resPA$pValue[plotNR]
-  fdr <- resPA$FDR[plotNR]
-  lblT1T2 <- paste("Pv=",formatC(pv, format = "g", digits = 2),"; FDR=",formatC(fdr, format = "g", digits = 2),sep="")
-  if (as.numeric(fdr) <= 0.1) {lblT1T2 <- paste("*",lblT1T2)}
-  if (as.numeric(fdr) <= 1.0e-5) {lblT1T2 <- paste("**",lblT1T2,sep="")}
-  
-  print ('  --> plotting')
-  g <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + geom_boxplot(outlier.alpha = 0.0,width=0.1,alpha=0.5) + 
-    geom_jitter(width = 0.25,height = 0.01) + ylab(paste("Rel. Abundance of",taxName)) 
-  g <- g + annotate("text", x=1.4,y=ypos, label=lblT1T2,vjust=0 )
-  g <- g + annotate("segment", x = 1+0.01, y = ypos*1*0.98, xend = 2-0.01,lineend = "round",
-                    yend = ypos*1*0.98,size=0.5,colour="black")
-  ggsave(g,filename = paste('Vitb2_pathways',plotNR,'.png', sep=''))
-  
-  g2 <- ggplot(data=toPlotDF,aes(y=Value,x=Time,col=Time)) + geom_violin(alpha=0.5) + 
-    geom_line(aes(group=PairNR),linetype="longdash",col="darkgray") + geom_point() + ylab(paste("Rel. Abundance of",taxName)) 
-  g2 <- g2 + annotate("text", x=1.4,y=ypos, label=lblT1T2,vjust=0 )
-  g2 <- g2 + annotate("segment", x = 1+0.01, y = ypos*1*0.98, xend = 2-0.01,lineend = "round",
-                      yend = ypos*1*0.98,size=0.5,colour="black")
-  ggsave(g2,filename = paste('VitB2_pathways',plotNR,'_','pairs','.png', sep=''))
-  print ('    --> plotting done')
-}
+final_adonis_results <- merge(final_adonis_results, p_correction_bonferroni, by="row.names")
+rownames(final_adonis_results) <- final_adonis_results[,1]
+final_adonis_results <- final_adonis_results[,-1]
+
+
+colnames(final_adonis_results)[4] <- "FDR_p_value"
+colnames(final_adonis_results)[5] <- "Bonferroni_p_value"
+
+write.table(final_adonis_results, file="~/final_adonis_results.txt", sep= "\t", quote = F)
 ```
