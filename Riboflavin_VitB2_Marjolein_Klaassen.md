@@ -1,6 +1,6 @@
 **Effects of vitamin B2 (Riboflavin) supplementation on the gut microbiome of CD Patients**
 
-**Authors: Marjolein Klaassen and Ranko Gacesa**
+**Authors: Marjolein Klaassen**
 
 **Date: 05-04-2018** 
 
