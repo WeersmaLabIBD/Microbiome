@@ -1114,3 +1114,5 @@ pdf("total_figure.pdf", width = 8, height = 11)
 ggarrange(FISH_genus_barplot, tot_e_reads_bp, FISH_counts_bp, seq_depth_bp, labels = c("A", "B", "C", "D"), hjust = 1, ncol = 1, nrow = 4, align = "hv", heights = 5, legend = "top", common.legend = T)
 dev.off()
 ```
+
+
