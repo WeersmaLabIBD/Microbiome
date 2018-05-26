@@ -55,6 +55,29 @@ IBD_sample_subset_final = merge(my_subset_ids, IBD_samples_correct_id_trans, by=
 # Remove the "KEEP" column
 IBD_sample_subset_final$keep=NULL
 # So now there is a subset of only the data of the samples for this preject: IBD_samples_subset
+# To easily use it next times, make a txt file 
+write.table(IBD_sample_subset_final, "~/Desktop/Thesis/IBD_sample_subset_final.txt", sep="\t")
+```
+
+4. Make subgroups of Ileal vs Colonic 
+--------------------------------
+```
+### Make subgroups 'ileal' vs 'colonic' 
+# Import table with data on surgery etc.
+IBD_sample_info <- read.table("Meta_Samples.txt", header = T, sep="\t", as.is=TRUE, row.names = 1)
+# Merge tables to select the proper subset
+IBD_sample_info_subset = merge(my_subset_ids, IBD_sample_info, by="row.names")
+# Remove the "KEEP" column
+IBD_sample_info_subset$keep=NULL
+####### CHECK # Make the IDs the actual rownames
+rownames(IBD_sample_info_subset) = IBD_sample_info_subset$Row.names
+IBD_sample_info_subset$Row.names=NULL
+# The table 'IBD_sample_info_subset' contains only the subset of samples and their info regarding group etc.
+
+# To easily use it next times, make a txt file 
+write.table(IBD_sample_info_subset, "~/Desktop/Thesis/IBD_sample_info_subset.txt", sep="\t")
+
+# Feel free to simplyfy the table (e.g. remove columns 'IBD_sample_info_subset$Current_Stoma=NULL')
 ```
 
 
