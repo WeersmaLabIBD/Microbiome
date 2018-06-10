@@ -7,6 +7,7 @@
 # IBD
 # import raw pathway data and select most prevelant ones with present rate more than 25%
 # calculate relative abundance
+# this is used for picking clusters, not used for mbQTL analyses
 
 ibd_path_raw=read.table(file = "IBD_humann2_pathways_uniref90_082017.txt",sep = "\t",header = T,comment.char = "", check.names = FALSE,row.names = 1)
 ibd_path=ibd_path_raw[grep("__",rownames(ibd_path_raw),invert=T),]
