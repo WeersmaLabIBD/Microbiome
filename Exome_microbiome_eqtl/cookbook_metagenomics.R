@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------------------------------------------#
 ####################################################################################################################
 
-# this is the most convincible script
+# this is the most convinced script
 # based on Alex's
 # sample numbers and names are double-checked, so no worries any more
 # taxa is arcsin-transformed and pathway is log-transformed
