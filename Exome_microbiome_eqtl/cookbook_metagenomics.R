@@ -8,116 +8,133 @@
 # this is the most convincible script
 # based on Alex's
 # sample numbers and names are double-checked, so no worries any more
+# taxa is arcsin-transformed and pathway is log-transformed
+# covariates include age, sex, reads, PPI, disease location, diognosis situation, BMI, antibiotics, laxatives and smoking
 
-###---------------------------IBD----------------------------------------------------------------------------------
+########################### IBD #######################################################################
 
-# 1454 taxa and 544 samples
-ibd_meta=read.table(file = "IBD_taxonomy_metaphlan2_082017.txt",sep = "\t",header = T,check.names = F)
+ibd_id_change=read.table("IBD_allID_change.txt",header = T,stringsAsFactors = F,sep = "\t")
 
-ibd_meta_ID=as.data.frame(unlist(colnames(ibd_meta)[-1]),stringsAsFactors = F)
-colnames(ibd_meta_ID)[1]="Original"
+################## covariate ####################
 
-# check ID
-# Dianne file: from G****_metaphlan to UMCG****
-# But in Dianne file, 12 samples have only 6 UMCG**** names(each 2 have the same UMCG names), which means now the number of samples is 538
-old=read.table("IBD_Dienna.txt",sep="\t",header = T)
-old=old[!duplicated(old$ID), ]
-old=old[!duplicated(old$Original), ]
+ibd_covariate=read.table("IBD_allCovariates_Arnau.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
+ibd_covariate=ibd_covariate[ibd_covariate$UMCGIBDResearchIDorLLDeepIDorMIBSID %in% ibd_id_change$ID,]
+ibd_covariate=ibd_covariate[,c(2,1,4:11)]
+colnames(ibd_covariate)[1]="ID"
+ibd_covariate=merge(ibd_covariate,ibd_id_change,all=T,by="ID")[,c(1:10,13)]
+ibd_covariate[ibd_covariate$Sample_ID=="209-6495",c(2,10)]=c("female",25)
+ibd_covariate[ibd_covariate$Sample_ID=="214-1341",c(2,10)]=c("female",48)
+ibd_covariate[ibd_covariate$Sample_ID=="214-1709",c(2,10)]=c("female",37)
+rownames(ibd_covariate)=ibd_covariate[,11]
+ibd_covariate=ibd_covariate[,c(-1,-11)]
+ibd_covariate=ibd_covariate[order(rownames(ibd_covariate)),]
+ibd_covariate$AgeAtFecalSampling=as.numeric(ibd_covariate$AgeAtFecalSampling)
 
-# new.txt: from UMCG**** to 214-2637 (for example)
-new=read.table("IBD_new.txt",sep = "\t",header = T)
-new=new[!duplicated(new$ID), ]
+#### impute missing NA values
+## Solution 1 From Alex If the proportion of NAs is not large, say less than 5%, you can replace NAs by variable mean or median. We usually use median
+## Solution 2 From lmchen using imputePCA (not very clear about the principle)
+ibd_covariate_imputated=ibd_covariate
+ibd_covariate_imputated$Sex=factor(ibd_covariate_imputated$Sex, levels=c("male","female"), labels=c(0,1))
+ibd_covariate_imputated$Sex= as.integer(as.character(ibd_covariate_imputated$Sex))
 
-# 12 samples with metagenomics don't have exome data, so now the number of samples is 526
-# duplicated names in UMCG****
-id_change=merge(old,new,by="ID")
-id_change=merge(id_change,ibd_meta_ID,by="Original")
+ibd_covariate_imputated$DiseaseLocation=factor(ibd_covariate_imputated$DiseaseLocation, levels=c("colon","ileum","both"), labels=c(0,1,2))
+ibd_covariate_imputated$DiseaseLocation= as.integer(as.character(ibd_covariate_imputated$DiseaseLocation))
 
-# remove ancestry outliers
-outliers=read.table("IBD_ancenstry_outliers.txt",header = T,sep = "\t")
-colnames(outliers)[1]="Sample_ID"
-id_change=id_change[!id_change$Sample_ID %in% outliers$Sample_ID,]
+ibd_covariate_imputated$MedicationAntibiotics=factor(ibd_covariate_imputated$MedicationAntibiotics, levels=c("no","yes"), labels=c(0,1))
+ibd_covariate_imputated$MedicationAntibiotics= as.integer(as.character(ibd_covariate_imputated$MedicationAntibiotics))
 
-# remove sex-problematic individuals
-sex=read.table("IBD_sex_problematic.txt",header = T,sep = " ")
-colnames(sex)[1]="Sample_ID"
-id_change=id_change[!id_change$Sample_ID %in% sex$Sample_ID,]
+ibd_covariate_imputated$MedicationPPI=factor(ibd_covariate_imputated$MedicationPPI, levels=c("no","yes"), labels=c(0,1))
+ibd_covariate_imputated$MedicationPPI= as.integer(as.character(ibd_covariate_imputated$MedicationPPI))
 
-# extract final 504 samples with both exome and metagenomics data
-ibd_sub_meta=ibd_meta[,colnames(ibd_meta) %in% id_change$Original]
+ibd_covariate_imputated$laxatives=factor(ibd_covariate_imputated$laxatives, levels=c("no","yes"), labels=c(0,1))
+ibd_covariate_imputated$laxatives= as.integer(as.character(ibd_covariate_imputated$laxatives))
 
-rownames(ibd_sub_meta)=ibd_meta$ID
-id_change=id_change[id_change$Original %in% colnames(ibd_sub_meta),]
-id_change=id_change[!duplicated(id_change$ID), ]
+ibd_covariate_imputated$SmokeAreYouAFormerSmoker=factor(ibd_covariate_imputated$SmokeAreYouAFormerSmoker, levels=c("no","yes"), labels=c(0,1))
+ibd_covariate_imputated$SmokeAreYouAFormerSmoker= as.integer(as.character(ibd_covariate_imputated$SmokeAreYouAFormerSmoker))
 
-# create pheno file , remove any special markers
-pheno=read.table("eqtl_IBD_pheno.txt",sep="\t",header = T)
-pheno=pheno[-1,]
-colnames(pheno)[1:2]=c("ID","Sample_ID")
-pheno=pheno[!duplicated(pheno$Sample_ID), ]
-pheno_sub=merge(id_change,pheno,by="ID")
-pheno_sub=pheno_sub[!duplicated(pheno_sub$ID), ]
+ibd_covariate_imputated=apply(ibd_covariate_imputated,2,function(x){
+  
+  x[is.na(x)]=median(x[!is.na(x)])
+  return(x)
+  
+})
+ibd_covariate_imputated=as.data.frame(ibd_covariate_imputated)
 
-# add depth info
-depth=read.table("IBD_reads_summary.txt",sep = "\t",header = T)
-depth$Original=paste(depth$Sample_ID,"metaphlan",sep = "_")
-pheno_sub=merge(pheno_sub,depth,by="Original")
+################## pathway data ####################
 
-covariate=pheno_sub[,c(4,6,8,13)]
-colnames(covariate)[1]="ID"
+#### extract samples based on ID
+library(stringr)
+ibd_pathway=read.table("IBD_humann2_pathways_uniref90_082017.txt",header = T,stringsAsFactors = F,check.names = F,sep = "\t",comment.char = "",row.names = 1)
+ibd_path=ibd_pathway[grep("__",rownames(ibd_pathway),invert=T),]
+rownames(ibd_path)=str_replace_all(rownames(ibd_path)," ","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"/","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),":","")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),",","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"\\|","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"\\(","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"\\)","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"&","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),";","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"\\[","_")
+rownames(ibd_path)=str_replace_all(rownames(ibd_path),"]","_")
+ibd_path_ID=as.data.frame(unlist(colnames(ibd_path)),stringsAsFactors = F)
+colnames(ibd_path_ID)="path_ID"
+ibd_id_change$path_ID = sapply(strsplit(as.character(ibd_id_change$Original),'_'), "[", 1)
+ibd_id_change$path_ID=paste(ibd_id_change$path_ID,"_kneaddata_merged_Abundance",sep = "")
+ibd_pathway=ibd_path[,ibd_path_ID$path_ID %in% ibd_id_change$path_ID]
 
-covariate=covariate[!duplicated(covariate$ID), ]
-rownames(covariate)=covariate[,1]
-covariate=covariate[,-1]
+#### caculate relative abundance
+ibd_pathway = ibd_pathway[rowSums(ibd_pathway > 0) > ncol(ibd_pathway)*0.25,]
+ibd_pathway = sweep(ibd_pathway,2,colSums(ibd_pathway),"/")
+ibd_pathway[ibd_pathway == 0] = NA
+ibd_pathway = log(ibd_pathway)
+ibd_pathway=t(ibd_pathway)
+ibd_pathway=as.data.frame(ibd_pathway,stringsAsFactors = F)
+rownames(ibd_pathway)=ibd_id_change$Sample_ID
+ibd_pathway=ibd_pathway[order(rownames(ibd_pathway)),]
 
-write.table(covariate,sep = "\t",file = "eqtl_IBD_covariate.txt",quote = F)
-
-# cut off based on presence among samples
-
-cutoff=0.1
-
-taxa=ibd_sub_meta
-
-mm = taxa[rowSums(taxa > 0) >= cutoff*ncol(taxa),]
-mm[mm == 0] = NA
-mm = log(mm)
-
-write.table(t(mm),file = "IBD_filtered_logTrans.txt",sep = "\t",quote = F)
-
-bb=mm
-bb[is.na(bb)]=0
-
-# generate coupling
-
-coupling=id_change[,c(4,4)]
-
-write.table(coupling,file = "coupling_file.txt",row.names = F,col.names = F,quote = F,sep = "\t")
-
-
-# generate linkage used in correcting step
-
-coupling=id_change[,c(4,1)]
-write.table(coupling,file = "eqtl_IBD_linkage.txt",row.names = F,col.names = F,quote = F,sep = "\t")
-
-# correct and split
-
-tax=t(mm)
-coupling = read.table("eqtl_IBD_linkage.txt",colClasses = "character",sep = "\t",check.names = F)
-
-has_both = (coupling[,1] %in% rownames(covariate)) & (coupling[,2] %in% rownames(tax))
-coupling= coupling[has_both,]
-tax = tax[coupling[,2],]
-covariate = covariate[coupling[,1],,drop = FALSE]
-rownames(tax) = rownames(covariate)
-covariate = covariate[rownames(tax),,drop = FALSE]
-
-covariate$Gender=as.character(covariate$Gender)
-covariate$Gender[which(covariate$Gender=="Female")]=0
-covariate$Gender[which(covariate$Gender=="Male")]=1
-
-corrected_data = apply(tax,2,function(x){
+#### linear model correction
+ibd_pathways_correct = apply(ibd_pathway,2,function(x){
   x.subset = x[!is.na(x)]
-  covariate.subset = covariate[!is.na(x),,drop = FALSE]
+  covariate.subset = ibd_covariate_imputated[!is.na(x),,drop = FALSE]
+  covariate.subset.matrix = data.matrix(covariate.subset)
+
+  x.resid = resid(lm(x.subset ~ .,data = covariate.subset))
+  x[!is.na(x)] = x.resid+100
+  x[is.na(x)] = 0
+  return(x)
+})
+
+################## taxa data ####################
+
+ibd_taxa=read.table("IBD_taxonomy_metaphlan2_082017.txt",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
+ibd_taxa=ibd_taxa[,colnames(ibd_taxa) %in% ibd_id_change$Original]
+colnames(ibd_taxa)=ibd_id_change$Sample_ID
+
+#### cut off based on present rate among samples and arcsin transformation
+cutoff=0.1
+ibd_taxa = ibd_taxa[rowSums(ibd_taxa > 0) >= cutoff*ncol(ibd_taxa),]
+ibd_taxa[ibd_taxa == 0] = NA
+ibd_taxa=ibd_taxa/100
+ibd_taxa=sqrt(ibd_taxa)
+ibd_taxa=asin(ibd_taxa)
+
+#### clean taxa. If multiple levels have the same abundance, keep the lowest level one.
+taxa_clean=list()
+for(i in 1:ncol(ibd_taxa)){
+  
+  x.clean=unlist(rownames(ibd_taxa)[!duplicated(ibd_taxa[,i],fromLast = T)])
+  taxa_clean=union(taxa_clean,x.clean)
+  
+}
+ibd_taxa_clean=ibd_taxa[rownames(ibd_taxa) %in% taxa_clean,]
+ibd_taxa_clean=as.data.frame(t(ibd_taxa_clean))
+ibd_taxa_clean=ibd_taxa_clean[order(rownames(ibd_taxa_clean)),]
+
+#### linear model correction
+ibd_taxa_correct = apply(ibd_taxa_clean,2,function(x){
+  x.subset = x[!is.na(x)]
+  covariate.subset = ibd_covariate_imputated[!is.na(x),,drop = FALSE]
   covariate.subset.matrix = data.matrix(covariate.subset)
   if(ncol(covariate.subset)==ncol(covariate.subset.matrix)){
     covariate.subset = covariate.subset[,apply(covariate.subset.matrix,2,sd) !=0,drop = FALSE]
@@ -129,7 +146,7 @@ corrected_data = apply(tax,2,function(x){
   return(x)
 })
 
-#correct quantitative data for covariates
+corrected_data=cbind(ibd_taxa_correct,ibd_pathways_correct)
 corrected_data = as.data.frame(t(corrected_data))
 corrected_data2 = cbind(rownames(corrected_data),corrected_data)
 colnames(corrected_data2)[1] = "-"
@@ -141,113 +158,116 @@ annot = data.frame(platform = "RDP",
                    ChrEnd = 1000)
 colnames(annot)[2] = "HT12v3-ArrayAddress"
 
-#generate presence/absence tables
-binary_data = apply(tax,2,function(x){as.integer(!is.na(x))})
-dimnames(binary_data) = dimnames(tax)
-binary_data = binary_data[,colSums(binary_data)>0.1*nrow(binary_data)&colSums(binary_data)<0.9*nrow(binary_data)]
-binary_data = as.data.frame(t(binary_data))+100
-binary_data = cbind(paste0(rownames(binary_data),".binary"),binary_data)
-
-colnames(binary_data)[1] = "-"
-binary_annot = data.frame(platform = "RDP",
-                          HT12v3.ArrayAddress = binary_data[,1],
-                          Gene = binary_data[,1],
-                          Chr = 4,
-                          ChrStart = 1000,
-                          ChrEnd = 1000)
-
-write.table(corrected_data2, file = "tax_numeric.txt",sep="\t",row.names = F,quote = F)
-write.table(annot,file = "tax_numeric.txt.annot",sep="\t",row.names=F,quote = F)
-
-write.table(binary_data, file = "tax_binary.txt",sep="\t",row.names = F,quote = F)
-write.table(binary_annot,file = "tax_binary.txt.annot",sep="\t",row.names=F,quote = F)
+write.table(corrected_data2, file = "IBD_numeric.txt",sep="\t",row.names = F,quote = F)
+write.table(annot,file = "IBD_numeric.txt.annot",sep="\t",row.names=F,quote = F)
+write.table(ibd_id_change[,c(4,4)],file="IBD_coupling_file.txt",row.names = F,quote = F,sep = "\t",col.names = F)
 
 
-###--------------------------------------------------------LLD-----------------------------------------------------
 
 
-lld_meta=read.table(file = "LLD_taxonomy_metaphlan2_092017.txt",sep = "\t",header = T,check.names = F)
+########################### LLD #######################################################################
 
-lld_pheno=read.table(file = "eqtl_LLD_pheno.txt",as.is = T,header = T,check.names = F)
-colnames(lld_pheno)[1]="exome"
+lld_id_change=read.table("LLD_allID_change.txt",header = T,stringsAsFactors = F,sep = "\t")
 
-# check ID
-new=as.data.frame(unlist(lld_pheno$exome),stringsAsFactors = F)
-colnames(new)="exome"
-old=as.data.frame(unlist(colnames(lld_meta)[-1]),stringsAsFactors = F)
-colnames(old)="metaphlan"
-#old=read.table("LLD_metaphlan_list.txt",sep = "\t",header = F,check.names = F)
-change=read.table("rename_LLD.txt",sep = "\t",header = T,check.names = F)
+################## covariate ####################
 
-depth=read.table("LLD_reads_summary.txt",sep = "\t",header = F)
-colnames(depth)[1]="ID"
+lld_covariate=read.table("LLD_allCovariates_Arnau.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
+lld_covariate=lld_covariate[lld_covariate$SID %in% lld_id_change$exome,]
+rownames(lld_covariate)=lld_covariate[,1]
+lld_covariate=lld_covariate[,-1]
+lld_covariate=lld_covariate[order(rownames(lld_covariate)),]
 
-change$metaphlan=paste(change$ID,"metaphlan",sep = "_")
+#### impute missing NA values
+## Solution 1 From Alex If the proportion of NAs is not large, say less than 5%, you can replace NAs by variable mean or median. We usually use median
+## Solution 2 From lmchen using imputePCA (not very clear about the principle)
+lld_covariate_imputated=lld_covariate
+lld_covariate_imputated$Sex=factor(lld_covariate_imputated$Sex, levels=c("2","1"), labels=c(0,1))
+lld_covariate_imputated$Sex= as.integer(as.character(lld_covariate_imputated$Sex))
 
-compare=merge(change,old,by="metaphlan")
-colnames(compare)[3]="exome"
-intersect=merge(compare,new,by="exome")
-intersect=merge(intersect,depth,by="ID")
+lld_covariate_imputated$DiagnosisCurrent=factor(lld_covariate_imputated$DiagnosisCurrent, levels=c("1_HC","2_IBS"), labels=c(0,1))
+lld_covariate_imputated$DiagnosisCurrent= as.integer(as.character(lld_covariate_imputated$DiagnosisCurrent))
 
-outliers=read.table("LLD_ancenstry_outliers.txt",sep = "\t",header = T)
-intersect=intersect[!intersect$exome %in% outliers$IID,]
+lld_covariate_imputated=apply(lld_covariate_imputated,2,function(x){
+  
+  x[is.na(x)]=median(x[!is.na(x)])
+  return(x)
+  
+})
+lld_covariate_imputated=as.data.frame(lld_covariate_imputated)
 
-# remove sex-problematic individuals
-sex=read.table("LLD_sex_problmatic.txt",header = T,sep = "\t")
-colnames(sex)[1]="exome"
-intersect=intersect[!intersect$exome %in% sex$exome,]
+################## pathway data ####################
 
-pheno=merge(intersect,lld_pheno,by="exome")[,c(1,5,7,9)]
-rownames(pheno)=pheno[,1]
+#### extract samples based on ID
+library(stringr)
+lld_pathway=read.table("LLD_humann2_Uniref90_092017.txt",header = T,stringsAsFactors = F,check.names = F,sep = "\t",comment.char = "",row.names = 1)
+lld_path=lld_pathway[grep("__",rownames(lld_pathway),invert=T),]
+rownames(lld_path)=str_replace_all(rownames(lld_path)," ","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"/","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),":","")
+rownames(lld_path)=str_replace_all(rownames(lld_path),",","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"\\|","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"\\(","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"\\)","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"&","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),";","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"\\[","_")
+rownames(lld_path)=str_replace_all(rownames(lld_path),"]","_")
+lld_id_change$path_ID = sapply(strsplit(as.character(lld_id_change$ID),'_'), "[", 1)
+lld_id_change$path_ID=paste(lld_id_change$path_ID,"_kneaddata_merged_Abundance",sep = "")
+lld_pathway=lld_path[,colnames(lld_path) %in% lld_id_change$path_ID]
+colnames(lld_pathway)=lld_id_change$exome
 
-covariate=merge(pheno,intersect,by="exome")
-covariate=covariate[,c(1,2,3,7)]
-rownames(covariate)=covariate$exome
-covariate=covariate[,-1]
+#### caculate relative abundance
+lld_pathway = lld_pathway[rowSums(lld_pathway > 0) > ncol(lld_pathway)*0.25,]
+lld_pathway = sweep(lld_pathway,2,colSums(lld_pathway),"/")
+lld_pathway[lld_pathway == 0] = NA
+lld_pathway = log(lld_pathway)
+lld_pathway=t(lld_pathway)
+lld_pathway=as.data.frame(lld_pathway,stringsAsFactors = F)
+lld_pathway=lld_pathway[order(rownames(lld_pathway)),]
 
-write.table(covariate,file = "eqtl_lld_covariate.txt" ,sep = "\t",quote = F)
-
-# cut off based on presence among samples
-
-lld_sub_meta=lld_meta[,colnames(lld_meta) %in% intersect$metaphlan]
-
-rownames(lld_sub_meta)=lld_meta$ID
-
-cutoff=0.1
-
-taxa=lld_sub_meta
-
-mm = taxa[rowSums(taxa > 0) >= cutoff*ncol(taxa),]
-mm[mm == 0] = NA
-mm = log(mm)
-
-write.table(t(mm),file = "LLD_filtered_logTrans.txt",sep = "\t",quote = F)
-
-# generate coupling
-
-coupling=intersect[,c(2,2)]
-
-write.table(coupling,file = "coupling_file.txt",row.names = F,col.names = F,sep = "\t",quote = F)
-write.table(intersect[,2:3],"eqtl_LLD_linkage.txt",row.names = F,col.names = F,sep = "\t",quote = F)
-
-# correct and split
-
-tax=t(mm)
-
-coupling = read.table("eqtl_LLD_linkage.txt",colClasses = "character",sep = "\t")
-
-has_both = (coupling[,1] %in% rownames(covariate)) & (coupling[,2] %in% rownames(tax))
-coupling= coupling[has_both,]
-tax = tax[coupling[,2],]
-covariate = covariate[coupling[,1],,drop = FALSE]
-rownames(tax)=rownames(covariate)
-
-covariate$Gender[which(covariate$Gender=="Female")]=0
-covariate$Gender[which(covariate$Gender=="Male")]=1
-
-corrected_data = apply(tax,2,function(x){
+#### linear model correction
+lld_pathways_correct = apply(lld_pathway,2,function(x){
   x.subset = x[!is.na(x)]
-  covariate.subset = covariate[!is.na(x),,drop = FALSE]
+  covariate.subset = lld_covariate_imputated[!is.na(x),,drop = FALSE]
+  covariate.subset.matrix = data.matrix(covariate.subset)
+  
+  x.resid = resid(lm(x.subset ~ .,data = covariate.subset))
+  x[!is.na(x)] = x.resid+100
+  x[is.na(x)] = 0
+  return(x)
+})
+
+################## taxa data ####################
+
+lld_taxa=read.table("LLD_taxonomy_metaphlan2_092017.txt",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
+lld_taxa=lld_taxa[,colnames(lld_taxa) %in% lld_id_change$metaphlan]
+colnames(lld_taxa)=lld_id_change$exome
+
+#### cut off based on present rate among samples and arcsin transformation
+cutoff=0.1
+lld_taxa = lld_taxa[rowSums(lld_taxa > 0) >= cutoff*ncol(lld_taxa),]
+lld_taxa[lld_taxa == 0] = NA
+lld_taxa=lld_taxa/100
+lld_taxa=sqrt(lld_taxa)
+lld_taxa=asin(lld_taxa)
+
+#### clean taxa. If multiple levels have the same abundance, keep the lowest level one.
+taxa_clean=list()
+for(i in 1:ncol(lld_taxa)){
+  
+  x.clean=unlist(rownames(lld_taxa)[!duplicated(lld_taxa[,i],fromLast = T)])
+  taxa_clean=union(taxa_clean,x.clean)
+  
+}
+lld_taxa_clean=lld_taxa[rownames(lld_taxa) %in% taxa_clean,]
+lld_taxa_clean=as.data.frame(t(lld_taxa_clean))
+lld_taxa_clean=lld_taxa_clean[order(rownames(lld_taxa_clean)),]
+
+#### linear model correction
+lld_taxa_correct = apply(lld_taxa_clean,2,function(x){
+  x.subset = x[!is.na(x)]
+  covariate.subset = lld_covariate_imputated[!is.na(x),,drop = FALSE]
   covariate.subset.matrix = data.matrix(covariate.subset)
   if(ncol(covariate.subset)==ncol(covariate.subset.matrix)){
     covariate.subset = covariate.subset[,apply(covariate.subset.matrix,2,sd) !=0,drop = FALSE]
@@ -259,7 +279,7 @@ corrected_data = apply(tax,2,function(x){
   return(x)
 })
 
-#correct quantitative data for covariates
+corrected_data=cbind(lld_taxa_correct,lld_pathways_correct)
 corrected_data = as.data.frame(t(corrected_data))
 corrected_data2 = cbind(rownames(corrected_data),corrected_data)
 colnames(corrected_data2)[1] = "-"
@@ -271,23 +291,9 @@ annot = data.frame(platform = "RDP",
                    ChrEnd = 1000)
 colnames(annot)[2] = "HT12v3-ArrayAddress"
 
-#generate presence/absence tables
-binary_data = apply(tax,2,function(x){as.integer(!is.na(x))})
-dimnames(binary_data) = dimnames(tax)
-binary_data = binary_data[,colSums(binary_data)>0.1*nrow(binary_data)&colSums(binary_data)<0.9*nrow(binary_data)]
-binary_data = as.data.frame(t(binary_data))+100
-binary_data = cbind(paste0(rownames(binary_data),".binary"),binary_data)
+write.table(corrected_data2, file = "LLD_numeric.txt",sep="\t",row.names = F,quote = F)
+write.table(annot,file = "LLD_numeric.txt.annot",sep="\t",row.names=F,quote = F)
+write.table(lld_id_change[,c(2,2)],file="LLD_coupling_file.txt",row.names = F,quote = F,sep = "\t",col.names = F)
 
-colnames(binary_data)[1] = "-"
-binary_annot = data.frame(platform = "RDP",
-                          HT12v3.ArrayAddress = binary_data[,1],
-                          Gene = binary_data[,1],
-                          Chr = 4,
-                          ChrStart = 1000,
-                          ChrEnd = 1000)
 
-write.table(corrected_data2, file = "tax_numeric.txt",sep="\t",row.names = F,quote = F)
-write.table(annot,file = "tax_numeric.txt.annot",sep="\t",row.names=F,quote = F)
 
-write.table(binary_data, file = "tax_binary.txt",sep="\t",row.names = F,quote = F)
-write.table(binary_annot,file = "tax_binary.txt.annot",sep="\t",row.names=F,quote = F)
