@@ -5,7 +5,9 @@ Creator: Arnau Vich
 Year:2018
 Description: Blastx aligment to set of AA sequences
 
-```Step 1: Create database
+```
+
+Step 1: Create database
 ---------------------------
 
 
