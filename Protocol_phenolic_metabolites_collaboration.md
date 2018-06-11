@@ -1,26 +1,23 @@
-Collaboration Prof.Hector Rodriguez: Phenolic metabolites and Crohns
+ Phenolic metabolites and Crohns
 =====================================================================
 
 Creator: Arnau Vich 
 Year:2018
-Description: Blastx aligment to set of AA sequences
-
-```
+Description: Collaboration Prof.Hector Rodriguez, blastx alignment to set of AA sequences
 
 Step 1: Create database
 ---------------------------
-
+```
 
 export PATH=$PATH:/groups/umcg-gastrocol/tmp03/metagenomic_tools/ncbi-blast-2.6.0+/bin/
 
 ./ncbi-blast-2.6.0+/bin/makeblastdb -in sequences.txt -parse_seqids -dbtype prot
 ```
 
-```
-
-Step 2: Create aligment script
+Step 2: Create alignment script
 -------------------------------
 
+```
 
 #!/bin/bash
 
@@ -56,11 +53,11 @@ for i in *bam; do
 done
 ```
 
-```
-
-3.Example script
+3.Example script 
 -------------------
 
+
+```
 
 #!/bin/bash
 #SBATCH --job-name=IBDFEC0729_metagenomes
@@ -75,12 +72,20 @@ mkdir ./IBDFEC0729/
 mkdir ./IBDFEC0729/clean_reads/
 mkdir ./IBDFEC0729/alignment/
 export PATH=$PATH:/groups/umcg-gastrocol/tmp03/metagenomic_tools/ncbi-blast-2.6.0+/bin/
+# BAM to FASTQ
 java -jar ${EBROOTPICARD}/picard.jar SamToFastq I=IBDFEC0729.bam F=./IBDFEC0729/clean_reads/IBDFEC0729.fastq1 F2=./IBDFEC0729/clean_reads/IBDFEC0729.fastq2
+# Remove contamination (human reads ) and quality trimming
 kneaddata --input ./IBDFEC0729/clean_reads/IBDFEC0729.fastq1 -t 6 -p 7 --input ./IBDFEC0729/clean_reads/IBDFEC0729.fastq2 -db /groups/umcg-gastrocol/tmp03/metagenomic_tools/kneaddata-0.5.4/Homo_sapiens_Bowtie2_v0.1/ --output ./IBDFEC0729/clean_reads/ --log ./IBDFEC0729/clean_reads/IBDFEC0729.log
+# Merge paired reads 
 cat ./IBDFEC0729/clean_reads/*kneaddata_paired_1.fastq >> ./IBDFEC0729/IBDFEC0729_merged.fq 
 cat ./IBDFEC0729/clean_reads/*kneaddata_paired_2.fastq >> ./IBDFEC0729/IBDFEC0729_merged.fq 
+#FAST-Q to FAST-A
 less ./IBDFEC0729/IBDFEC0729_merged.fq | awk '{if(NR%4==1) {printf(">%s\n",substr($0,2));} else if(NR%4==2) print;}' > ./IBDFEC0729/IBDFEC0729_merged.fa
+
+#Alignment
 blastx -query ./IBDFEC0729/IBDFEC0729_merged.fa -db sequences.txt -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovhsp" -num_threads 5  -evalue 1e-5 -qcov_hsp_perc 50 > ./IBDFEC0729/alignment/IBDFEC0729.txt
+
+#Remove intermediate files 
 rm -r ./IBDFEC0729/clean_reads/
 rm ./IBDFEC0729/*.fa
 rm ./IBDFEC0729/*.fq
