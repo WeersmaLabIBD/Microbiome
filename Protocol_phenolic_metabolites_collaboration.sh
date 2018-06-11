@@ -5,16 +5,18 @@ Creator: Arnau Vich
 Year:2018
 Description: Blastx aligment to set of AA sequences
 
-`Step 1: Create database
+```Step 1: Create database
 ---------------------------
 
 
 export PATH=$PATH:/groups/umcg-gastrocol/tmp03/metagenomic_tools/ncbi-blast-2.6.0+/bin/
 
 ./ncbi-blast-2.6.0+/bin/makeblastdb -in sequences.txt -parse_seqids -dbtype prot
-`
+```
 
-`Step 2: Create aligment script
+```
+
+Step 2: Create aligment script
 -------------------------------
 
 
@@ -50,9 +52,13 @@ for i in *bam; do
         echo "rm ./$sid/*.fa">> "$sid".sh
         echo "rm ./$sid/*.fq">> "$sid".sh
 done
-`
+```
 
-`3.Example script
+```
+
+3.Example script
+-------------------
+
 
 #!/bin/bash
 #SBATCH --job-name=IBDFEC0729_metagenomes
@@ -77,4 +83,4 @@ rm -r ./IBDFEC0729/clean_reads/
 rm ./IBDFEC0729/*.fa
 rm ./IBDFEC0729/*.fq
 
-`
+```
