@@ -7,6 +7,8 @@
  
  Creator: Shixian
  
+ Burden test is extremely time consuming, run these code on cluster and then go on a holiday
+ 
 
  Burden for LLD cohort
  ```
