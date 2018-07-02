@@ -2,8 +2,11 @@
 -------------------------------------------
 
  This is for simple burden test
+ 
  This procedure is based on a Nature article "A polygenic burden of rare disruptive mutations in schizophrenia"
+ 
  Creator: Shixian
+ 
 
  Burden for LLD cohort
  ```
