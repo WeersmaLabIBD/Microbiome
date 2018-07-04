@@ -593,6 +593,122 @@ colnames(LLD_SI2)=c("SID","Meds","Div.")
 ggplot( MIBS_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
 ggplot( LLD_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
 ggplot( IBD_SI2, aes(x=as.factor(Meds),y=Div.)) + geom_boxplot() + theme_classic() + xlab("Number of different medication") + ylab("Shannon Index")
+
+library(ggplot2)
+library(reshape2)
+
+#Create figure shannon number medication x cohort
+IBD_SI2$cohort="IBD"
+MIBS_SI2$cohort="MIBS"
+LLD_SI2$cohort="LLD"
+tmpSI=rbind(IBD_SI2,MIBS_SI2)
+SI2=rbind(tmpSI,LLD_SI2)
+SI2$Meds2=SI2$Meds
+SI2[SI2$Meds>5,]$Meds2="+5"
+ggplot (SI2, aes (Meds2, Div., fill=cohort)) + geom_boxplot(outlier.size = NA, alpha=0.7, colour="grey36") + geom_jitter(shape=16, alpha=0.2, position=position_jitter(0.2)) + theme_bw() + geom_smooth(method = "lm", color="black", aes(group=1), size=0.8, fill="purple") + facet_grid(~cohort)
+
+fit = lm (Div. ~ Meds, data= IBD_SI2)
+summary(fit)
+p=0.88
+estimated=-0.001029 
+r2=-0.002168
+
+
+fit = lm (Div. ~ Meds, data= LLD_SI2)
+summary(fit)
+p=0.77
+estimated=-0.0016 
+r2=-0.00080
+
+fit = lm (Div. ~ Meds, data= MIBS_SI2)
+summary(fit)
+p=0.059
+estimated=-0.016 
+r2=-0.0089
+
+
+# Test shannon x cohort x medication
+
+SI2$SID=NULL
+tmpSI=merge(SI2, coded_phenos3, by="row.names")
+tmpSI3=melt(tmpSI, id.vars = c("Row.names", "Meds", "Div.", "Meds2", "cohort"))
+ggplot(tmpSI3, aes(as.factor(value), Div., fill=as.factor(value))) + geom_boxplot(outlier.size = 0.2) + facet_grid(cohort~variable) +  scale_fill_manual(values=c ("grey36", "grey90")) + xlab("Users yes/no") + ylab("Shannon Index") + theme_bw()
+
+
+tmpLLD=tmpSI[tmpSI$cohort=="LLD", ]
+tmpMIBS=tmpSI[tmpSI$cohort=="MIBS", ]
+tmpIBD=tmpSI[tmpSI$cohort=="IBD", ]
+
+shannon_medi_lld=matrix(nrow = ncol(tmpLLD)-5, ncol = 6)
+cnt=1
+for (i in 6:ncol(tmpLLD)){
+  #mean_users
+  shannon_medi_lld[cnt,2]=mean(tmpLLD$Div.[tmpLLD[,i]==1])
+  #sd_users
+  shannon_medi_lld[cnt,3]=sd(tmpLLD$Div.[tmpLLD[,i]==1])
+  #mean_n_users
+  shannon_medi_lld[cnt,4]=mean(tmpLLD$Div.[tmpLLD[,i]==0])
+  #sd_n_users
+  shannon_medi_lld[cnt,5]=sd(tmpLLD$Div.[tmpLLD[,i]==0])
+  test=wilcox.test(tmpLLD$Div.[tmpLLD[,i]==0],tmpLLD$Div.[tmpLLD[,i]==1] )
+  shannon_medi_lld[cnt,6]=test$p.value
+  cnt=cnt+1
+}
+shannon_medi_lld=as.data.frame(shannon_medi_lld)
+shannon_medi_lld[,1]=colnames(tmpLLD)[6:ncol(tmpLLD)]
+colnames(shannon_medi_lld)=c("Meds", "MeanUsers","SDUsers", "MeanNonUsers", "SDNonUsers", "pvalue")
+shannon_medi_lld$qval=0
+shannon_medi_lld$qval=p.adjust(shannon_medi_lld$pvalue, method = "fdr")
+
+shannon_medi_IBD=matrix(nrow = ncol(tmpIBD)-5, ncol = 6)
+cnt=1
+for (i in 6:ncol(tmpIBD)){
+  #mean_users
+  shannon_medi_IBD[cnt,2]=mean(tmpIBD$Div.[tmpIBD[,i]==1])
+  #sd_users
+  shannon_medi_IBD[cnt,3]=sd(tmpIBD$Div.[tmpIBD[,i]==1])
+  #mean_n_users
+  shannon_medi_IBD[cnt,4]=mean(tmpIBD$Div.[tmpIBD[,i]==0])
+  #sd_n_users
+  shannon_medi_IBD[cnt,5]=sd(tmpIBD$Div.[tmpIBD[,i]==0])
+  test=wilcox.test(tmpIBD$Div.[tmpIBD[,i]==0],tmpIBD$Div.[tmpIBD[,i]==1] )
+  shannon_medi_IBD[cnt,6]=test$p.value
+  cnt=cnt+1
+}
+shannon_medi_IBD=as.data.frame(shannon_medi_IBD)
+shannon_medi_IBD[,1]=colnames(tmpIBD)[6:ncol(tmpIBD)]
+colnames(shannon_medi_IBD)=c("Meds", "MeanUsers","SDUsers", "MeanNonUsers", "SDNonUsers", "pvalue")
+shannon_medi_IBD$qval=0
+shannon_medi_IBD$qval=p.adjust(shannon_medi_IBD$pvalue, method = "fdr")
+
+
+shannon_medi_MIBS=matrix(nrow = ncol(tmpMIBS)-5, ncol = 6)
+cnt=1
+for (i in 6:ncol(tmpMIBS)){
+  #mean_users
+  if (length(tmpMIBS$Div.[tmpMIBS[,i]==1])==0){
+    cnt=cnt+1
+    next
+    
+  }
+  shannon_medi_MIBS[cnt,2]=mean(tmpMIBS$Div.[tmpMIBS[,i]==1])
+  #sd_users
+  shannon_medi_MIBS[cnt,3]=sd(tmpMIBS$Div.[tmpMIBS[,i]==1])
+  #mean_n_users
+  shannon_medi_MIBS[cnt,4]=mean(tmpMIBS$Div.[tmpMIBS[,i]==0])
+  #sd_n_users
+  shannon_medi_MIBS[cnt,5]=sd(tmpMIBS$Div.[tmpMIBS[,i]==0])
+  test=wilcox.test(tmpMIBS$Div.[tmpMIBS[,i]==0],tmpMIBS$Div.[tmpMIBS[,i]==1] )
+  shannon_medi_MIBS[cnt,6]=test$p.value
+  cnt=cnt+1
+}
+shannon_medi_MIBS=as.data.frame(shannon_medi_MIBS)
+shannon_medi_MIBS[,1]=colnames(tmpMIBS)[6:ncol(tmpMIBS)]
+colnames(shannon_medi_MIBS)=c("Meds", "MeanUsers","SDUsers", "MeanNonUsers", "SDNonUsers", "pvalue")
+shannon_medi_MIBS$qval=0
+shannon_medi_MIBS$qval=p.adjust(shannon_medi_MIBS$pvalue, method = "fdr")
+
+
 ```
 
 
