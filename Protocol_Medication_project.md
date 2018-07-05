@@ -628,7 +628,7 @@ r2=-0.0089
 
 
 # Test shannon x cohort x medication
-
+row.names(SI2)=SI2$SID
 SI2$SID=NULL
 tmpSI=merge(SI2, coded_phenos3, by="row.names")
 tmpSI3=melt(tmpSI, id.vars = c("Row.names", "Meds", "Div.", "Meds2", "cohort"))
