@@ -80,4 +80,4 @@ write.table(IBD_sample_info_subset, "~/Desktop/Thesis/IBD_sample_info_subset.txt
 # Feel free to simplyfy the table (e.g. remove columns 'IBD_sample_info_subset$Current_Stoma=NULL')
 ```
 
-
+ 
