@@ -776,3 +776,70 @@ colnames(adonis_LLD) = c("Df", "R2", "Pr(>F)")
 
 ```
 
+
+13.Figures
+--------------------------
+
+```{R}
+#Figures 
+bact=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/All_filtered_taxonomy_pheno.txt")
+sub1=subset(bact,select=c("cohort2","k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli.t__Escherichia_coli_unclassified"))
+p1=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/IBD_humann2_unstrat_clean.txt", header = T, row.names = 1, check.names = F)
+p2=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/LLD_humann2_unstrat_clean.txt", header = T, row.names = 1, check.names = F)
+p3=read.table("~/Desktop/PPI_v2/00.With_new_data/1.1.Cleaned_tables/MIBS_humann2_unstrat_clean.txt", header = T, row.names = 1, check.names = F)
+p12=merge(p1,p2,by="row.names")
+rownames(p12)=p12$Row.names
+p12$Row.names=NULL
+path=merge(p12,p3,by="row.names")
+rownames(path)=path$Row.names
+path$Row.names=NULL
+path=as.data.frame(t(path))
+sub2=subset(path, select=c("PWY-6891","PWY-6895","PWY-6629","PWY-7269","PWY-6731","PWY0-41","PWY-5920","PWY0-1338","PWY-6823","PWY-5862","PWY-5896","GLYCOL-GLYOXDEG-PWY","POLYISOPRENSYN-PWY","PWY0-1277","PWY-5705","AST-PWY","ECASYN-PWY","PWY-6803","PWY-5861","GLUCARGALACTSUPER-PWY","GLUCARDEG-PWY","PWY-5723","PWY-5838","URDEGR-PWY","PWY-6708","PWY0-1241","PWY-6630","GLYOXYLATE-BYPASS","KDO-NAGLIPASYN-PWY","ENTBACSYN-PWY","PWY-7409","PWY-561","NAGLIPASYN-PWY","PWY-7315","PWY0-1415","METHGLYUT-PWY","PWY-6690","GLUCOSE1PMETAB-PWY","P105-PWY","PWY-5083","KETOGLUCONMET-PWY","PWY-6549","GLYCOLYSIS-TCA-GLYOX-BYPASS","TCA-GLYOX-BYPASS","FUC-RHAMCAT-PWY","P23-PWY","PWY-7254","REDCITCYC","PWY-7204","PWY-6595","TRNA-CHARGING-PWY","TEICHOICACID-PWY","PWY-2723"))
+sub3=merge(sub1,sub2,by="row.names")
+library(ggplot2)
+library(reshape2)
+sub4=melt(sub3, id.vars = c("Row.names","cohort2","k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli.t__Escherichia_coli_unclassified"))
+ggplot(sub4, aes(k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli.t__Escherichia_coli_unclassified, value)) + geom_point() + facet_wrap (~variable, scales="free") + theme_bw() + geom_smooth(method = "lm", color="red", aes(group=1), size=0.8, fill="purple")
+xx=cor(sub3, method = "spearman")
+
+
+
+
+xx=read.table("~/Desktop/PPI_v2/00.With_new_data/11.Plots/humann_2_plots/PWY0-1297_ibd.txt", sep = "\t", header = T, row.names = 1)
+yy=read.table("~/Desktop/PPI_v2/00.With_new_data/11.Plots/humann_2_plots/PWY0-1297_lld.txt", sep = "\t", header = T, row.names = 1)
+zz=read.table("~/Desktop/PPI_v2/00.With_new_data/11.Plots/humann_2_plots/PWY0-1297_mibs.txt", sep = "\t", header = T, row.names = 1)
+
+aa=merge(xx,yy, by="row.names", all = T)
+rownames(aa)=aa$Row.names
+aa$Row.names=NULL
+ww=merge(aa,zz, by="row.names", all = T)
+rownames(ww)=ww$Row.names
+ww$Row.names=NULL
+ww[is.na(ww)] <- 0
+vv=ww[-c(1:3),]
+df2 <- data.frame(sapply(vv, function(x) as.numeric(as.character(x))))
+rownames(df2)=rownames(vv)
+df3=as.data.frame(t(df2))
+vvv=sweep(df3, 1, rowSums(df3), '/')
+yyy=merge(aa,vvv, by="row.names")
+sub1=subset(bact,select=c("cohort2","k__Bacteria.p__Firmicutes.c__Bacilli.o__Lactobacillales.f__Streptococcaceae.g__Streptococcus"))
+rownames(yyy)=yyy$Row.names
+yyy$Row.names=NULL
+yyyy=merge(sub1,yyy, by="row.names")
+xxx=melt(yyyy, id.vars = c("Row.names","PPI"))
+xxx$var2=unlist(str_split_fixed(xxx$variable, "\\|", 2))[,2]
+xxx$col="black"
+xxx[grep("Strep",xxx$var2),]$col="red"
+ggplot (xxx, aes(as.factor(Row.names), value, color=col)) + geom_bar(stat="identity") + theme_bw() + theme(legend.position="none") + facet_grid(~PPI, drop=T, scales = "free_x", space = "free_x")
+
+xxx$col="black"
+xxx[grep("ccus_agala",xxx$var2),]$col="Streptococcus_agalactiae"
+xxx[grep("ccus_downei",xxx$var2),]$col="Streptococcus_downei"
+xxx[grep("coccus_dysga",xxx$var2),]$col="Streptococcus_dysgalactiae"
+xxx[grep("ococcus_parasa",xxx$var2),]$col="Streptococcus_parasanguinis"
+xxx[grep("tococcus_saliv",xxx$var2),]$col="Streptococcus_salivarius"
+xxx[grep("ptococcus_sang",xxx$var2),]$col="Streptococcus_sanguinis"
+xxx[grep("eptococcus_vest",xxx$var2),]$col="Streptococcus_vestibularis"
+
+ggplot (xxx, aes(x=reorder(as.factor(Row.names), k__Bacteria.p__Firmicutes.c__Bacilli.o__Lactobacillales.f__Streptococcaceae.g__Streptococcus), value, fill=col)) + geom_bar(stat="identity") + theme_bw() + facet_grid(~PPI, drop=T, scales = "free", space = "free_x") + xlab("PPI") + ylab ("Bacterial contribution to PWY0-1297")  + coord_cartesian(ylim=c(0,1)) + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) + scale_fill_manual(values=c("grey92", "blue1", "red", "gold2", "springgreen2", "purple",  "firebrick", "turquoise1"))
+```
