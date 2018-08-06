@@ -10,20 +10,23 @@ sh generate_xlm.sh
 
 j=0
 
-awk '{print $1}' eqtl_LLD_taxa | while read line
+awk '{print $1}' tax_numeric.txt | while read line
 
 do
-  ((j=j+1)) 
-  cat miQTL_cookbook-master/software/benchmark_templates/template_benchmark0.xml |perl -pe "s/COHORTNAME/LLD/" > $j\_1_benchmark.xml
+  ((j=j+1))
+  cat /groups/umcg-weersma/tmp04/Shixian/eqtl/seventh_round/IBD/quantitative/taxa/miQTL_cookbook-master/software/benchmark_templates/template_benchmark0.xml |perl -pe "s/COHORTNAME/IBD/" > $j\_1_benchmark.xml
   cat $j\_1_benchmark.xml | perl -pe "s/id968/$line/" > $j\_2_benchmark.xml
   cat $j\_2_benchmark.xml | perl -pe "s/genus.Alistipes.id.968.txt/$line.txt/" > $j\_3_benchmark.xml
-  cat $j\_3_benchmark.xml | perl -pe "s/genus.Alistipes.id.968.txt.annot/$line.txt.annot/" > $j\_benchmark.xml
+  cat $j\_3_benchmark.xml | perl -pe "s/10000000/900000000/" > $j\_4_benchmark.xml
+  cat $j\_4_benchmark.xml | perl -pe "s/genus.Alistipes.id.968.txt.annot/$line.txt.annot/" > $j\_benchmark.xml
   rm $j\_1_benchmark.xml
   rm $j\_2_benchmark.xml
   rm $j\_3_benchmark.xml
+  rm $j\_4_benchmark.xml
 done
 
 rm 1_benchmark.xml
+
 ```
 
 module load R
@@ -39,7 +42,7 @@ taxonomy_table = read.table(input_taxonomy,header=T,as.is = T,sep="\t",check.nam
 colnames(taxonomy_table)[1] = "-"
 annot_table = read.table(input_annotation,header=T,as.is = T,check.names = F)
 
-list=read.table(file="eqtl_LLD_taxa",header=T,sep="\t",check.names = F)
+list=read.table(options[1],header=T,sep="\t",check.names = F)
 
 taxa=as.vector(list[,1])
 
