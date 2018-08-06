@@ -2,6 +2,24 @@
 
 In both IBD and LLD folder, do the following stuff, NOTE: miQTL_cookbook-master scripts are different between IBD and LLD, check them before running
 
+To perform the mbQTL mapping, you need the following files, including:
+
+1) genotype_trityper: exome data
+
+2) tax_numeric.txt and tax_numeric.txt.annot: corrected metagenomic data
+
+3) coupling_file: link sample IDs between genetic data and bacterial data
+
+4) eqtl-mapping-pipeline-1.4nZ: mbQTL core software
+
+5) miQTL_cookbook-master: split tax_numeric.txt to each taxonomy and pathway
+
+6) taxa_benchmark_selection: generate by miQTL_cookbook-master, containing metagenomic data for each taxonomy and pathway
+
+7) generate_quantitative_xlm.sh: generate parameter-containing xlm file
+
+8) IBD/LLD_eqtl_quantitative.sh: final command to run the analyses
+
 sh generate_xlm.sh
 
 ```
