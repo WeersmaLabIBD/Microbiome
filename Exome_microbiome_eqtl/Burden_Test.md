@@ -349,7 +349,7 @@ meta_sig_test_1=na.omit(meta_sig_test_1)
 write.table(meta_sig_test_1,file = "Meta_significant_test_1.txt",quote = F,row.names = F,sep = "\t")
 ```
 
-Meta_test_2, discovery lld, replication ibd
+Meta_test_2, discovery in lld, replication in ibd
 ```
 ibd_sig=burden_ibd[burden_ibd$Pvalue<0.05,,drop=F]
 lld_sig=burden_lld[burden_lld$Pvalue<0.001,,drop=F]
