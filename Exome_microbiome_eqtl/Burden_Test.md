@@ -8,13 +8,9 @@
  
  ```
  SNP1     GENE1
- 
  SNP2     GENE1
- 
  SNP3     GENE1
- 
  SNP4     GENE2
- 
  SNP5     GENE3
  ```
  
@@ -22,7 +18,9 @@
  
  3) IBD/LLD_low_PTV.table.dosage.txt: dosage of low frequency and rare PTV variants
  
- 
+# Step.1 Read files, load R packages SKAT and MetaSKAT
+
+```
 library(SKAT)
 library(MetaSKAT)
 
@@ -57,7 +55,11 @@ lld_info=lld_info[order(lld_info$gene),]
 has_both=colnames(lld_probe)[colnames(lld_probe) %in% colnames(ibd_probe)]
 genes=all_info[!duplicated(all_info$gene),]
 
-#------------------------single variants selection-------------------------------
+```
+
+# Step.2 Single variant test
+
+```
 ibd_dosage[is.na(ibd_dosage)]="QQ"
 for(i in 1:ncol(ibd_dosage)){
   
@@ -194,9 +196,12 @@ meta_result=meta_result[order(meta_result$meta_P),]
 cutoff=0.05/nrow(singleton)
 meta_sig=meta_result[meta_result$meta_P<cutoff,]
 write.table(meta_sig,file = "Single_variant_sig.txt",row.names = F,quote = F,sep = "\t")
+```
 
-#------------------------gene-based burden test-------------------------------
-# remove singletons
+# Step.3 Gene-based burden test
+
+Burden test in each cohort
+```
 ibd_non_singleton=ibd_info[duplicated(ibd_info$gene),]
 lld_non_singleton=lld_info[duplicated(lld_info$gene),]
 ibd_gene=unique(ibd_non_singleton$gene)
@@ -276,9 +281,10 @@ write.table(burden_lld,file = "LLD_burden_raw.txt",row.names = F,sep = "\t",quot
 
 burden_ibd=read.table("IBD_burden_raw.txt",sep = "\t",header = T,stringsAsFactors = F)
 burden_lld=read.table("LLD_burden_raw.txt",sep = "\t",header = T,stringsAsFactors = F)
+```
 
-
-# test_1, discovery ibd, replication lld
+Meta_test_1, discovery in ibd, replication in lld
+```
 ibd_sig=burden_ibd[burden_ibd$Pvalue<0.001,,drop=F]
 lld_sig=burden_lld[burden_lld$Pvalue<0.05,,drop=F]
 ibd_sig=na.omit(ibd_sig)
@@ -341,8 +347,10 @@ cutoff=0.05/980
 meta_sig_test_1=burden_meta_test_1[burden_meta_test_1$PValue<cutoff,]
 meta_sig_test_1=na.omit(meta_sig_test_1)
 write.table(meta_sig_test_1,file = "Meta_significant_test_1.txt",quote = F,row.names = F,sep = "\t")
+```
 
-# test_2, discovery lld, replication ibd
+Meta_test_2, discovery lld, replication ibd
+```
 ibd_sig=burden_ibd[burden_ibd$Pvalue<0.05,,drop=F]
 lld_sig=burden_lld[burden_lld$Pvalue<0.001,,drop=F]
 ibd_sig=na.omit(ibd_sig)
@@ -405,10 +413,11 @@ cutoff=0.05/980
 meta_sig_test_2=burden_meta_test_2[burden_meta_test_2$PValue<cutoff,]
 meta_sig_test_2=na.omit(meta_sig_test_2)
 write.table(meta_sig_test_2,file = "Meta_significant_test_2.txt",quote = F,row.names = F,sep = "\t")
+```
 
-######################################### Plotting ####################################################
+# Step.4 Plot figures for checking
 
-
+```
 meta_sig=read.table("Meta_significant.txt",sep = "\t",header = T,stringsAsFactors = F)
 # change 0 to 2 in some snp loci
 ibd_num=as.numeric(nrow(ibd_dosage))
@@ -522,6 +531,6 @@ foreach(i=1:nrow(meta_sig),.combine = rbind) %do%  {
   print(multiplot(p1,p2,p3,cols = 3))
 }
 dev.off()
-
+```
 
 
