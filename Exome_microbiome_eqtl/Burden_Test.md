@@ -1,4 +1,5 @@
-# BURDEN TEST
+# mbQTL mapping for low-frequency and rare mutations
+
 -------------------------------------------
 
  
