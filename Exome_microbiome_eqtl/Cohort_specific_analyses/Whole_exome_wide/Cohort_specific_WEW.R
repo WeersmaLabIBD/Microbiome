@@ -108,8 +108,6 @@ lld = foreach(i=1:nrow(lld_specific),.combine = rbind) %do%  {
 ibd$Group="IBDcohort_significant"
 lld$Group="LLDcohort_significant"
 all=rbind(ibd,lld)
-cutoff=0.05/nrow(all)
-significant_P_interaction=all[all$P_interaction<cutoff,]
 write.table(all,file="cohort_specific_mbQTL_interactions.txt",row.names = FALSE,quote = FALSE,sep = "\t")
 
 # plot
