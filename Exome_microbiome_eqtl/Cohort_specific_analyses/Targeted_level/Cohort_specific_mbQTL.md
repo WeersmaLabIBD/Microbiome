@@ -11,7 +11,7 @@ Interaction linear model: bacterial data ~ disease status (0/1) * genotype dosag
 
 2) IBD/LLD numeric file: corrected bacterial data
 
-3) IBD/LLD specific file: cohort specific mbQTLs (The criteria in this analyses follows: discovery cohort p values < 1.5e-5, replication cohort p values > 0.05, significant IBD×genotype p values < 5.95e-4 (Bonferroni method, n=84 tests))
+3) IBD/LLD specific file: cohort specific mbQTLs (The criteria in this analyses follows: discovery cohort p values < 1.5e-5, replication cohort p values > 0.05, significant IBD×genotype p values <6.94e-4 (Bonferroni method, n=72 tests))
 
 ```
 Rscript Cohort_specific_targeted.R
