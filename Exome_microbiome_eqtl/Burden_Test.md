@@ -19,8 +19,8 @@
  
  3) IBD/LLD_low_PTV.table.dosage.txt: dosage of low frequency and rare PTV variants
  
-# Step.1 Read files, load R packages SKAT and MetaSKAT
-
+Step.1 Read files, load R packages SKAT and MetaSKAT
+------------
 ```
 library(SKAT)
 library(MetaSKAT)
@@ -58,8 +58,8 @@ genes=all_info[!duplicated(all_info$gene),]
 
 ```
 
-# Step.2 Single variant test
-
+Step.2 Single variant test
+------
 ```
 ibd_dosage[is.na(ibd_dosage)]="QQ"
 for(i in 1:ncol(ibd_dosage)){
@@ -199,8 +199,8 @@ meta_sig=meta_result[meta_result$meta_P<cutoff,]
 write.table(meta_sig,file = "Single_variant_sig.txt",row.names = F,quote = F,sep = "\t")
 ```
 
-# Step.3 Gene-based burden test
-
+Step.3 Gene-based burden test
+------
 Burden test in each cohort
 ```
 ibd_non_singleton=ibd_info[duplicated(ibd_info$gene),]
@@ -416,8 +416,8 @@ meta_sig_test_2=na.omit(meta_sig_test_2)
 write.table(meta_sig_test_2,file = "Meta_significant_test_2.txt",quote = F,row.names = F,sep = "\t")
 ```
 
-# Step.4 Plot figures for checking
-
+Step.4 Plot figures for checking
+------
 ```
 meta_sig=read.table("Meta_significant.txt",sep = "\t",header = T,stringsAsFactors = F)
 # change 0 to 2 in some snp loci
