@@ -3,7 +3,7 @@
 -------------------------------------------
 
  
- To perform mbQTL mapping for rare mutations, you need the following files, including:
+ **To perform mbQTL mapping for rare mutations, you need the following files, including:**
  
  1) IBD/LLD_info.txt: each SNP with gene name, for example,
  
@@ -201,7 +201,7 @@ write.table(meta_sig,file = "Single_variant_sig.txt",row.names = F,quote = F,sep
 
 Step.3 Gene-based burden test
 ------
-Burden test in each cohort
+**Burden test in each cohort**
 ```
 ibd_non_singleton=ibd_info[duplicated(ibd_info$gene),]
 lld_non_singleton=lld_info[duplicated(lld_info$gene),]
@@ -284,7 +284,7 @@ burden_ibd=read.table("IBD_burden_raw.txt",sep = "\t",header = T,stringsAsFactor
 burden_lld=read.table("LLD_burden_raw.txt",sep = "\t",header = T,stringsAsFactors = F)
 ```
 
-Meta_test_1, discovery in ibd, replication in lld
+**Meta_test_1, discovery in ibd, replication in lld**
 ```
 ibd_sig=burden_ibd[burden_ibd$Pvalue<0.001,,drop=F]
 lld_sig=burden_lld[burden_lld$Pvalue<0.05,,drop=F]
@@ -350,7 +350,7 @@ meta_sig_test_1=na.omit(meta_sig_test_1)
 write.table(meta_sig_test_1,file = "Meta_significant_test_1.txt",quote = F,row.names = F,sep = "\t")
 ```
 
-Meta_test_2, discovery in lld, replication in ibd
+**Meta_test_2, discovery in lld, replication in ibd**
 ```
 ibd_sig=burden_ibd[burden_ibd$Pvalue<0.05,,drop=F]
 lld_sig=burden_lld[burden_lld$Pvalue<0.001,,drop=F]
