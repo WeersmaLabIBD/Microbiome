@@ -5,7 +5,7 @@ This analyses is aiming at identify IBD-influenced mbQTL.
 
 Interaction linear model: bacterial data ~ disease status (0/1) * genotype dosage (0/1/2)
 
-** To perform this analyses, you need the following files, including:**
+**To perform this analyses, you need the following files, including:**
 
 1) IBD/LLD dosage file: genotype dosage
 
