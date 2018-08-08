@@ -1,9 +1,11 @@
+
 #####################################################################################################################
 #####################################  cohort specific  #############################################################
 #####################################################################################################################
 # attention: genotype does not include all, it is extracted from genotyper_hamonizer outcome
 
 ### IBD_specific
+# read genotype dosage file
 ibd_genotype=read.table("IBD_dosage.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 lld_genotype=read.table("LLD_dosage.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 genotype=merge(ibd_genotype,lld_genotype,all = F,by="SNP")
@@ -12,11 +14,14 @@ genotype=genotype[,-1]
 genotype=as.data.frame(t(genotype))
 genotype=genotype[order(rownames(genotype)),]
 
+# read corrected bacterial file
 ibd_probe=read.table("IBD_numeric.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 colnames(ibd_probe)[1]="Probe"
 lld_probe=read.table("LLD_numeric.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 colnames(lld_probe)[1]="Probe"
 probe=merge(ibd_probe,lld_probe,all = F,by="Probe")
+
+# read IBD cohort specific mbQTLs file (extract from IBD_mbQTL_mapping)
 ibd_specific=read.table("IBD_specific.txt",sep = "\t",header = T)
 genotype=genotype[,colnames(genotype) %in% ibd_specific$SNP]
 probe=probe[probe$Probe %in% ibd_specific$ProbeName,]
@@ -28,6 +33,7 @@ probe=probe[order(rownames(probe)),]
 probe[probe==0]=NA
 ibd_specific=ibd_specific[ibd_specific$ProbeName %in% colnames(probe),]
 
+# generate disease status file
 disease_status=genotype[,1:2,drop=F]
 colnames(disease_status)[1]="Status"
 disease_status$Status=as.character(disease_status$Status)
@@ -40,6 +46,7 @@ library(iterators)
 library(parallel)
 library(doParallel)
 
+# linear model: lm(bacterial data ~ disease status * genotype dosage)
 ibd = foreach(i=1:nrow(ibd_specific),.combine = rbind) %do%  {
   probe.sub=as.data.frame(probe[,ibd_specific$ProbeName[i]],drop=F,row.names = rownames(probe))
   probe.sub=na.omit(probe.sub)
@@ -50,7 +57,7 @@ ibd = foreach(i=1:nrow(ibd_specific),.combine = rbind) %do%  {
   return.string = data.frame(ProbeName = ibd_specific$ProbeName[i], SNPName = ibd_specific$SNP[i],P_disease = summary1[2,4],P_genotype = summary1[3,4],Beta_disease=summary1[2,1],Beta_genotype=summary1[3,1],P_interaction = summary1[4,4])
 }
 
-### LLD_specific
+### the same procedure for LLD_specific
 ibd_genotype=read.table("IBD_dosage.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 lld_genotype=read.table("LLD_dosage.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F)
 genotype=merge(ibd_genotype,lld_genotype,all = F,by="SNP")
@@ -105,6 +112,7 @@ cutoff=0.05/nrow(all)
 significant_P_interaction=all[all$P_interaction<cutoff,]
 write.table(all,file="cohort_specific_mbQTL_interactions.txt",row.names = FALSE,quote = FALSE,sep = "\t")
 
+# plot
 significant_P_interaction=read.table("cohort_specific_mbQTL_interactions.txt",header = T,sep = "\t",stringsAsFactors = F)
 cutoff=0.05/nrow(significant_P_interaction)
 significant_P_interaction=significant_P_interaction[significant_P_interaction$P_interaction<cutoff,]
