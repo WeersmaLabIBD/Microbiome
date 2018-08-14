@@ -32,21 +32,21 @@ all_gf_pre[all_gf_pre>0]=1
 #############################################################################################################################################################################################
 ##################################################################################Select only males or females ##############################################################################
 #############################################################################################################################################################################################
-results=matrix(nrow=1000, ncol=10)
+#results=matrix(nrow=1000, ncol=10)
 
 ########MODIFY (uncomment) HERE FOR FEMALE OR MALE ANALYSIS ##################################
-names(pheno_male2)=c("1_IBS", "2_RD", "3_Age")
-#names(pheno_female3)=c("1_IBS", "2_RD", "3_Age")
+#names(pheno_male2)=c("1_IBS", "2_RD", "3_Age")
+names(pheno_female3)=c("1_IBS", "2_RD", "3_Age")
 
 
 ########MODIFY (uncomment) HERE FOR FEMALE OR MALE ANALYSIS ##################################
-gf_males=merge (pheno_male2,as.data.frame(t(all_gf_pre)), by="row.names")
-#gf_males=merge (pheno_female3,as.data.frame(t(all_gf_pre)), by="row.names")
+#gf_males=merge (pheno_male2,as.data.frame(t(all_gf_pre)), by="row.names")
+gf_males=merge (pheno_female3,as.data.frame(t(all_gf_pre)), by="row.names")
 
 # ncases=24 ncontrols=449
 IBS_males=gf_males[gf_males$`1_IBS`==1,]
 CON_males=gf_males[gf_males$`1_IBS`==0,]
-results=matrix(nrow=1000, ncol=6)
+results=matrix(nrow=1000, ncol=12)
 for (t in 1:1000){
  # subset with replacement (bootstrap)
  # Subset ARO table 
@@ -62,7 +62,7 @@ for (t in 1:1000){
  # Filter 5% 
  data_f=aros[,colSums(aros!=0) > round(nrow (aros) * 0.05) ]
  results[t,1]=ncol(data_f)
- results_2=matrix(nrow=ncol(data_f), ncol=3)
+ results_2=matrix(nrow=ncol(data_f), ncol=11)
  results_2[,1]=colnames(data_f)
  data_f=cbind(phe,data_f)
  runs=1
@@ -86,6 +86,25 @@ for (t in 1:1000){
   }
   results_2=as.data.frame(results_2)
   results_2$qval=p.adjust(as.numeric(as.character(results_2$V3)),method = "fdr")
+  for (i in 1:nrow(results_2)){
+    if (results_2[i,1]=="ARO:3002639" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,4]=1
+    } else if (results_2[i,1]=="ARO:3002660" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,5]=1
+    } else if (results_2[i,1]=="ARO:3000237" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,6]=1
+    } else if(results_2[i,1]=="ARO:3002174" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,7]=1
+    } else if (results_2[i,1]=="ARO:3002628" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,8]=1
+    } else if (results_2[i,1]=="ARO:3002923" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,9]=1
+    } else if (results_2[i,1]=="ARO:3002818" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,10]=1
+    } else if (results_2[i,1]=="ARO:3000027" && as.numeric(as.character(results_2[i,12])) < 0.05){
+        results[t,11]=1
+    } 
+  }
   results[t,2]=nrow(results_2[as.numeric(as.character(results_2$V3))<0.05,])
   results[t,3]=nrow(results_2[results_2$qval<0.05,])
   
