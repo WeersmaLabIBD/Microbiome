@@ -8,35 +8,34 @@ After having found no significant changes in the relative abundances of gut bact
 Bio-informatical tools MetaPhlAn and HUMAnN2 were used to determine the presence/absence and relative abundances of microbial taxonomies and pathways, from the metagenomic data. Since these tools produce relative abundances (and inferring absolute abundances from the number of reads seems inaccurate), I have calculated the ratios based on relative abundances. However, since we are calculating ratios, I believe this is no problem.
 
  
-# Setting the working directory
+**Setting the working directory**
 ```
 setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
 ```
 
-# Importing microbiome taxonomy data 
+**Importing microbiome taxonomy data**
 ```
 db_VitB2 = read.csv("./metaphlanmerged.txt", header = T, sep = "\t", stringsAsFactors = F)
 db_VitB2 = as.data.frame(db_VitB2)
 ```
 
-# Importing the database from Julius von Martels and Arno Bourgonje
+**Importing the database from Julius von Martels and Arno Bourgonje**
 ```
 db_Clin_Jul = read.csv("Rise-UpDB.csv", header = T, sep = ",", stringsAsFactors = F)
 db_Clin_Jul = db_Clin_Jul[,c("Pnumber", "Age", "Sex", "Lab1Calprotectin", "Lab2Calprotectin", "MontrealL", "HBI1", "HBI2", "Colectomy", "PPI")]
 ```
 
-# Making the sampleID's the rownames for clearity. 
+**Making the sampleID's the rownames for clearity.** 
 ```
 rownames(db_VitB2) = db_VitB2$ID
 ```
 
-# Removing the first column. 
+**Removing the first column.** 
 ```
 db_VitB2$ID = NULL
 ```
 
-# Only selecting the taxonomical levels we are interested in. 
-# The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data. 
+**Only selecting the taxonomical levels we are interested in.The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data.** 
 ```
 
 #_____________________________ R-script part of Ranko Gacesa _____________________________
@@ -209,14 +208,14 @@ db_VitB2_Species = filterMetaGenomeDF(inDF=tTrans,presPerc = 0.10, minMRelAb = 0
 db_VitB2_Species = as.data.frame(db_VitB2_Species)
 ```
 
-# Performing arc sine square root transformations on the relative abundances of the database containing species level
+**Performing arc sine square root transformations on the relative abundances of the database containing species level**
 ```
 for (c in c(1:nrow(db_VitB2_Species))) {
   db_VitB2_Species[c,] <- asin(sqrt(db_VitB2_Species[c,]/100.0))
 }
 ```
 
-# I only want to include patients in the analyses, when they have a microbiome sample taken both at T=0weeks and T=3 weeks. Therefore, I first want to create dataframes with all the samples at T=0 and one with all the samples at T=3, to test which sampleIDs are present in both databases. 
+**I only want to include patients in the analyses, when they have a microbiome sample taken both at T=0weeks and T=3 weeks. Therefore, I first want to create dataframes with all the samples at T=0 and one with all the samples at T=3, to test which sampleIDs are present in both databases.** 
 ```
 db_VitB2_Species = as.data.frame(t(db_VitB2_Species))
 t1 = db_VitB2_Species[,c(grep("M1", colnames(db_VitB2_Species)))]
@@ -226,7 +225,7 @@ rownames(t4) = rownames(db_VitB2_Species)
 t4 = as.data.frame(t4)
 ```
 
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points.
+**Removing samples that have not both T1 and T4 (we only want to include samples that have both time points.**
 ```
 colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
 colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
@@ -235,7 +234,7 @@ InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
 ```
-# Now, I want to merge the clinical data (clinical database of Julius) with the taxonomy data (t1), at T=0 weeks. 
+**Now, I want to merge the clinical data (clinical database of Julius) with the taxonomy data (t1), at T=0 weeks.** 
 ```
 tt1 = as.data.frame(t(t1))
 tt1["Pnumber"] = rownames(tt1)
@@ -244,11 +243,11 @@ tt1 = tt1[,c(ncol(tt1), 1:ncol(tt1)-1)]
 t0_Clin = merge(db_Clin_Jul, tt1, by="Pnumber", all = FALSE)
 t0_Clin = t0_Clin[,c(1:4, 6,7, 9:ncol(t0_Clin))]
 ```
-# Removing patients who have had a colectomy (i.e. stoma patients)
+**Removing patients who have had a colectomy (i.e. stoma patients)**
 ```
 t0_Clin = t0_Clin[t0_Clin$Colectomy == "No",]
 ```
-# Creating a new column defining disease activity based on calprotectin level at baseline. 
+**Creating a new column defining disease activity based on calprotectin level at baseline.** 
 ```
 t0_Clin["DiseaseActivityAtBaseLine"] = NA
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
@@ -273,7 +272,7 @@ for (i in 1:nrow(t0_Clin)){
 }
 ```
 
-# I'm creating an extra column with sampleID information, so that later analyses will be easier.
+**I'm creating an extra column with sampleID information, so that later analyses will be easier.**
 ```
 t0_Clin["Pnumber_tp"] = t0_Clin$Pnumber
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
@@ -283,7 +282,7 @@ t0_Clin$MergeQC = paste0(t0_Clin$Pnumber, "_M1")
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
 ```
 
-# I want to do the exact same for the samples at T=3, i.e. to merge the clinical data (clinical database of Julius) with the taxonomy data (t1).
+**I want to do the exact same for the samples at T=3, i.e. to merge the clinical data (clinical database of Julius) with the taxonomy data (t1).**
 ```
 tt4 = as.data.frame(t(t4))
 tt4["Pnumber"] = rownames(tt4)
@@ -292,18 +291,18 @@ tt4 = tt4[,c(ncol(tt4), 1:ncol(tt4)-1)]
 t3_Clin = merge (db_Clin_Jul, tt4, by="Pnumber", all= FALSE)
 t3_Clin = t3_Clin[,c(1:3, 5,6, 8:ncol(t3_Clin))]
 ```
-# Removing all patients who had a colectomy, i.e. stoma patients
+**Removing all patients who had a colectomy, i.e. stoma patients**
 ```
 t3_Clin = t3_Clin[t3_Clin$Colectomy == "No",]
 ```
 
-# Adding a column of SampleID information
+**Adding a column of SampleID information**
 ```
 t3_Clin["Pnumber_tp"] = t3_Clin$Pnumber
 t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
 t3_Clin$Pnumber_tp = paste0("T3_", t3_Clin$Pnumber_tp)
 ```
-# Creating a column defining disease activity at baseline, based at baseline calprotectin levels 
+**Creating a column defining disease activity at baseline, based at baseline calprotectin levels** 
 ```
 t3_Clin["DiseaseActivityAtBaseLine"] = NA
 t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
@@ -327,7 +326,7 @@ for (i in 1:nrow(t3_Clin)){
     t3_Clin$DiseaseActivityAtBaseLine[i] = "Remission_baseline"
 }
 ```
-# Adding extra column of SampleID information, for later merging with quality of reads
+**Adding extra column of SampleID information, for later merging with quality of reads**
 ```
 t3_Clin["MergeQC"] = t3_Clin$Pnumber
 t3_Clin$MergeQC = paste0(t3_Clin$Pnumber, "_M4")
@@ -338,7 +337,7 @@ t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
 #Active at baseline n=29, remission at baseline n=38. 
 ```
 
-# To merge the T=0 and T=3 samples, all column names need to be matched exactly. This is what I am doing here. 
+**To merge the T=0 and T=3 samples, all column names need to be matched exactly. This is what I am doing here.** 
 ```
 t0_Clin["time_point"] = "M1"
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
@@ -353,8 +352,7 @@ colnames(t0_Clin)[10] = "HBI"
 colnames(t3_Clin)[10] = "HBI"
 ```
 
-# --> Creating dataframes of patients who have active disease at baseline, and a dataframe for patients 
-# who have inactive disease at baseline. 
+**--> Creating dataframes of patients who have active disease at baseline, and a dataframe for patients who have inactive disease at baseline.** 
 ```
 Active_Rib_M1 = t0_Clin[t0_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
 ActiveRib_M3_wantM1 = t3_Clin[t3_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
@@ -366,14 +364,13 @@ Act_basegroup_Species = rbind(Active_Rib_M1, ActiveRib_M3_wantM1)
 Rem_basegroup_Species=  rbind(Rem_Rib_M1, Rem_Rib_M3_wantM1)
 ```
 
-# Importing Readdepth (quality report)
-# Because we would like to correct for read depth. 
+**Importing Readdepth (quality report). Because we would like to correct for read depth.** 
 ```
 QC = read.csv("QualityReportRiboflavin.csv", header = T, sep = ",", stringsAsFactors = F)
 QC = QC[,c(2,8)]
 QC["MergeQC"] = QC$Sample
 ```
-# Merging previous data column with quality of reads 
+**Merging previous data column with quality of reads**
 ```
 Rem_Species_fin = merge(QC, Rem_basegroup_Species, by ="MergeQC", all = F)
 Rem_Species_fin = Rem_Species_fin[,c(5, 6, 4, 3, 7:ncol(Rem_Species_fin))]
@@ -381,7 +378,7 @@ Rem_Species_fin$Total.Reads = gsub(",", "", Rem_Species_fin$Total.Reads)
 Rem_Species_fin$Total.Reads = as.numeric(Rem_Species_fin$Total.Reads)
 ```
 
-# Removing all noise from column names
+**Removing all noise from column names**
 ```
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = ":", replacement = "_") 
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = " ", replacement = "_") 
@@ -392,13 +389,13 @@ MetaCycVTTidy = make.names(colnames(Rem_Species_fin), unique = TRUE)
 colnames(Rem_Species_fin) = MetaCycVTTidy 
 ```
 
-# Creating new columns that will categorically describe abundance of F.prau and E.coli (yes/no). 
+**Creating new columns that will categorically describe abundance of F.prau and E.coli (yes/no)**
 ```
 Rem_Species_fin["AbundancesFprau"] = NA
 Rem_Species_fin["AbundancesEcoli"] = NA
 Rem_Species_fin = Rem_Species_fin[,c(177,176,1:175)]
 ```
-# Loop saying that if F.prau =0, then the categorical abundance column =0. Otherwise, yes
+**Loop saying that if F.prau =0, then the categorical abundance column =0. Otherwise, yes**
 ```
 for (i in 1:nrow(Rem_Species_fin)){
   if (Rem_Species_fin$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i]==0){
@@ -418,7 +415,7 @@ Rem_Species_fin = Rem_Species_fin[,c(144, 1:143, 145:177)]
 
 Rem_Species_fin = Rem_Species_fin[,c(174, 2, 1, 3:173, 175:177)]
 ```
-# Loop saying that if E.coli =0, then the categorical abundance column =0. Otherwise, yes
+**Loop saying that if E.coli =0, then the categorical abundance column =0. Otherwise, yes**
 ```
 for (i in 1:nrow(Rem_Species_fin)){
   if (Rem_Species_fin$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i]==0){
@@ -431,9 +428,7 @@ for (i in 1:nrow(Rem_Species_fin)){
 
 
 
-###### Remission ########
-# Ratio F.prau/E.coli berekenen. Ik deel f.prau door e.coli, dus als er een groot getal uitkomt, dan is er relatief veel 
-# f.prau in vergelijking tot e.coli. Komt er een laag getal uit, dan is er relatief veel e.coli itt tot F.prau. 
+**Ratio F.prau/E.coli berekenen. Ik deel f.prau door e.coli, dus als er een groot getal uitkomt, dan is er relatief veel f.prau in vergelijking tot e.coli. Komt er een laag getal uit, dan is er relatief veel e.coli itt tot F.prau.** 
 ```
 Rem_Species_fin["Ratio_Prau_Coli"] = NA
 Rem_Species_fin = Rem_Species_fin[,c(178, 1:177)]
@@ -446,7 +441,7 @@ for (i in 1:nrow(Rem_Species_fin)){
 }
 ```
 
-## Wilcoxon test on ratio F.prau/E.coli before and after riboflavin 
+**Wilcoxon test on ratio F.prau/E.coli before and after riboflavin**
 ```Rem_M1_Ratio = Rem_Species_fin[Rem_Species_fin$time_point=="M1",]
 Rem_M3_Ratio = Rem_Species_fin[Rem_Species_fin$time_point=="M3",]
 
