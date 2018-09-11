@@ -2,33 +2,42 @@
 
 **Authors: Marjolein Klaassen**
 
-**Date: ** 
+**Date: 11-09-2018** 
 
 After having found no significant changes in the relative abundances of gut bacterial taxonomies and pathways after three weeks of riboflavin supplementation (vitamin B2) in CD patients, we decided to test whether the ratio between the relative abundance of F. prausnitzii/E. coli changes after three weeks. Below, one can appreciate the R-code for this. 
 Bio-informatical tools MetaPhlAn and HUMAnN2 were used to determine the presence/absence and relative abundances of microbial taxonomies and pathways, from the metagenomic data. Since these tools produce relative abundances (and inferring absolute abundances from the number of reads seems inaccurate), I have calculated the ratios based on relative abundances. However, since we are calculating ratios, I believe this is no problem.
 
  
 # Setting the working directory
-
+```
 setwd("~/Documents/IBD Weersma/Vitamin B2/Working directory")
+```
 
 # Importing microbiome taxonomy data 
+```
 db_VitB2 = read.csv("./metaphlanmerged.txt", header = T, sep = "\t", stringsAsFactors = F)
 db_VitB2 = as.data.frame(db_VitB2)
+```
 
+# Importing the database from Julius von Martels and Arno Bourgonje
+```
 db_Clin_Jul = read.csv("Rise-UpDB.csv", header = T, sep = ",", stringsAsFactors = F)
 db_Clin_Jul = db_Clin_Jul[,c("Pnumber", "Age", "Sex", "Lab1Calprotectin", "Lab2Calprotectin", "MontrealL", "HBI1", "HBI2", "Colectomy", "PPI")]
+```
 
-
-# Making the first column (i.e. microbiome features) the rownames. 
+# Making the sampleID's the rownames for clearity. 
+```
 rownames(db_VitB2) = db_VitB2$ID
+```
+
 # Removing the first column. 
+```
 db_VitB2$ID = NULL
+```
 
-
-# Only selecting the taxonomical level we are interested in (all). 
-# The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data. Firstly, this has
-# to run. 
+# Only selecting the taxonomical levels we are interested in. 
+# The 'filterMetaGenomeDF' function is written by Ranko Gacesa in his R-scripts for microbiome data. 
+```
 
 #_____________________________ R-script part of Ranko Gacesa _____________________________
 filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.5,minMedRelAb=0.0, rescaleTaxa=F,verbose=T,
@@ -179,9 +188,10 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.5,minMedRelAb=0
   oDF
 }
 
+```
 
-#_____________________________ end of R-script of Ranko Gacesa _____________________________
-
+# Creating databases with different levels of taxonomies. 
+```
 tTrans = t.data.frame(db_VitB2)
 db_VitB2_King = filterMetaGenomeDF(inDF=tTrans,presPerc = 0.10, minMRelAb = 0.0000001,minMedRelAb = -1,keepLevels = c("K"))
 db_VitB2_King = as.data.frame(db_VitB2_King)
@@ -197,44 +207,49 @@ db_VitB2_Genus = filterMetaGenomeDF(inDF=tTrans,presPerc = 0.10, minMRelAb = 0.0
 db_VitB2_Genus = as.data.frame(db_VitB2_Genus)
 db_VitB2_Species = filterMetaGenomeDF(inDF=tTrans,presPerc = 0.10, minMRelAb = 0.0000001,minMedRelAb = -1,keepLevels = c("S"))
 db_VitB2_Species = as.data.frame(db_VitB2_Species)
+```
 
-
-
+# Performing arc sine square root transformations on the relative abundances of the database containing species level
+```
 for (c in c(1:nrow(db_VitB2_Species))) {
   db_VitB2_Species[c,] <- asin(sqrt(db_VitB2_Species[c,]/100.0))
 }
+```
 
-
-
-###############################################################################
-################# Sharp disease activity cut-off ##############################
-###############################################################################
-
-# Making t=1 and t=4 time groups 
+# I only want to include patients in the analyses, when they have a microbiome sample taken both at T=0weeks and T=3 weeks. Therefore, I first want to create dataframes with all the samples at T=0 and one with all the samples at T=3, to test which sampleIDs are present in both databases. 
+```
 db_VitB2_Species = as.data.frame(t(db_VitB2_Species))
 t1 = db_VitB2_Species[,c(grep("M1", colnames(db_VitB2_Species)))]
 rownames(t1) = rownames(db_VitB2_Species)
 t4 = db_VitB2_Species[,c(grep("M4", colnames(db_VitB2_Species)))]
 rownames(t4) = rownames(db_VitB2_Species)
 t4 = as.data.frame(t4)
+```
 
-# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points)
-# These might change, for we have 3 T4's that have been send to the Broad, but have not came back from sequencing.  
+# Removing samples that have not both T1 and T4 (we only want to include samples that have both time points.
+```
 colnames(t1) = gsub("_M1_metaphlan", "", colnames(t1))
 colnames(t4) = gsub("_M4_metaphlan", "", colnames(t4))
 
 InBothSamples = intersect(colnames(t1), colnames(t4))
 t1 = t1[,InBothSamples]
 t4 = t4[,InBothSamples]
-
+```
+# Now, I want to merge the clinical data (clinical database of Julius) with the taxonomy data (t1), at T=0 weeks. 
+```
 tt1 = as.data.frame(t(t1))
 tt1["Pnumber"] = rownames(tt1)
 tt1 = tt1[,c(ncol(tt1), 1:ncol(tt1)-1)]
 
 t0_Clin = merge(db_Clin_Jul, tt1, by="Pnumber", all = FALSE)
 t0_Clin = t0_Clin[,c(1:4, 6,7, 9:ncol(t0_Clin))]
+```
+# Removing patients who have had a colectomy (i.e. stoma patients)
+```
 t0_Clin = t0_Clin[t0_Clin$Colectomy == "No",]
-
+```
+# Creating a new column defining disease activity based on calprotectin level at baseline. 
+```
 t0_Clin["DiseaseActivityAtBaseLine"] = NA
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
 
@@ -248,35 +263,48 @@ t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
 #  } else
 #    t0_Clin$Pnumber[i] = t0_Clin$Pnumber[i]
 #}
-
+```
+```
 for (i in 1:nrow(t0_Clin)){
   if(t0_Clin$Lab1Calprotectin[i] > 200){ #we intentionally refer to calpotection from T1
     t0_Clin$DiseaseActivityAtBaseLine[i] = "Active_baseline"
   } else 
     t0_Clin$DiseaseActivityAtBaseLine[i] = "Remission_baseline"
 }
+```
 
+# I'm creating an extra column with sampleID information, so that later analyses will be easier.
+```
 t0_Clin["Pnumber_tp"] = t0_Clin$Pnumber
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
 t0_Clin$Pnumber_tp = paste0("T0_", t0_Clin$Pnumber_tp)
 t0_Clin["MergeQC"] = t0_Clin$Pnumber
 t0_Clin$MergeQC = paste0(t0_Clin$Pnumber, "_M1")
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
-write.table(t0_Clin, "PatientsMetagenomics_Riboflavin.csv", sep = "\t", quote = F, row.names = F)
+```
 
-
+# I want to do the exact same for the samples at T=3, i.e. to merge the clinical data (clinical database of Julius) with the taxonomy data (t1).
+```
 tt4 = as.data.frame(t(t4))
 tt4["Pnumber"] = rownames(tt4)
 tt4 = tt4[,c(ncol(tt4), 1:ncol(tt4)-1)]
 
 t3_Clin = merge (db_Clin_Jul, tt4, by="Pnumber", all= FALSE)
 t3_Clin = t3_Clin[,c(1:3, 5,6, 8:ncol(t3_Clin))]
+```
+# Removing all patients who had a colectomy, i.e. stoma patients
+```
 t3_Clin = t3_Clin[t3_Clin$Colectomy == "No",]
+```
 
+# Adding a column of SampleID information
+```
 t3_Clin["Pnumber_tp"] = t3_Clin$Pnumber
 t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
 t3_Clin$Pnumber_tp = paste0("T3_", t3_Clin$Pnumber_tp)
-
+```
+# Creating a column defining disease activity at baseline, based at baseline calprotectin levels 
+```
 t3_Clin["DiseaseActivityAtBaseLine"] = NA
 t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
 
@@ -298,15 +326,20 @@ for (i in 1:nrow(t3_Clin)){
   } else 
     t3_Clin$DiseaseActivityAtBaseLine[i] = "Remission_baseline"
 }
-
+```
+# Adding extra column of SampleID information, for later merging with quality of reads
+```
 t3_Clin["MergeQC"] = t3_Clin$Pnumber
 t3_Clin$MergeQC = paste0(t3_Clin$Pnumber, "_M4")
 t3_Clin = t3_Clin[,c(ncol(t3_Clin), 1:ncol(t3_Clin)-1)]
-
+```
+```
 #table(t0_Clin$DiseaseActivityAtBaseLine)
 #Active at baseline n=29, remission at baseline n=38. 
+```
 
-
+# To merge the T=0 and T=3 samples, all column names need to be matched exactly. This is what I am doing here. 
+```
 t0_Clin["time_point"] = "M1"
 t0_Clin = t0_Clin[,c(ncol(t0_Clin), 1:ncol(t0_Clin)-1)]
 
@@ -318,9 +351,11 @@ colnames(t3_Clin)[8] = "LabCalprotectin"
 
 colnames(t0_Clin)[10] = "HBI"
 colnames(t3_Clin)[10] = "HBI"
+```
 
 # --> Creating dataframes of patients who have active disease at baseline, and a dataframe for patients 
 # who have inactive disease at baseline. 
+```
 Active_Rib_M1 = t0_Clin[t0_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
 ActiveRib_M3_wantM1 = t3_Clin[t3_Clin$DiseaseActivityAtBaseLine == "Active_baseline",]
 
@@ -329,20 +364,25 @@ Rem_Rib_M3_wantM1 = t3_Clin[t3_Clin$DiseaseActivityAtBaseLine == "Remission_base
 
 Act_basegroup_Species = rbind(Active_Rib_M1, ActiveRib_M3_wantM1)
 Rem_basegroup_Species=  rbind(Rem_Rib_M1, Rem_Rib_M3_wantM1)
+```
 
 # Importing Readdepth (quality report)
 # Because we would like to correct for read depth. 
+```
 QC = read.csv("QualityReportRiboflavin.csv", header = T, sep = ",", stringsAsFactors = F)
 QC = QC[,c(2,8)]
 QC["MergeQC"] = QC$Sample
-
-
+```
+# Merging previous data column with quality of reads 
+```
 Rem_Species_fin = merge(QC, Rem_basegroup_Species, by ="MergeQC", all = F)
 Rem_Species_fin = Rem_Species_fin[,c(5, 6, 4, 3, 7:ncol(Rem_Species_fin))]
 Rem_Species_fin$Total.Reads = gsub(",", "", Rem_Species_fin$Total.Reads)
 Rem_Species_fin$Total.Reads = as.numeric(Rem_Species_fin$Total.Reads)
+```
 
-# First, tidy the column names 
+# Removing all noise from column names
+```
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = ":", replacement = "_") 
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = " ", replacement = "_") 
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = "-", replacement = "_") 
@@ -350,21 +390,25 @@ names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = ")", replace
 names(Rem_Species_fin) = gsub(x = names(Rem_Species_fin), pattern = "/", replacement = "_")
 MetaCycVTTidy = make.names(colnames(Rem_Species_fin), unique = TRUE)
 colnames(Rem_Species_fin) = MetaCycVTTidy 
+```
 
+# Creating new columns that will categorically describe abundance of F.prau and E.coli (yes/no). 
+```
 Rem_Species_fin["AbundancesFprau"] = NA
 Rem_Species_fin["AbundancesEcoli"] = NA
 Rem_Species_fin = Rem_Species_fin[,c(177,176,1:175)]
-
-
+```
+# Loop saying that if F.prau =0, then the categorical abundance column =0. Otherwise, yes
+```
 for (i in 1:nrow(Rem_Species_fin)){
   if (Rem_Species_fin$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i]==0){
     Rem_Species_fin$AbundancesFprau[i] = "no"
   } else 
     Rem_Species_fin$AbundancesFprau[i] = "yes"
 }
-
 Rem_Species_fin = Rem_Species_fin[,c(144, 1:143, 145:177)]
-
+```
+```
 # Getting column name number based on column name
 #which(colnames(Rem_Species_fin)=="k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii" )
 #144
@@ -373,167 +417,16 @@ Rem_Species_fin = Rem_Species_fin[,c(144, 1:143, 145:177)]
 
 
 Rem_Species_fin = Rem_Species_fin[,c(174, 2, 1, 3:173, 175:177)]
-
+```
+# Loop saying that if E.coli =0, then the categorical abundance column =0. Otherwise, yes
+```
 for (i in 1:nrow(Rem_Species_fin)){
   if (Rem_Species_fin$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i]==0){
     Rem_Species_fin$AbundancesEcoli[i] = "no"
   } else 
     Rem_Species_fin$AbundancesEcoli[i] = "yes"
 }
-
-Rem_Species_T0Prau = Rem_Species_fin[Rem_Species_fin$time_point=="M1",]
-table(Rem_Species_T0Prau$AbundancesFprau)
-
-Rem_Species_T3Prau = Rem_Species_fin[Rem_Species_fin$time_point=="M3",]
-table(Rem_Species_T3Prau$AbundancesFprau)
-
-
-Rem_Species_T0Coli = Rem_Species_fin[Rem_Species_fin$time_point=="M1",]
-Rem_Species_T0Coli = Rem_Species_T0Coli[,c(2,5,1:3, 6:177)]
-table(Rem_Species_T0Prau$AbundancesEcoli)
-
-Rem_Species_T3Coli = Rem_Species_fin[Rem_Species_fin$time_point=="M3",]
-Rem_Species_T3Coli = Rem_Species_T3Coli[,c(2,5,1:3, 6:177)]
-table(Rem_Species_T3Prau$AbundancesEcoli)
-
-
-Rem_KNHH = Rem_Species_fin[,c(5, 7, 4, 2, 1, 3)]
-write.table(Rem_KNHH, "RemmissionRiboflavinAbundancesPrauColi.tsv", sep = "\t", quote = F, row.names = F)
-
-
-# Dus, nu hebben we van elk sample (per tijdspunt), of het wel of niet E.coli en F.prau heeft. Nu gaan we alleen de samples
-# houden, die allebei hebben (F.prau en E.coli). Daarna pas alleen de samples die allebei de tijdspunten hebben. 
-
-Rem_Species_both = Rem_Species_fin[which(Rem_Species_fin$AbundancesEcoli=="yes" & Rem_Species_fin$AbundancesFprau=="yes"),]
-
-
-
-
-
-
-
-
-
-
-
-###########################
-######### ACT #############
-###########################
-Act_Species_fin = merge(QC, Act_basegroup_Species, by ="MergeQC", all = F)
-Act_Species_fin = Act_Species_fin[,c(5, 6, 4, 3, 7:ncol(Act_Species_fin))]
-Act_Species_fin$Total.Reads = gsub(",", "", Act_Species_fin$Total.Reads)
-Act_Species_fin$Total.Reads = as.numeric(Act_Species_fin$Total.Reads)
-
-Act_Species_fin["Ratio_Prau_Coli"] = NA
-Act_Species_fin = Act_Species_fin[,c(176, 1:175)]
-
-# First, tidy the column names 
-names(Act_Species_fin) = gsub(x = names(Act_Species_fin), pattern = ":", replacement = "_") 
-names(Act_Species_fin) = gsub(x = names(Act_Species_fin), pattern = " ", replacement = "_") 
-names(Act_Species_fin) = gsub(x = names(Act_Species_fin), pattern = "-", replacement = "_") 
-names(Act_Species_fin) = gsub(x = names(Act_Species_fin), pattern = ")", replacement = "_") 
-names(Act_Species_fin) = gsub(x = names(Act_Species_fin), pattern = "/", replacement = "_")
-MetaCycVTTidy = make.names(colnames(Act_Species_fin), unique = TRUE)
-colnames(Act_Species_fin) = MetaCycVTTidy 
-
-
-Act_Species_fin["AbundancesFprau"] = NA
-Act_Species_fin["AbundancesEcoli"] = NA
-Act_Species_fin = Act_Species_fin[,c(178,177,1:176)]
-
-
-for (i in 1:nrow(Act_Species_fin)){
-  if (Act_Species_fin$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i]==0){
-    Act_Species_fin$AbundancesFprau[i] = "no"
-  } else 
-    Act_Species_fin$AbundancesFprau[i] = "yes"
-}
-
-Act_Species_fin = Act_Species_fin[,c(145, 1:144, 146:178)]
-
-# Getting column name number based on column name
-#which(colnames(Act_Species_fin)=="k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii" )
-#144
-#which(colnames(Act_Species_fin)=="k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli" )
-#175
-
-
-Act_Species_fin = Act_Species_fin[,c(175, 2, 1, 3:174, 176:178)]
-
-for (i in 1:nrow(Act_Species_fin)){
-  if (Act_Species_fin$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i]==0){
-    Act_Species_fin$AbundancesEcoli[i] = "no"
-  } else 
-    Act_Species_fin$AbundancesEcoli[i] = "yes"
-}
-
-Act_Species_T0Prau = Act_Species_fin[Act_Species_fin$time_point=="M1",]
-table(Act_Species_T0Prau$AbundancesFprau)
-
-Act_Species_T3Prau = Act_Species_fin[Act_Species_fin$time_point=="M3",]
-table(Act_Species_T3Prau$AbundancesFprau)
-
-
-Act_Species_T0Coli = Act_Species_fin[Act_Species_fin$time_point=="M1",]
-Act_Species_T0Coli = Act_Species_T0Coli[,c(2,6,1,3:5, 7:178)]
-table(Act_Species_T0Prau$AbundancesEcoli)
-
-Act_Species_T3Coli = Act_Species_fin[Act_Species_fin$time_point=="M3",]
-Act_Species_T3Coli = Act_Species_T3Coli[,c(2,6,1,3:5, 7:178)]
-table(Act_Species_T3Prau$AbundancesEcoli)
-
-
-
-Act_KNHH = Act_Species_fin[,c(6, 8, 4, 2, 1, 3)]
-write.table(Act_KNHH, "ActiveRiboflavinAbundancesPrauColi.tsv", sep = "\t", quote = F, row.names = F)
-
-
-# Dus, nu hebben we van elk sample (per tijdspunt), of het wel of niet E.coli en F.prau heeft. Nu gaan we alleen de samples
-# houden, die allebei hebben (F.prau en E.coli). Daarna pas alleen de samples die allebei de tijdspunten hebben. 
-
-Act_Species_both = Act_Species_fin[which(Act_Species_fin$AbundancesEcoli=="yes" & Act_Species_fin$AbundancesFprau=="yes"),]
-
-
-
-Ratio_PrauColi_rem = Rem_Species_both[Rem_Species_both$Pnumber_tp %in% c("T0_p003", "T3_p003", "T0_p004", "T3_p004", "T0_p010", "T3_p010", "T0_p018", "T3_p018", "T0_p023", "T3_p023", "T0_p037", "T3_p037", "T0_p041", "T3_p041", "T0_p058", "T3_p058", "T0_p058", "T3_p058", "T0_p063", "T3_p063"),]
-
-Ratio_PrauColi_act = Act_Species_both[Act_Species_both$Pnumber_tp %in% c("T0_p006", "T3_p006", "T0_p024", "T3_p024", "T0_p028", "T3_p028", "T0_p030", "T3_p030", "T0_p044", "T3_p044", "T0_p047", "T3_p047", "T0_p061", "T3_p061", "T0_p065", "T3_p065", "T0_p066", "T3_p066", "T0_p070", "T3_p070", "T0_p074", "T3_p074", "T0_p077", "T3_p077", "T0_p078", "T3_p078", "T0_p079", "T3_p079"),]
-
-
-
-# Ratio F.prau/E.coli berekenen. Ik deel f.prau door e.coli, dus als er een groot getal uitkomt, dan is er relatief veel 
-# f.prau in vergelijking tot e.coli. Komt er een laag getal uit, dan is er relatief veel e.coli itt tot F.prau. 
-for (i in 1:nrow(Ratio_PrauColi_act)){
-  if (Ratio_PrauColi_act$DiseaseActivityAtBaseLine == "Active_baseline"){
-    Ratio_PrauColi_act$Ratio_Prau_Coli[i] = (Ratio_PrauColi_act$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i])/(Ratio_PrauColi_act$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i])
-  } else 
-    Ratio_PrauColi_act$DiseaseActivityAtBaseLine[i] = Ratio_PrauColi_act$DiseaseActivityAtBaseLine[i]
-}
-
-
-## BMI
-Act_M1_Ratio = Ratio_PrauColi_act[Ratio_PrauColi_act$time_point=="M1",]
-Act_M3_Ratio = Ratio_PrauColi_act[Ratio_PrauColi_act$time_point=="M3",]
-
-Act_m1 = Act_M1_Ratio$Ratio_Prau_Coli
-Act_m3 = Act_M3_Ratio$Ratio_Prau_Coli
-
-Act_Rat = data.frame(Y=c(Act_m1, Act_m3), Site=factor(rep(c("Act_m1", "Act_m3"), times=c(length(Act_m1), length(Act_m3)))))
-y = Act_Rat$Y
-x = Act_Rat$Site
-wilcox.test(y ~ x, data=Act_Rat) 
-
-#p=0.6347
-mean(Act_M1_Ratio$Ratio_Prau_Coli)
-mean(Act_M3_Ratio$Ratio_Prau_Coli)
-
-
-
-
-
-
-
-
+```
 
 
 
@@ -541,20 +434,21 @@ mean(Act_M3_Ratio$Ratio_Prau_Coli)
 ###### Remission ########
 # Ratio F.prau/E.coli berekenen. Ik deel f.prau door e.coli, dus als er een groot getal uitkomt, dan is er relatief veel 
 # f.prau in vergelijking tot e.coli. Komt er een laag getal uit, dan is er relatief veel e.coli itt tot F.prau. 
-Ratio_PrauColi_rem["Ratio_Prau_Coli"] = NA
-Ratio_PrauColi_rem = Ratio_PrauColi_rem[,c(178, 1:177)]
+```
+Rem_Species_fin["Ratio_Prau_Coli"] = NA
+Rem_Species_fin = Rem_Species_fin[,c(178, 1:177)]
 
-for (i in 1:nrow(Ratio_PrauColi_rem)){
-  if (Ratio_PrauColi_rem$DiseaseActivityAtBaseLine == "Remission_baseline"){
-    Ratio_PrauColi_rem$Ratio_Prau_Coli[i] = (Ratio_PrauColi_rem$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i])/(Ratio_PrauColi_rem$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i])
+for (i in 1:nrow(Rem_Species_fin)){
+  if (Rem_Species_fin$DiseaseActivityAtBaseLine == "Remission_baseline"){
+    Rem_Species_fin$Ratio_Prau_Coli[i] = (Rem_Species_fin$k__Bacteria.p__Firmicutes.c__Clostridia.o__Clostridiales.f__Ruminococcaceae.g__Faecalibacterium.s__Faecalibacterium_prausnitzii[i])/(Rem_Species_fin$k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Enterobacteriales.f__Enterobacteriaceae.g__Escherichia.s__Escherichia_coli[i])
   } else 
-    Ratio_PrauColi_rem$DiseaseActivityAtBaseLine[i] = Ratio_PrauColi_rem$DiseaseActivityAtBaseLine[i]
+    Rem_Species_fin$DiseaseActivityAtBaseLine[i] = Rem_Species_fin$DiseaseActivityAtBaseLine[i]
 }
+```
 
-
-## BMI
-Rem_M1_Ratio = Ratio_PrauColi_rem[Ratio_PrauColi_rem$time_point=="M1",]
-Rem_M3_Ratio = Ratio_PrauColi_rem[Ratio_PrauColi_rem$time_point=="M3",]
+## Wilcoxon test on ratio F.prau/E.coli before and after riboflavin 
+```Rem_M1_Ratio = Rem_Species_fin[Rem_Species_fin$time_point=="M1",]
+Rem_M3_Ratio = Rem_Species_fin[Rem_Species_fin$time_point=="M3",]
 
 Rem_m1 = Rem_M1_Ratio$Ratio_Prau_Coli
 Rem_m3 = Rem_M3_Ratio$Ratio_Prau_Coli
@@ -567,5 +461,5 @@ wilcox.test(y ~ x, data=Rem_Rat)
 #p=0.3865
 mean(Rem_M1_Ratio$Ratio_Prau_Coli)
 mean(Rem_M3_Ratio$Ratio_Prau_Coli)
-
+```
 
