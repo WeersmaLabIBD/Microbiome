@@ -13,8 +13,8 @@ less $input_humann2.tsv | grep -v "|" >> $input_unstrat.tsv
 ## Remove unmapped | unaligned pathways
 ```
 
-2.Open files with Excel (I'm writing a script to do it in Python and avoid Excel): Remove duplicate sample id's in the second row + remove path description, just keeping the metacyc id (split by ":")
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2.Remove duplicate sample id's in the second row + remove path description, just keeping the metacyc id (split by ":")
+-------------------------------------------------------------------------------------------------------------------------
 
 
 3.Clean headers (terminal/bash)
