@@ -1,8 +1,7 @@
-```
+
 # =====================================
 # conditional analysis on MYRF
 # =====================================
-```
 
 ibd_genotype=read.table("conditional.IBD.genotype.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
 lld_genotype=read.table("conditional.LLD.genotype.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
