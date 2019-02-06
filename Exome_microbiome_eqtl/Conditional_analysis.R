@@ -3,6 +3,9 @@
 # conditional analysis on MYRF
 # =====================================
 
+# Spearman correlation between SNP rs2238001 and all bacterial features
+# =======================================================================
+
 ibd_genotype=read.table("conditional.IBD.genotype.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
 lld_genotype=read.table("conditional.LLD.genotype.txt",sep = "\t",header = T,stringsAsFactors = F,check.names = F,row.names = 1)
 rm=read.table("IBD_ID_change_rm_SB.txt",header = F,sep = "\t",stringsAsFactors = F)
@@ -49,7 +52,7 @@ lld_recalculation = foreach(i=1:nrow(lld_probe),.combine = rbind) %do%  {
                              CorrelationCoefficient = spearman$estimate,Pvalue = spearman$p.value,
                              Number=nrow(probe.sub))
 }
-
+# meta based on P value and sample size
 library(metap)
 feature=intersect(ibd_recalculation$Probe,lld_recalculation$Probe)
 meta_recalculation = foreach(i=1:length(feature),.combine = rbind) %do%  {
@@ -67,6 +70,7 @@ meta_recalculation=meta_recalculation[order(meta_recalculation$Pvalue),]
 # ======================
 #  partial correlation
 # ======================
+
 # regress out rs9735635,rs2240287
 library(ppcor)
 ibd_partial = foreach(i=1:nrow(ibd_probe),.combine = rbind) %do%  {
