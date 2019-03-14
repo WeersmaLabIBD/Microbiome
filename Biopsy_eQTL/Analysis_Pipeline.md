@@ -13,7 +13,8 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 
 
 
-Models used:
+**Models used:**
+---
  - Model 1 (simple fixed model)
 ```
 𝑔𝑒𝑛𝑒 𝑒𝑥𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛=𝛼 + 𝛽𝑆𝑁𝑃 + 20𝛽𝑒𝑥𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛𝑃𝐶𝑠 + 𝜀
@@ -29,7 +30,7 @@ Models used:
 
 
 **RNA-seq data QC**
-
+---
 ```
 1. Reads alignment percentage < 90%; mapped reads < 30 million.     ---> 4 samples are removed
 2. Duplicate samples check                                          ---> 2 samples are removed
@@ -93,7 +94,7 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 
 
 **step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)**
-
+---
 
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
@@ -105,7 +106,7 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 
 
 **step 3.1. eQTL analysis - match expression data to genotype data**
-
+---
 
 Note:
  - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
@@ -133,7 +134,7 @@ vim Reordered.phenotype.txt and add "-"
 
 
 **step 3.2. eQTL analysis - generate relatedness file**
-
+---
 
 ```
 ml plink
@@ -146,7 +147,7 @@ rm Relatedness.nosex
 
 
 **step 3.3. eQTL analysis - Loop for each expression probe using GEMMA**
-
+---
 
 ```
 ml plink
