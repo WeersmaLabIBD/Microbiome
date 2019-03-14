@@ -7,7 +7,7 @@ date: "03/14/2019"
 # eQTL analysis based on mucosal biopsy RNA-seq from patients with IBD
 
 This project is to identify the eQTL effect in context of inflammation and non-inflammation in mucosal biopsy in IBD
-
+-----------------------------
 ---
 RNA-seq Data: "171 individuals; 299 biopsy"
 Genomic Data: "171 individuals; WES+GSA"
