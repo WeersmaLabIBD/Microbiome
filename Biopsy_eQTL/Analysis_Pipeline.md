@@ -138,9 +138,10 @@ rm Relatedness.nosex
 
 ```
 ml plink
-ml qctool
 
 awk '{print $2}' All_pairs.txt | sort | uniq > Probe.txt
+
+export  LD_LIBRARY_PATH=/home/umcg-hushixian/gemma/gcc-5.4.0-lib-3x53yv4v144c9xp0/lib
 
 cat Probe.txt | while read line
 
@@ -157,17 +158,3 @@ rm tmp*
 # this removing is very important TAKE CARE !!!!!!
 
 done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
