@@ -2,10 +2,6 @@
 title: "eQTL analysis based on mucosal biopsy RNA-seq from patients with IBD"
 creator: "Shixian"
 date: "03/14/2019"
----
-
----
-title: "Analysis data summary"
 RNA-seq Data: "171 individuals; 299 biopsy"
 Genomic Data: "171 individuals; WES+GSA"
 Sample Excluded: "8"
