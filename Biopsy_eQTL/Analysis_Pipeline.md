@@ -153,7 +153,8 @@ plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.ana
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
 ~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
-rm tmp*
+rm tmp* 
+# this removing is very important TAKE CARE !!!!!!
 
 done
 
