@@ -36,7 +36,7 @@ RNA-seq data QC
 
 # Part 1. cis-eQTL analysis
 
-*step 1. Normalization*
+**step 1. Normalization**
 
 ```
 # ========================================================================================================================
@@ -87,7 +87,7 @@ colnames(timmed)[1]="probe"
 write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row.names = F)
 ```
 
-*step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)*
+**step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)**
 
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
@@ -97,7 +97,7 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ---> output: TMM_expression.CD.table.Log2Transformed.ProbesCentered.SamplesZTransformed.20PCAsOverSamplesRemoved.txt
 ```
 
-*step 3.1. eQTL analysis - match expression data to genotype data*
+**step 3.1. eQTL analysis - match expression data to genotype data**
 
 Note:
  - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
@@ -123,7 +123,7 @@ Rscript Penotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.pli
 vim Reordered.phenotype.txt and add "-"
 ```
 
-*step 3.2. eQTL analysis - generate relatedness file*
+**step 3.2. eQTL analysis - generate relatedness file**
 
 ```
 ml plink
@@ -134,7 +134,7 @@ rm Relatedness.log
 rm Relatedness.nosex
 ```
 
-*step 3.3. eQTL analysis - Loop for each expression probe using GEMMA*
+**step 3.3. eQTL analysis - Loop for each expression probe using GEMMA**
 
 ```
 ml plink
