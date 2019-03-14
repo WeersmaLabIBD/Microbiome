@@ -4,16 +4,19 @@ creator: "Shixian"
 date: "03/14/2019"
 ---
 
-# eQTL analysis based on mucosal biopsy RNA-seq from patients with IBD
-
-This project is to identify the eQTL effect in context of inflammation and non-inflammation in mucosal biopsy in IBD
------------------------------
 ---
+title: "Analysis data summary"
 RNA-seq Data: "171 individuals; 299 biopsy"
 Genomic Data: "171 individuals; WES+GSA"
 Sample Excluded: "8"
 Sample Included: "185CD + 106UC+IBDU"
 ---
+
+# eQTL analysis based on mucosal biopsy RNA-seq from patients with IBD
+
+This project is to identify the eQTL effect in context of inflammation and non-inflammation in mucosal biopsy in IBD
+
+
 
 Models used:
  - Model 1 (simple fixed model)
