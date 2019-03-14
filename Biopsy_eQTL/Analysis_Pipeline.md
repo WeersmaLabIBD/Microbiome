@@ -117,7 +117,7 @@ rm tmp.txt
 ```
 ```
 In folder CD_Matched_table
-Rscript Penotype.Prepare.R ../CD_normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
+Rscript Penotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
 
 ---> output: Pheno.txt Reordered.phenotype.txt
 vim Reordered.phenotype.txt and add "-"
@@ -149,13 +149,13 @@ do
 grep -w $line All_pairs.txt > tmp.pair.txt
 awk '{print $1}' tmp.pair.txt > tmp.snp.txt
 plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --recode vcf --out tmp.analysis
-qctool -g tmp.analysis.vcf --filetype bimbam_dosage -og tmp.genotype.matrix
-sed -i "s/ /,/g" tmp.genotype.matrix
+plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.analysis
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
 
 export  LD_LIBRARY_PATH=/home/umcg-hushixian/gemma/gcc-5.4.0-lib-3x53yv4v144c9xp0/lib
-~/gemma/bin/gemma -g tmp.genotype.matrix -p tmp.expression.txt -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
+~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
+rm tmp*
 
 done
 
