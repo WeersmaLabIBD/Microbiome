@@ -152,8 +152,6 @@ plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --recode vcf --out tmp.a
 plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.analysis
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
-
-export  LD_LIBRARY_PATH=/home/umcg-hushixian/gemma/gcc-5.4.0-lib-3x53yv4v144c9xp0/lib
 ~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
 rm tmp*
 
