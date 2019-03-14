@@ -1,0 +1,32 @@
+## GEMMA Version    = 0.97 (2017/12/27)
+## GSL Version      = 2.4
+## Eigen Version    = 3.3.4
+## OpenBlas         = OpenBLAS 0.2.19  - NO_LAPACK NO_LAPACKE DYNAMIC_ARCH NO_AFFINITY Piledriver
+##   arch           = Piledriver
+##   threads        = 8
+##   parallel type  = threaded
+##
+## Command Line Input = /home/umcg-hushixian/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o ENSG00000116752.outcome -miss 0.99 
+##
+## Date = Thu Mar 14 19:37:59 2019
+##
+## Summary Statistics:
+## number of total individuals = 185
+## number of analyzed individuals = 185
+## number of covariates = 1
+## number of phenotypes = 1
+## number of total SNPs/var = 2253
+## number of analyzed SNPs/var = 2100
+## REMLE log-likelihood in the null model = -27.9944
+## MLE log-likelihood in the null model = -27.6452
+## pve estimate in the null model = 0
+## se(pve) in the null model = -nan
+## vg estimate in the null model = 7.93736e-07
+## ve estimate in the null model = 0.0793736
+## beta estimate in the null model =   99.9999
+## se(beta) =   0.0207134
+##
+## Computation Time:
+## total computation time = 0.045131 min 
+## computation time break down: 
+##      time on eigen-decomposition = 0.0010036 min 
