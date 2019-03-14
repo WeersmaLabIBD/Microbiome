@@ -36,7 +36,8 @@ RNA-seq data QC
 
 # Part 1. cis-eQTL analysis
 
-step 1. Normalization
+*step 1. Normalization
+
 ```
 # ========================================================================================================================
 #                                                    normalization
@@ -86,7 +87,8 @@ colnames(timmed)[1]="probe"
 write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row.names = F)
 ```
 
-step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)
+*step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)
+
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 --in TMM_expression.CD.table.txt --out ./ --logtransform --centerscale \
@@ -95,7 +97,8 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ---> output: TMM_expression.CD.table.Log2Transformed.ProbesCentered.SamplesZTransformed.20PCAsOverSamplesRemoved.txt
 ```
 
-step 3. eQTL analysis
+*step 3.1. eQTL analysis - match expression data to genotype data
+
 Note:
  - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
  - All_pairs.txt
@@ -105,7 +108,67 @@ Note:
  - 
 
 ```
-Rscript Penotype.Prepare.R ./CD_normalized/CD_normalized_data.txt ./CD_plink/CD.plink.fam
+In folder CD_Normalized:
+awk '{print $2}' ../All_pairs.txt | sort | uniq > Probe.txt
+sed -n "1,1p" CD_normalized.table > header.txt
+awk ' FNR==NR { a[$1]=$0; next } $1 in a { print }' <(less Probe.txt) <(less CD_normalized.table) >> tmp.txt
+cat header.txt tmp.txt > CD_normalized.txt
+rm tmp.txt
+```
+```
+In folder CD_Matched_table
+Rscript Penotype.Prepare.R ../CD_normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
+
+---> output: Pheno.txt Reordered.phenotype.txt
+vim Reordered.phenotype.txt and add "-"
+```
+
+*step 3.2. eQTL analysis - generate relatedness file
+
+```
+ml plink
+plink --bfile CD_plink/CD.plink --genome --out Relatedness
+awk '{if($12==1)print $2,$4,$12}' Relatedness.genome > Relatedness.matrix
+rm Relatedness.genome
+rm Relatedness.log
+rm Relatedness.nosex
+```
+
+*step 3.3. eQTL analysis - Loop for each expression probe using GEMMA
+
+```
+ml plink
+ml qctool
+
+awk '{print $2}' All_pairs.txt | sort | uniq > Probe.txt
+
+cat Probe.txt | while read line
+
+do
+
+grep -w $line All_pairs.txt > tmp.pair.txt
+awk '{print $1}' tmp.pair.txt > tmp.snp.txt
+plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --recode vcf --out tmp.analysis
+qctool -g tmp.analysis.vcf --filetype bimbam_dosage -og tmp.genotype.matrix
+sed -i "s/ /,/g" tmp.genotype.matrix
+awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
+sed -i '1d' tmp.expression.txt 
+
+export  LD_LIBRARY_PATH=/home/umcg-hushixian/gemma/gcc-5.4.0-lib-3x53yv4v144c9xp0/lib
+~/gemma/bin/gemma -g tmp.genotype.matrix -p tmp.expression.txt -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
+
+done
+
+
+
+
+
+
+
+
+
+
+
 
 
 
