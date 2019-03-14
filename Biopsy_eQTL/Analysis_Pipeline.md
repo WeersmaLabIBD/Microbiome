@@ -29,8 +29,66 @@ Models used:
 
 RNA-seq data QC
 ```
-1. Reads alignment percentage < 90%; mapped reads < 30 million.  >>>> 4 samples are removed
-2. Duplicate samples check >>>> 2 samples are removed
-3. Outliers from expression data (PCA check). >>>> 2 samples are removed
+1. Reads alignment percentage < 90%; mapped reads < 30 million.     ---> 4 samples are removed
+2. Duplicate samples check                                          ---> 2 samples are removed
+3. Outliers from expression data (PCA check).                       ---> 2 samples are removed
 ```
+
+# Part 1. cis-eQTL analysis
+
+step 1. Normalization
+```
+# ===================================================================================
+#                           normalization
+# ===================================================================================
+
+library(edgeR)
+library(limma)
+library(RColorBrewer)
+library(mixOmics)
+library(VennDiagram)
+library(HTSFilter)
+count=read.table("ExpressionTable.txt",sep = "\t",header = T,row.names = 1,check.names = F,stringsAsFactors = F)
+metadata=read.table("Metadata.txt",sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
+
+# one sample with umkown diagnosis, just lable it as CD
+metadata$Diagnosis[metadata$Diagnosis=="Indet"]="CD"
+cd=metadata[metadata$Diagnosis=="CD",]
+cd=cd[rownames(cd) %in% colnames(count),]
+uc=metadata[metadata$Diagnosis=="UC" | metadata$Diagnosis=="IBDU",]
+uc=uc[rownames(uc) %in% colnames(count),]
+
+count_cd=count[,colnames(count) %in% rownames(cd)]
+count_uc=count[,colnames(count) %in% rownames(uc)]
+
+# use edgeR for normolization CD
+dgeFull <- DGEList(count_cd, remove.zeros = TRUE)
+dgeFull <- calcNormFactors(dgeFull, method="TMM")
+#normCounts <- cpm(dgeFull,log = TRUE,prior.count = 1)
+#boxplot(normCounts, col = "gray", las = 3, cex.names = 1)
+#normcounts=scale(t(normCounts))
+#normcounts=as.data.frame(t(normcounts))
+timmed=cpm(dgeFull)
+timmed=as.data.frame(timmed)
+timmed=data.frame(rownames(timmed),timmed,check.names = F)
+colnames(timmed)[1]="probe"
+
+write.table(timmed,file = "TMM_expression.CD.table.txt",sep = "\t",quote = F,row.names = F)
+
+
+# use edgeR for normolization UC
+dgeFull <- DGEList(count_uc, remove.zeros = TRUE)
+dgeFull <- calcNormFactors(dgeFull, method="TMM")
+#normCounts <- cpm(dgeFull,log = TRUE,prior.count = 1)
+#boxplot(normCounts, col = "gray", las = 3, cex.names = 1)
+#normcounts=scale(t(normCounts))
+#normcounts=as.data.frame(t(normcounts))
+timmed=cpm(dgeFull)
+timmed=as.data.frame(timmed)
+timmed=data.frame(rownames(timmed),timmed,check.names = F)
+colnames(timmed)[1]="probe"
+
+write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row.names = F)
+```
+
 
