@@ -86,4 +86,26 @@ colnames(timmed)[1]="probe"
 write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row.names = F)
 ```
 
+step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)
+```
+java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
+--in TMM_expression.CD.table.txt --out ./ --logtransform --centerscale \
+--adjustPCA --maxnrpcaremoved 20 --stepsizepcaremoval 2 2>&1 | tee ./normalization.log
+
+---> output: TMM_expression.CD.table.Log2Transformed.ProbesCentered.SamplesZTransformed.20PCAsOverSamplesRemoved.txt
+```
+
+step 3. eQTL analysis
+Note:
+ - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
+ - All_pairs.txt
+ - CD_plink (genotype file, 185 CD biopsies, 6,894,979 variants)
+ - CD_Normalized (CD expression data after removing PCs)
+ - coupling file (connect biopsy ID to WES ID, 185 IDs)
+ - 
+
+```
+Rscript Penotype.Prepare.R ./CD_normalized/CD_normalized_data.txt ./CD_plink/CD.plink.fam
+
+
 
