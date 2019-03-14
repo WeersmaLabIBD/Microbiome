@@ -27,7 +27,9 @@ Models used:
 𝑔𝑒𝑛𝑒 𝑒𝑥𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛=𝛼 + 𝛽𝑆𝑁𝑃 + 20𝛽𝑒𝑥𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛𝑃𝐶𝑠 + 𝑟𝑒𝑙𝑎𝑡𝑒𝑑𝑛𝑒𝑠𝑠 + 𝛽𝑆𝑁𝑃×𝑖𝑛𝑓𝑙𝑎𝑚𝑚𝑎𝑡𝑖𝑜𝑛 + 𝜀
 ```
 
-RNA-seq data QC
+
+**RNA-seq data QC**
+
 ```
 1. Reads alignment percentage < 90%; mapped reads < 30 million.     ---> 4 samples are removed
 2. Duplicate samples check                                          ---> 2 samples are removed
@@ -36,7 +38,9 @@ RNA-seq data QC
 
 # Part 1. cis-eQTL analysis
 
+
 **step 1. Normalization**
+
 
 ```
 # ========================================================================================================================
@@ -87,7 +91,9 @@ colnames(timmed)[1]="probe"
 write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row.names = F)
 ```
 
+
 **step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)**
+
 
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
@@ -97,7 +103,9 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ---> output: TMM_expression.CD.table.Log2Transformed.ProbesCentered.SamplesZTransformed.20PCAsOverSamplesRemoved.txt
 ```
 
+
 **step 3.1. eQTL analysis - match expression data to genotype data**
+
 
 Note:
  - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
@@ -123,7 +131,9 @@ Rscript Penotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.pli
 vim Reordered.phenotype.txt and add "-"
 ```
 
+
 **step 3.2. eQTL analysis - generate relatedness file**
+
 
 ```
 ml plink
@@ -134,7 +144,9 @@ rm Relatedness.log
 rm Relatedness.nosex
 ```
 
+
 **step 3.3. eQTL analysis - Loop for each expression probe using GEMMA**
+
 
 ```
 ml plink
