@@ -93,7 +93,7 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 ```
 
 
-**step 2. Log transformation, Center scale and remove PCs (CD, UC separately,here CD as example)**
+**step 2. Log transformation, Center scale and remove PCs (CD as example)**
 ---
 
 ```
@@ -109,12 +109,13 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ---
 
 Note:
- - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene: https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
+ - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene:
+ 
+ https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
  - All_pairs.txt
  - CD_plink (genotype file, 185 CD biopsies, 6,894,979 variants)
  - CD_Normalized (CD expression data after removing PCs)
  - coupling file (connect biopsy ID to WES ID, 185 IDs)
- - 
 
 ```
 In folder CD_Normalized:
