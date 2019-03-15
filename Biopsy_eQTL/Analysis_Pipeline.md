@@ -173,6 +173,6 @@ rm tmp*
 done
 ```
 
-*step 4. eQTL analysis - Merging results
+*step 4. eQTL analysis - Merging results*
 ---
 
