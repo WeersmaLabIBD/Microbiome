@@ -171,3 +171,8 @@ rm tmp*
 # this removing is very important TAKE CARE !!!!!!
 
 done
+```
+
+**step 4. *eQTL analysis - Merging results**
+---
+
