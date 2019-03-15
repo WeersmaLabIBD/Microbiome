@@ -199,6 +199,6 @@ do
 
 name=$(basename $i)
 expression=${name%.outcome.assoc.txt}
-wk -v var="$expression" '{OFS="\t"}{if (NR!=1) print var,$0}' $i >> Merge.assoc.txt
+awk -v var="$expression" '{OFS="\t"}{if (NR!=1) print var,$0}' $i >> Merge.assoc.txt
 
 done
