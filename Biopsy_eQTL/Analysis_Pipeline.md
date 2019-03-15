@@ -57,7 +57,8 @@ library(HTSFilter)
 
 count=read.table("ExpressionTable.txt",sep = "\t",header = T,row.names = 1,check.names = F,stringsAsFactors = F)
 metadata=read.table("Metadata.txt",sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
-
+```
+```
 =====================================
 # one sample with umkown diagnosis, just lable it as CD
 
@@ -69,7 +70,8 @@ uc=uc[rownames(uc) %in% colnames(count),]
 
 count_cd=count[,colnames(count) %in% rownames(cd)]
 count_uc=count[,colnames(count) %in% rownames(uc)]
-
+```
+```
 =====================================
 # use edgeR for normolization CD
 
@@ -81,7 +83,8 @@ timmed=data.frame(rownames(timmed),timmed,check.names = F)
 colnames(timmed)[1]="probe"
 
 write.table(timmed,file = "TMM_expression.CD.table.txt",sep = "\t",quote = F,row.names = F)
-
+```
+```
 =====================================
 # use edgeR for normolization UC
 
