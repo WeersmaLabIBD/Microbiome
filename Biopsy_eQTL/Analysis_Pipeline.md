@@ -13,7 +13,7 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 
 
 
-**Models used:**
+*Models used:*
 ---
  - Model 1 (simple fixed model)
 ```
@@ -29,7 +29,7 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 ```
 
 
-**RNA-seq data QC**
+*RNA-seq data QC*
 ---
 ```
 1. Reads alignment percentage < 90%; mapped reads < 30 million.     ---> 4 samples are removed
@@ -40,7 +40,7 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 # Part 1. cis-eQTL analysis
 
 
-**step 1. Normalization**
+*step 1. Normalization*
 ---
 
 ```
@@ -93,7 +93,7 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 ```
 
 
-**step 2. Log transformation, Center scale and remove PCs (CD as example)**
+*step 2. Log transformation, Center scale and remove PCs (CD as example)*
 ---
 
 ```
@@ -105,7 +105,7 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ```
 
 
-**step 3.1. eQTL analysis - match expression data to genotype data**
+*step 3.1. eQTL analysis - match expression data to genotype data*
 ---
 
 Note:
@@ -134,7 +134,7 @@ vim Reordered.phenotype.txt and add "-"
 ```
 
 
-**step 3.2. eQTL analysis - generate relatedness file**
+*step 3.2. eQTL analysis - generate relatedness file*
 ---
 
 ```
@@ -147,7 +147,7 @@ rm Relatedness.nosex
 ```
 
 
-**step 3.3. eQTL analysis - Loop for each expression probe using GEMMA**
+*step 3.3. eQTL analysis - Loop for each expression probe using GEMMA*
 ---
 
 ```
