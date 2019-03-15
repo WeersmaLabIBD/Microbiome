@@ -44,9 +44,9 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 ---
 
 ```
-# ========================================================================================================================
-#                                                    normalization
-# ========================================================================================================================
+# ==============================================================================================================
+#                                               normalization
+# ==============================================================================================================
 
 library(edgeR)
 library(limma)
@@ -60,6 +60,7 @@ metadata=read.table("Metadata.txt",sep = "\t",header = T,row.names = 1,stringsAs
 
 =====================================
 # one sample with umkown diagnosis, just lable it as CD
+
 metadata$Diagnosis[metadata$Diagnosis=="Indet"]="CD"
 cd=metadata[metadata$Diagnosis=="CD",]
 cd=cd[rownames(cd) %in% colnames(count),]
@@ -71,6 +72,7 @@ count_uc=count[,colnames(count) %in% rownames(uc)]
 
 =====================================
 # use edgeR for normolization CD
+
 dgeFull <- DGEList(count_cd, remove.zeros = TRUE)
 dgeFull <- calcNormFactors(dgeFull, method="TMM")
 timmed=cpm(dgeFull)
@@ -82,6 +84,7 @@ write.table(timmed,file = "TMM_expression.CD.table.txt",sep = "\t",quote = F,row
 
 =====================================
 # use edgeR for normolization UC
+
 dgeFull <- DGEList(count_uc, remove.zeros = TRUE)
 dgeFull <- calcNormFactors(dgeFull, method="TMM")
 timmed=cpm(dgeFull)
@@ -105,7 +108,7 @@ java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
 ```
 
 
-*step 3.1. eQTL analysis - match expression data to genotype data*
+*step 3.1. eQTL analysis - Match expression data to genotype data*
 ---
 
 Note:
@@ -119,14 +122,20 @@ Note:
 
 ```
 In folder CD_Normalized:
+
 awk '{print $2}' ../All_pairs.txt | sort | uniq > Probe.txt
+
 sed -n "1,1p" CD_normalized.table > header.txt
+
 awk ' FNR==NR { a[$1]=$0; next } $1 in a { print }' <(less Probe.txt) <(less CD_normalized.table) >> tmp.txt
+
 cat header.txt tmp.txt > CD_normalized.txt
+
 rm tmp.txt
 ```
 ```
 In folder CD_Matched_table
+
 Rscript Penotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
 
 ---> output: Pheno.txt Reordered.phenotype.txt
@@ -134,16 +143,16 @@ vim Reordered.phenotype.txt and add "-"
 ```
 
 
-*step 3.2. eQTL analysis - generate relatedness file*
+*step 3.2. eQTL analysis - Generate relatedness file*
 ---
 
 ```
 ml plink
-plink --bfile CD_plink/CD.plink --genome --out Relatedness
-awk '{if($12==1)print $2,$4,$12}' Relatedness.genome > Relatedness.matrix
-rm Relatedness.genome
-rm Relatedness.log
-rm Relatedness.nosex
+
+plink --bfile CD_plink/CD.plink --cluster --matrix --out ./Kinship/IBS
+
+---> output: IBS.cluster; IBS.log; IBD.mibs; IBD.mibs.ID;, IBS.nosex
+
 ```
 
 
@@ -166,13 +175,22 @@ awk '{print $1}' tmp.pair.txt > tmp.snp.txt
 plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.analysis
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
-~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
+
+~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 1 -k Kinship/IBS.mibs -lmm 4 -o $line.outcome -miss 0.99
+
 rm tmp* 
 # this removing is very important TAKE CARE !!!!!!
 
 done
 ```
 
-*step 4. eQTL analysis - Merging results*
+*step 3.4. eQTL analysis - Merging results*
 ---
+
+```
+
+
+
+
+
 
