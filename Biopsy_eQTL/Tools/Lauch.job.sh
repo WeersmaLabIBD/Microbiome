@@ -18,11 +18,10 @@ do
 
 grep -w $line All_pairs.txt > tmp.pair.txt
 awk '{print $1}' tmp.pair.txt > tmp.snp.txt
-plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --recode vcf --out tmp.analysis
 plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.analysis
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt
-~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 2 -k Relatedness.matrix -lmm 4 -o $line.outcome -miss 0.99
+~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 1 -k IBS.mids -lmm 4 -o $line.outcome -miss 0.99
 rm tmp*
 
 done
