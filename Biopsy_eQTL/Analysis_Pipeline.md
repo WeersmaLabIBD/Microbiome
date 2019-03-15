@@ -149,6 +149,8 @@ vim Reordered.phenotype.txt and add "-"
 *step 3.2. eQTL analysis - Generate relatedness file*
 ---
 
+- This step is to consider kinship as a random effect in mixed linear model.
+
 ```
 ml plink
 
@@ -161,6 +163,8 @@ plink --bfile CD_plink/CD.plink --cluster --matrix --out ./Kinship/IBS
 
 *step 3.3. eQTL analysis - Loop for each expression probe using GEMMA*
 ---
+
+- Note for all *gcc* dependencies. 
 
 ```
 ml plink
@@ -189,6 +193,8 @@ done
 
 *step 3.4. eQTL analysis - Merging results*
 ---
+
+- To merge all eQTL results of each expression gene (*eg. ENSG00000072135*) in output folder.
 
 ```
 echo -e "ExpressionGene\tChr\trsID\tPos\tMissingSample\tAllele1\tAllele0\tAllelFre\tBeta\tSE\tlogl_H1\tl_remle\tl_mle\tp_wald\tp_lrt\tp_score" > Merge.assoc.txt
