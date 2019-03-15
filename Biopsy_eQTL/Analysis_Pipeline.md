@@ -183,12 +183,25 @@ plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.ana
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
 
-~/gemma/bin/gemma -bfile tmp.analysis -p tmp.expression.txt -km 1 -k Kinship/IBS.mibs -lmm 4 -o $line.outcome -miss 0.99
+~/gemma/bin/gemma -bfile tmp.analysis \
+-p tmp.expression.txt \
+-km 1 -k Kinship/IBS.mibs \
+-lmm 4 -o $line.outcome \
+-miss 0.99
 
 rm tmp* 
 # this removing is very important TAKE CARE !!!!!!
 
 done
+```
+- Add gene * enviroment interaction term in GEMMA
+```
+~/gemma/bin/gemma -bfile tmp.analysis \
+-p tmp.expression.txt \
+-gxe CD_Covariate/CD.covariate.txt \
+-km 1 -k Kinship/IBS.mibs \
+-lmm 4 -o $line.outcome \
+-miss 0.99
 ```
 
 *step 3.4. eQTL analysis - Merging results*
