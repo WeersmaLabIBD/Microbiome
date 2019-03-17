@@ -42,7 +42,15 @@ This project is to identify the eQTL effect in context of inflammation and non-i
 
 *step 1. Normalization*
 ---
+- Use the expression matrix with included samples to run the TMM normalization.
+```
+An assumption of TMM is the majority of the genes are not differentially expressed. 
 
+The main aim in TMM normalization is to account for library size variation between samples of interest, accounting for the fact that some extremely differentially expressed genes would impact negatively the normalization procedure.
+
+A trimmed mean is the average after removing the upper and lower x% of the data.
+```
+We use edgeR to run TMM normalization.
 ```
 # ==============================================================================================================
 #                                               normalization
@@ -101,10 +109,10 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 
 *step 2. Log transformation, Center scale and remove PCs (CD as example)*
 ---
-- Use the expression matrix with included samples to run the TMM normalization.
+
 - Log2 transformation.
 - Probe centering and scaling (Z-transform).
-- y adjusting for a set of PCs, we try to remove batch effects in the data.
+- By adjusting for a set of PCs, we try to remove batch effects in the data.
 
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline-1.4nZ/eqtl-mapping-pipeline.jar \
