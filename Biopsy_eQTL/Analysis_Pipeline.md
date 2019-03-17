@@ -103,9 +103,11 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 ---
 
 ```
-java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline.jar --mode normalize \
---in TMM_expression.CD.table.txt --out ./ --logtransform --centerscale \
---adjustPCA --maxnrpcaremoved 20 --stepsizepcaremoval 2 2>&1 | tee ./normalization.log
+java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline-1.4nZ/eqtl-mapping-pipeline.jar \
+--mode normalize --in TMM_expression.CD.table.txt \
+--out ./ --logtransform --centerscale \
+--adjustPCA --maxnrpcaremoved 32 --stepsizepcaremoval 2 \
+2>&1 | tee ./normalization.log
 
 ---> output: TMM_expression.CD.table.Log2Transformed.ProbesCentered.SamplesZTransformed.20PCAsOverSamplesRemoved.txt
 ```
