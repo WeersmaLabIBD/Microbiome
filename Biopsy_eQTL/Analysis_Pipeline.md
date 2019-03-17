@@ -101,6 +101,10 @@ write.table(timmed,file = "TMM_expression.UC.table.txt",sep = "\t",quote = F,row
 
 *step 2. Log transformation, Center scale and remove PCs (CD as example)*
 ---
+- Use the expression matrix with included samples to run the TMM normalization.
+- Log2 transformation.
+- Probe centering and scaling (Z-transform).
+- y adjusting for a set of PCs, we try to remove batch effects in the data.
 
 ```
 java -Xmx10g -Xms10g -jar ~/eqtl-mapping-pipeline-1.4nZ/eqtl-mapping-pipeline.jar \
