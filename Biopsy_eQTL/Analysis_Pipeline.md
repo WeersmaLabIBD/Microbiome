@@ -134,6 +134,17 @@ Note:
  https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
  ```
  Take care about memory used, 156GB. Don't understand why it is so large yet.
+ 
+!/bin/bash
+#BATCH --job-name=cis
+#SBATCH --error=cis.err
+#SBATCH --output=cis.out
+#SBATCH --mem=156gb
+#SBATCH --time=99:00:00
+#SBATCH --cpus-per-task=6
+
+module load Java
+java -XX:ParallelGCThreads=5 -Xmx150G -jar eqtl-mapping-pipeline-1.4.1-SNAPSHOT/eqtl-mapping-pipeline.jar --mode metaqtl --settings setting.xml
  ```
  - All_pairs.txt (64 million at this moment)
  - CD_plink (genotype file, 185 CD biopsies, 6,894,979 variants)
