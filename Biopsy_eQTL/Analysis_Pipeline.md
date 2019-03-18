@@ -132,7 +132,10 @@ Note:
  - before this, you need a rough run using Lude's eQTLmapping-pipeline to get all pairs between cis-SNPs and expressed-gene:
  
  https://github.com/molgenis/systemsgenetics/wiki/eQTL-mapping-analysis-cookbook-for-RNA-seq-data#downloading-the-software-and-reference-data
- - All_pairs.txt
+ ```
+ Take care about memory used, 156GB. Don't understand why it is so large yet.
+ ```
+ - All_pairs.txt (64 million at this moment)
  - CD_plink (genotype file, 185 CD biopsies, 6,894,979 variants)
  - CD_Normalized (CD expression data after removing PCs)
  - coupling file (connect biopsy ID to WES ID, 185 IDs)
