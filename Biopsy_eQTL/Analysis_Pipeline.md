@@ -205,8 +205,7 @@ cat Probe.txt | while read line
 
 do
 
-grep -w $line All_pairs.txt > tmp.pair.txt
-awk '{print $1}' tmp.pair.txt > tmp.snp.txt
+grep -w $line ../All_pairs.txt | awk '{print $1}' > tmp.snp.txt
 plink --bfile ./CD_plink/CD.plink --extract tmp.snp.txt --make-bed --out tmp.analysis
 awk -v col=$line 'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}} print $c} NR>1{print $c}' ./CD_Matched_table/Reordered.phenotype.txt > tmp.expression.txt
 sed -i '1d' tmp.expression.txt 
