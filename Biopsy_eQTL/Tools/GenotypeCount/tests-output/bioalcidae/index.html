@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+  <meta charset='utf-8'>
+  <title>TestNG reports</title>
+
+    <link type="text/css" href="testng-reports.css" rel="stylesheet" />
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="testng-reports.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {packages:['table']});
+      google.setOnLoadCallback(drawTable);
+      var suiteTableInitFunctions = new Array();
+      var suiteTableData = new Array();
+    </script>
+    <!--
+      <script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.16.custom.min.js"></script>
+     -->
+  </head>
+
+  <body>
+    <div class="top-banner-root">
+      <span class="top-banner-title-font">Test results</span>
+      <br/>
+      <span class="top-banner-font-1">1 suite</span>
+    </div> <!-- top-banner-root -->
+    <div class="navigator-root">
+      <div class="navigator-suite-header">
+        <span>All suites</span>
+        <a href="#" title="Collapse/expand all the suites" class="collapse-all-link">
+          <img src="collapseall.gif" class="collapse-all-icon">
+          </img> <!-- collapse-all-icon -->
+        </a> <!-- collapse-all-link -->
+      </div> <!-- navigator-suite-header -->
+      <div class="suite">
+        <div class="rounded-window">
+          <div class="suite-header light-rounded-window-top">
+            <a href="#" panel-name="suite-SuiteAll" class="navigator-link">
+              <span class="suite-name border-passed">SuiteAll</span>
+            </a> <!-- navigator-link -->
+          </div> <!-- suite-header light-rounded-window-top -->
+          <div class="navigator-suite-content">
+            <div class="suite-section-title">
+              <span>Info</span>
+            </div> <!-- suite-section-title -->
+            <div class="suite-section-content">
+              <ul>
+                <li>
+                  <a href="#" panel-name="test-xml-SuiteAll" class="navigator-link ">
+                    <span>testng.xml</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="testlist-SuiteAll" class="navigator-link ">
+                    <span class="test-stats">1 test</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="group-SuiteAll" class="navigator-link ">
+                    <span>0 groups</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="times-SuiteAll" class="navigator-link ">
+                    <span>Times</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="reporter-SuiteAll" class="navigator-link ">
+                    <span>Reporter output</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="ignored-methods-SuiteAll" class="navigator-link ">
+                    <span>Ignored methods</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+                <li>
+                  <a href="#" panel-name="chronological-SuiteAll" class="navigator-link ">
+                    <span>Chronological view</span>
+                  </a> <!-- navigator-link  -->
+                </li>
+              </ul>
+            </div> <!-- suite-section-content -->
+            <div class="result-section">
+              <div class="suite-section-title">
+                <span>Results</span>
+              </div> <!-- suite-section-title -->
+              <div class="suite-section-content">
+                <ul>
+                  <li>
+                    <span class="method-stats">14 methods,   14 passed</span>
+                  </li>
+                  <li>
+                    <span class="method-list-title passed">Passed methods</span>
+                    <span class="show-or-hide-methods passed">
+                      <a href="#" panel-name="suite-SuiteAll" class="hide-methods passed suite-SuiteAll"> (hide)</a> <!-- hide-methods passed suite-SuiteAll -->
+                      <a href="#" panel-name="suite-SuiteAll" class="show-methods passed suite-SuiteAll"> (show)</a> <!-- show-methods passed suite-SuiteAll -->
+                    </span>
+                    <div class="method-list-content passed suite-SuiteAll">
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/rotavirus_rf.freebayes.vcf.gz)">testVCF(./src/test/resources/rotavirus_rf.freebayes.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/test_vcf01.vcf)">testVCF(./src/test/resources/test_vcf01.vcf)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/S3.vcf.gz)">testVCF(./src/test/resources/S3.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/rotavirus_rf.ann.vcf.gz)">testVCF(./src/test/resources/rotavirus_rf.ann.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/S2.vcf.gz)">testVCF(./src/test/resources/S2.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/ExAC.r1.sites.vep.vcf.gz)">testVCF(./src/test/resources/ExAC.r1.sites.vep.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz)">testVCF(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz)">testVCF(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/S4.vcf.gz)">testVCF(./src/test/resources/S4.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/S5.vcf.gz)">testVCF(./src/test/resources/S5.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/toy.vcf.gz)">testVCF(./src/test/resources/toy.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/S1.vcf.gz)">testVCF(./src/test/resources/S1.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/rotavirus_rf.vcf.gz)">testVCF(./src/test/resources/rotavirus_rf.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="passed.png" width="3%"/>
+                        <a href="#" panel-name="suite-SuiteAll" title="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest" class="method navigator-link" hash-for-method="testVCF(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz)">testVCF(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz)</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                    </div> <!-- method-list-content passed suite-SuiteAll -->
+                  </li>
+                </ul>
+              </div> <!-- suite-section-content -->
+            </div> <!-- result-section -->
+          </div> <!-- navigator-suite-content -->
+        </div> <!-- rounded-window -->
+      </div> <!-- suite -->
+    </div> <!-- navigator-root -->
+    <div class="wrapper">
+      <div class="main-panel-root">
+        <div panel-name="suite-SuiteAll" class="panel SuiteAll">
+          <div class="suite-SuiteAll-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/rotavirus_rf.freebayes.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/rotavirus_rf.freebayes.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/rotavirus_rf.freebayes.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/test_vcf01.vcf)">
+                  </a> <!-- testVCF(./src/test/resources/test_vcf01.vcf) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/test_vcf01.vcf)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/S3.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/S3.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/S3.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/rotavirus_rf.ann.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/rotavirus_rf.ann.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/rotavirus_rf.ann.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/S2.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/S2.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/S2.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/ExAC.r1.sites.vep.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/ExAC.r1.sites.vep.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/ExAC.r1.sites.vep.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/S4.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/S4.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/S4.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/S5.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/S5.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/S5.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/toy.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/toy.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/toy.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/S1.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/S1.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/S1.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/rotavirus_rf.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/rotavirus_rf.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/rotavirus_rf.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="testVCF(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz)">
+                  </a> <!-- testVCF(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz) -->
+                  <span class="method-name">testVCF</span>
+                  <span class="parameters">(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz)</span>
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-SuiteAll-class-passed -->
+        </div> <!-- panel SuiteAll -->
+        <div panel-name="test-xml-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">/groups/umcg-gastrocol/tmp04/Inflamed_eQTL/Process/GEMMA_interaction2_model/eQTL_UC/MAF_subgroup/Non_inflamed/jvarkit/tmp/testng.xml</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <pre>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE suite SYSTEM &quot;http://testng.org/testng-1.0.dtd&quot;&gt;
+&lt;suite name=&quot;SuiteAll&quot; guice-stage=&quot;DEVELOPMENT&quot;&gt;
+  &lt;test thread-count=&quot;5&quot; name=&quot;bioalcidae&quot;&gt;
+    &lt;classes&gt;
+      &lt;class name=&quot;com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest&quot;/&gt;
+    &lt;/classes&gt;
+  &lt;/test&gt; &lt;!-- bioalcidae --&gt;
+&lt;/suite&gt; &lt;!-- SuiteAll --&gt;
+            </pre>
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="testlist-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Tests for SuiteAll</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <ul>
+              <li>
+                <span class="test-name">bioalcidae (1 class)</span>
+              </li>
+            </ul>
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="group-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Groups for SuiteAll</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="times-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Times for SuiteAll</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <div class="times-div">
+              <script type="text/javascript">
+suiteTableInitFunctions.push('tableData_SuiteAll');
+function tableData_SuiteAll() {
+var data = new google.visualization.DataTable();
+data.addColumn('number', 'Number');
+data.addColumn('string', 'Method');
+data.addColumn('string', 'Class');
+data.addColumn('number', 'Time (ms)');
+data.addRows(14);
+data.setCell(0, 0, 0)
+data.setCell(0, 1, 'testVCF')
+data.setCell(0, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(0, 3, 1652);
+data.setCell(1, 0, 1)
+data.setCell(1, 1, 'testVCF')
+data.setCell(1, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(1, 3, 66);
+data.setCell(2, 0, 2)
+data.setCell(2, 1, 'testVCF')
+data.setCell(2, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(2, 3, 56);
+data.setCell(3, 0, 3)
+data.setCell(3, 1, 'testVCF')
+data.setCell(3, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(3, 3, 52);
+data.setCell(4, 0, 4)
+data.setCell(4, 1, 'testVCF')
+data.setCell(4, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(4, 3, 50);
+data.setCell(5, 0, 5)
+data.setCell(5, 1, 'testVCF')
+data.setCell(5, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(5, 3, 46);
+data.setCell(6, 0, 6)
+data.setCell(6, 1, 'testVCF')
+data.setCell(6, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(6, 3, 39);
+data.setCell(7, 0, 7)
+data.setCell(7, 1, 'testVCF')
+data.setCell(7, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(7, 3, 39);
+data.setCell(8, 0, 8)
+data.setCell(8, 1, 'testVCF')
+data.setCell(8, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(8, 3, 36);
+data.setCell(9, 0, 9)
+data.setCell(9, 1, 'testVCF')
+data.setCell(9, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(9, 3, 33);
+data.setCell(10, 0, 10)
+data.setCell(10, 1, 'testVCF')
+data.setCell(10, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(10, 3, 28);
+data.setCell(11, 0, 11)
+data.setCell(11, 1, 'testVCF')
+data.setCell(11, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(11, 3, 27);
+data.setCell(12, 0, 12)
+data.setCell(12, 1, 'testVCF')
+data.setCell(12, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(12, 3, 26);
+data.setCell(13, 0, 13)
+data.setCell(13, 1, 'testVCF')
+data.setCell(13, 2, 'com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest')
+data.setCell(13, 3, 25);
+window.suiteTableData['SuiteAll']= { tableData: data, tableDiv: 'times-div-SuiteAll'}
+return data;
+}
+              </script>
+              <span class="suite-total-time">Total running time: 2 seconds</span>
+              <div id="times-div-SuiteAll">
+              </div> <!-- times-div-SuiteAll -->
+            </div> <!-- times-div -->
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="reporter-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Reporter output for SuiteAll</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="ignored-methods-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">0 ignored methods</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+        <div panel-name="chronological-SuiteAll" class="panel">
+          <div class="main-panel-header rounded-window-top">
+            <span class="header-content">Methods in chronological order</span>
+          </div> <!-- main-panel-header rounded-window-top -->
+          <div class="main-panel-content rounded-window-bottom">
+            <div class="chronological-class">
+              <div class="chronological-class-name">com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest</div> <!-- chronological-class-name -->
+              <div class="configuration-class before">
+                <span class="method-name">startup</span>
+                <span class="method-start">0 ms</span>
+              </div> <!-- configuration-class before -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/ExAC.r1.sites.vep.vcf.gz)</span>
+                <span class="method-start">28 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/rotavirus_rf.vcf.gz)</span>
+                <span class="method-start">1681 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/rotavirus_rf.ann.vcf.gz)</span>
+                <span class="method-start">1731 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/S3.vcf.gz)</span>
+                <span class="method-start">1787 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz)</span>
+                <span class="method-start">1823 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/test_vcf01.vcf)</span>
+                <span class="method-start">1875 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz)</span>
+                <span class="method-start">1921 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/S2.vcf.gz)</span>
+                <span class="method-start">1960 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/S4.vcf.gz)</span>
+                <span class="method-start">1994 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/S1.vcf.gz)</span>
+                <span class="method-start">2022 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/S5.vcf.gz)</span>
+                <span class="method-start">2048 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz)</span>
+                <span class="method-start">2075 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/toy.vcf.gz)</span>
+                <span class="method-start">2114 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">testVCF(./src/test/resources/rotavirus_rf.freebayes.vcf.gz)</span>
+                <span class="method-start">2139 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-class after">
+                <span class="method-name">removeTmpFiles</span>
+                <span class="method-start">2206 ms</span>
+              </div> <!-- configuration-class after -->
+          </div> <!-- main-panel-content rounded-window-bottom -->
+        </div> <!-- panel -->
+      </div> <!-- main-panel-root -->
+    </div> <!-- wrapper -->
+  </body>
+</html>

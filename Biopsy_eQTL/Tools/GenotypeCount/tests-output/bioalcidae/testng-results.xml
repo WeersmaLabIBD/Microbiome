@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="14" passed="14" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2019-03-31T11:45:27Z" name="SuiteAll" finished-at="2019-03-31T11:45:29Z" duration-ms="2214">
+    <groups>
+    </groups>
+    <test started-at="2019-03-31T11:45:27Z" name="bioalcidae" finished-at="2019-03-31T11:45:29Z" duration-ms="2214">
+      <class name="com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest">
+        <test-method is-config="true" signature="startup()[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:27Z" name="startup" finished-at="2019-03-31T11:45:27Z" duration-ms="11" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- startup -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:27Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="1652" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/ExAC.r1.sites.vep.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="50" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/rotavirus_rf.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="56" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/rotavirus_rf.ann.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="36" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/S3.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="52" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/gnomad.genomes.r2.0.1.sites.1.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="46" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/test_vcf01.vcf]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:28Z" duration-ms="39" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/rotavirus_rf.unifiedgenotyper.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:28Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="33" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/S2.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="28" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/S4.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="26" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/S1.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="27" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/S5.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="39" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/gnomad.exomes.r2.0.1.sites.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="25" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/toy.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method signature="testVCF(java.lang.String)[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="testVCF" data-provider="all-vcf-files" finished-at="2019-03-31T11:45:29Z" duration-ms="66" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[./src/test/resources/rotavirus_rf.freebayes.vcf.gz]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testVCF -->
+        <test-method is-config="true" signature="removeTmpFiles()[pri:0, instance:com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest@7c0c77c7]" started-at="2019-03-31T11:45:29Z" name="removeTmpFiles" finished-at="2019-03-31T11:45:29Z" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- removeTmpFiles -->
+      </class> <!-- com.github.lindenb.jvarkit.tools.bioalcidae.BioAlcidaeTest -->
+    </test> <!-- bioalcidae -->
+  </suite> <!-- SuiteAll -->
+</testng-results>
