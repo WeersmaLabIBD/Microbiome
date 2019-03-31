@@ -36,5 +36,5 @@ Genotype Count
 ## Usage
 
 ```
-cat test.vcf | java -jar src/jvarkit/dist/bioalcidae.jar -F VCF -e 'while(iter.hasNext()) {var ctx = iter.next();m={};for(var i=0;i< ctx.getNSamples();++i) {var g=ctx.getGenotype(i);var t=g.getType().name();if(t in m) {m[t]++;} else {m[t]=1;};} out.println(ctx.getContig()+" "+ctx.getStart()+" "+JSON.stringify(m)); }'
+cat test.vcf | java -jar ~/jvarkit/dist/bioalcidae.jar -F VCF -e 'while(iter.hasNext()) {var ctx = iter.next();m={};for(var i=0;i< ctx.getNSamples();++i) {var g=ctx.getGenotype(i);var t=g.getType().name();if(t in m) {m[t]++;} else {m[t]=1;};} out.println(ctx.getContig()+" "+ctx.getStart()+" "+JSON.stringify(m)); }'
 ```
