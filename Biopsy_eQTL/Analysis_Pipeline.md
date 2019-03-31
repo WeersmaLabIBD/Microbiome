@@ -167,7 +167,7 @@ rm tmp.txt
 ```
 In folder CD_Matched_table
 
-Rscript Penotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
+Rscript Phenotype.Prepare.R ../CD_Normalized/CD_normalized.txt ../CD_plink/CD.plink.fam
 
 ---> output: Pheno.txt Reordered.phenotype.txt
 vim Reordered.phenotype.txt and add "-"
