@@ -33,8 +33,7 @@ http://plindenbaum.blogspot.com
 Genotype Count
 =======
 
-Usage
-===
+## Usage
 
 ```
 cat test.vcf | 'while(iter.hasNext()) {var ctx = iter.next();m={};for(var i=0;i< ctx.getNSamples();++i) {var g=ctx.getGenotype(i);var t=g.getType().name();if(t in m) {m[t]++;} else {m[t]=1;};} out.println(ctx.getContig()+" "+ctx.getStart()+" "+JSON.stringify(m)); }'
