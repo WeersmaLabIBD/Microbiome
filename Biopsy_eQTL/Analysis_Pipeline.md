@@ -152,7 +152,9 @@ java -XX:ParallelGCThreads=5 -Xmx150G -jar eqtl-mapping-pipeline-1.4.1-SNAPSHOT/
  - coupling file (connect biopsy ID to WES ID, 185 IDs)
 
 ```
+
 In folder CD_Normalized:
+# this step is optional, just remove some undetected probes, will not change much on the cauculation speed
 
 awk '{print $2}' ../All_pairs.txt | sort | uniq > Probe.txt
 
