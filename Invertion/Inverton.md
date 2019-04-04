@@ -37,7 +37,7 @@ python /groups/umcg-weersma/tmp03/Inverton/software/PhaseFinder.py locate -f $ou
 
 python /groups/umcg-weersma/tmp03/Inverton/software/PhaseFinder.py create -f $out/test.fa -t $out/test.einverted.tab -s 1000 -i $out/test.ID.fasta
 
-python /groups/umcg-weersma/tmp03/Inverton/software/PhaseFinder.py ratio -i $out/test.fa -1 $out/$i/$i.1.fastq.gz -2 $out/$i/$i.2.fastq.gz -p 16 -o $out/output/$i/
+python /groups/umcg-weersma/tmp03/Inverton/software/PhaseFinder.py ratio -i $out/test.ID.fa -1 $out/$i/$i.1.fastq.gz -2 $out/$i/$i.2.fastq.gz -p 16 -o $out/output/$i/
 
 ```
 
