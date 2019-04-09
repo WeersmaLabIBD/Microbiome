@@ -22,10 +22,9 @@ print_qiime_config.py
 ```
 *1.2 SILVA installation*
 ```
-#download SILVA v.119 database
 wget https://www.arb-silva.de/fileadmin/silva_databases/qiime/Silva_119_release.zip
 unzip Silva_119_release.zip
-#create custom config file
+
 echo "\
 pick_otus_reference_seqs_fp $PWD/Silva119_release/rep_set/97/Silva_119_rep_set97.fna
 pynast_template_alignment_fp $PWD/Silva119_release/core_alignment/core_Silva119_alignment.fna
@@ -60,7 +59,7 @@ cat otu_table.tsv|tail -n+2 |perl -pe "s/#OTU ID/OTU_ID/" > temp.tsv
 mv temp.tsv otu_table.tsv
 ```
 
-## 3. Getting taxonomies from OTU table
+## 3. taxonomies from OTU table
 
 ```
 ml R
