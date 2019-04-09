@@ -7,7 +7,7 @@ date: "April 09, 2019"
 
 # Overall description
 
-This is the pipeline for analysis of 16s based on qiime and silva database.
+This is the pipeline for analysis of 16s based on qiime and silva database OTU-picking.
 
 ## 1. software install
 *1.1 qiime installation*
