@@ -30,6 +30,12 @@ pynast_template_alignment_fp $PWD/Silva119_release/core_alignment/core_Silva119_
 assign_taxonomy_reference_seqs_fp $PWD/Silva119_release/rep_set/97/Silva_119_rep_set97.fna
 assign_taxonomy_id_to_taxonomy_fp $PWD/Silva119_release/taxonomy/97/taxonomy_97_7_levels.txt" > qiime_config
 ```
+*1.3 ea-utils installation*
+```
+download from https://expressionanalysis.github.io/ea-utils/
+make && make install
+export PATH=$PATH:ABSOLUTE PATH TO fastq-join
+```
 ## 2. join fastq files and remove barcodes
 
 ```
@@ -37,7 +43,7 @@ ml numpy
 
 sed 's/2:N:0/1:N:0/g' Barcode.fastq > Barcode.fixed.fq
 
-join_paired_ends.py -f $PWD/forward_reads.fastq -r $PWD/reverse_reads.fastq -b $PWD/barcodes.fastq -o $PWD/fastq-join_joined
+join_paired_ends.py -f forward_reads.fastq -r reverse_reads.fastq -b Barcode.fixed.fq -o fastq-join_joined
 (output files will be used in split_library.py, make sure barcode.fq and reads.fq have the same order)
 
 split_libraries_fastq.py -i fastqjoin.join.fastq -b fastqjoin.join_barcodes.fastq -o slout_q20/ -m map.txt --store_qual_scores -q 19 
