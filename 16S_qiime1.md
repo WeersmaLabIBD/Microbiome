@@ -3,7 +3,6 @@ title: "MiBioGen 16s pipeline"
 author: "Alexander Kurilshikov"
 update: "Shixian"
 date: "April 09, 2019"
-output: html_document
 ---
 
 # Overall description
