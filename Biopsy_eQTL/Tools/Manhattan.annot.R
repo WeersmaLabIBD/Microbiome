@@ -1,3 +1,6 @@
+# ============================
+# this script is to draw manhattan plot, highlighting the annotation dots
+
 options = commandArgs(trailingOnly = TRUE)
 library(lattice)
 
