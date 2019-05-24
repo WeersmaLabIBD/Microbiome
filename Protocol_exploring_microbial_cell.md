@@ -391,9 +391,7 @@ fish.pheno = foreach( i = pheno_names, .combine = rbind)%do%{
   
 }
 fish.pheno
-```
 
-##CHECK row names in the same order
 bugs_1000IBD=bugs_1000IBD[match(rownames(phenos_1000IBD), rownames(bugs_1000IBD)), ]
 bugs_fish=bugs_fish[match(rownames(phenos_fish), rownames(bugs_fish)), ]
 bugs_LLD=bugs_LLD[match(rownames(phenos_LLD), rownames(bugs_LLD)), ]
@@ -526,7 +524,8 @@ pvalues_df$Row.names=NULL
 
 ```
 
-
+Create figures
+====
 
 ```{r, eval=F}
 pvalues_df$color="black"
@@ -585,9 +584,11 @@ pvalues_df[-log10(pvalues_df$ResectionIleal_1000IBD_pred) > -log10( 0.05/131) & 
 p5=ggplot(pvalues_df, aes(-log10(ResectionIleal_1000IBD), -log10(ResectionIleal_1000IBD_pred), label=rownames(pvalues_df))) + geom_point(colour=pvalues_df$color) + theme_bw() + geom_hline(yintercept=-log10( 0.05/131), linetype="dashed", color = "red") + geom_vline(xintercept=-log10( 0.05/131), linetype="dashed", color = "red") + geom_text(aes(label=ifelse(-log10(ResectionIleal_1000IBD)>-log10( 0.05/131) | -log10(ResectionIleal_1000IBD_pred)>-log10( 0.05/131),as.character(rownames(pvalues_df)),'')),hjust=0,vjust=0) + xlim(0,20) + ylim(0,20) + geom_abline(intercept = 0, slope = 1, linetype="dashed")
 
 (p1/p1_2/p2/p3)|(p4/p4_2/p5/plot_spacer())
+```
 
-#Test p-value consistency before and after correcting for microbial loads per sample
-
+Test p-value consistency before and after correcting for microbial loads per sample
+====
+```
 diff_table=pvalues_df
 diff_table[diff_table<0.05]=1
 diff_table[diff_table!=1]=0
@@ -599,3 +600,4 @@ mcnemar.test(diff_table$Sex_RU_real,diff_table$Sex_RU)
 mcnemar.test(diff_table$ResectionIleal_RU_real,diff_table$ResectionIleal_RU)
 mcnemar.test(diff_table$NumberResections_1000IBD,diff_table$NumberResections_1000IBD_pred)
 mcnemar.test(diff_table$NumberResections_RU_real,diff_table$NumberResections_RU)
+```
