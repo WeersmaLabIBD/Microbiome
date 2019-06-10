@@ -1,6 +1,6 @@
-## Inverton identification from contigs 
+# Inverton identification from contigs 
 
-# Software installation
+## Software installation
 ```
 Installing EMBOSS cost me 6 hours!!! Note, when try to configure software, make sure there is no space in the name of software
 
@@ -14,7 +14,7 @@ make
 make install
 ```
 
-# Setting environment
+## Setting environment
 In boxy/calculon
 ```
 ml Biopython
@@ -37,7 +37,7 @@ Python/2.7.12-foss-2016a
 PATH=$PATH:/home/p282673/Inverton/software/bin/
 PATH=$PATH:/home/p282673/Inverton/software/EMBOSS/EMBOSS-6.6.0/emboss/
 ```
-# Core commands
+## Core commands
 ```
 out="/groups/umcg-weersma/tmp03/Inverton/test/"
 
