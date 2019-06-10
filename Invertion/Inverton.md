@@ -1,5 +1,6 @@
-# Inverton identification from contigs 
+## Inverton identification from contigs 
 
+# Software installation
 ```
 Installing EMBOSS cost me 6 hours!!! Note, when try to configure software, make sure there is no space in the name of software
 
@@ -13,15 +14,9 @@ make
 make install
 ```
 
+# Setting environment
+In boxy/calculon
 ```
-#!/bin/bash
-#SBATCH --job-name=Inverton
-#SBATCH --error=Inverton.err
-#SBATCH --output=Inverton.out
-#SBATCH --mem=30gb
-#SBATCH --time=66:00:00
-#SBATCH --cpus-per-task=6
-
 ml Biopython
 ml numpy/1.11.0-foss-2015b-Python-2.7.11
 PATH=$PATH:~/bowtie-1.2.2-linux-x86_64/
@@ -29,7 +24,21 @@ ml BEDTools
 PATH=$PATH:~/bin/
 PATH=$PATH:/home/umcg-hushixian/EMBOSS-6.6.0/emboss/ 
 ml SAMtools
+```
+In peregrine
+```
+ml Python/2.7.11-foss-2016a
+ml Biopython/1.65-foss-2016a-Python-2.7.11
+ml BEDTools
+ml SAMtools
+ml Bowtie
+Python/2.7.12-foss-2016a
 
+PATH=$PATH:/home/p282673/Inverton/software/bin/
+PATH=$PATH:/home/p282673/Inverton/software/EMBOSS/EMBOSS-6.6.0/emboss/
+```
+# Core commands
+```
 out="/groups/umcg-weersma/tmp03/Inverton/test/"
 
 for sample in /groups/umcg-gastrocol/prm03/rawdata/IBD_MGS/*.bam
