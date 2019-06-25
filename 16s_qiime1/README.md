@@ -16,7 +16,9 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 chmod a+x Miniconda3-latest-Linux-x86_64.sh
 bash ./Miniconda3-latest-Linux-x86_64.sh
 conda create -n qiime1 python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda
+
 source activate qiime1
+ml numpy
 print_qiime_config.py
 ```
 *1.2 SILVA installation*
