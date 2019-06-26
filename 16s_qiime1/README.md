@@ -65,8 +65,15 @@ biom convert -i otu_table.biom -o otu_table.tsv --to-tsv --header-key taxonomy
 cat otu_table.tsv|tail -n+2 |perl -pe "s/#OTU ID/OTU_ID/" > temp.tsv
 mv temp.tsv otu_table.tsv
 ```
+## 4. Rarefaction
+```
+Rscript step0.2_run_rarefaction.R SEQUENCES.FASTA 40000
+source activate qiime1
+filter_fasta.py -f SEQUENCES.FASTA -o SEQ_RARIFIED.FASTA -s 2filter.ids
+rm 2filter.ids
+```
 
-## 3. taxonomies from OTU table
+## 5. taxonomies from OTU table
 
 ```
 ml R
