@@ -6,7 +6,7 @@ get_taxonomy_table = function(otu_table, replace_string,cutoff = 0.1){
   taxonomy = sub(replace_string,"",otu_table[,ncol(otu_table)])
   dnew = aggregate(otu_notax ~ as.factor(taxonomy),FUN = sum)
   rownames(dnew) = as.character(dnew[,1])
-  dnew = dnew[,-1]
+  dnew = dnew[,-1,drop=F]
   dnew = t(dnew)
   dnew
   filter = dnew[,(colSums(dnew > 0) > 0.1*nrow(dnew))]
