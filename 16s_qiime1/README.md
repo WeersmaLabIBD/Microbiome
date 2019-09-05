@@ -18,6 +18,7 @@ bash ./Miniconda3-latest-Linux-x86_64.sh
 conda create -n qiime1 python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda
 
 source activate qiime1
+Or source activate /home/umcg-hushixian/miniconda2/envs/qiime1
 ml numpy
 print_qiime_config.py
 ```
