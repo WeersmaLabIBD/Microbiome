@@ -81,3 +81,69 @@ ml R
 
 Rscript Taxa.R
 ```
+
+## 6. Assign to KO and metaboic pathways (use Tax4Fun for SILVA based, PICRUST for GreenGene based)
+*6.1 software installation*
+
+```
+# download Tax4FUn and SILVA annotation database. NOTE, here use SILVA 123 as an example
+wget http://tax4fun.gobics.de/Tax4Fun/ReferenceData/SILVA123.zip
+wget http://tax4fun.gobics.de/SilvaSSURef_123_NR.zip
+wget http://tax4fun.gobics.de/Tax4Fun/Tax4Fun_0.3.1.tar.gz
+
+unzip SilvaSSURef_123_NR.zip
+unzip SILVA123.zip
+
+ml R
+R
+
+install.packages("qiimer")
+install.packages("Matrix")
+install.packages("biom")
+install.packages("Tax4Fun_0.3.1.tar.gz", repos = NULL, type = "source")
+
+```
+
+*6.2 check OTU table*
+
+Tax4Fun has a really strict requirement of the input format, so please double-check.
+
+Otherwise thousands of errors will happen. 
+
+For example: "length of 'dimnames' [1] not equal to array extent" 
+
+```
+# Standard format of otu_table.txt, take care with taxnomy column, NO "k__, p__ ", etc !!!
+
+# Constructed from biom file                            
+#OTU ID r3.7    r7.67   r10.21  taxonomy
+denovo0 1.0     0.0     0.0     Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; ; 
+denovo1 0.0     1.0     0.0     Bacteria; Firmicutes; Clostridia; Clostridiales; Clostridiaceae; ; 
+denovo2 0.0     0.0     1.0     Bacteria; Firmicutes; Bacilli; Lactobacillales; Streptococcaceae; Streptococcus
+denovo3 0.0     0.0     0.0     Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; Lachnospira;
+```
+
+*6.3 get KO terms (relative abundance)*
+
+```
+R
+
+library(Tax4Fun)
+
+QIIMESingleData <- importQIIMEData("otu_table.txt")
+Tax4FunOutput <- Tax4Fun(QIIMESingleData, "SILVA123", fctProfiling = TRUE, refProfile = "UProC", shortReadMode = TRUE, normCopyNo = TRUE)
+KO_table = t(Tax4FunOutput$Tax4FunProfile)
+
+write.table("ID\t", file="KO_table.txt",append = FALSE, quote = FALSE, sep="\t",eol = "", na = "NA", dec = ".", row.names = F,col.names = F)
+write.table(KO_table, file="KO_table.txt",append = T, quote = FALSE, sep="\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,col.names = TRUE)
+```
+
+*6.4 get only metabolic terms (relative abundance)*
+
+```
+Tax4FunOutput <- Tax4Fun(QIIMESingleData, "SILVA123", fctProfiling = FALSE, refProfile = "UProC", shortReadMode = TRUE, normCopyNo = TRUE)
+KO_table = t(Tax4FunOutput$Tax4FunProfile)
+
+write.table("ID\t", file="KO_table_fct.txt",append = FALSE, quote = FALSE, sep="\t",eol = "", na = "NA", dec = ".", row.names = F,col.names = F)
+write.table(KO_table, file="KO_table_fct.txt",append = T, quote = FALSE, sep="\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,col.names = TRUE)
+```
