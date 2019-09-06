@@ -82,7 +82,8 @@ ml R
 Rscript Taxa.R
 ```
 
-## 6. Assign to KO and metaboic pathways (use Tax4Fun for SILVA based, PICRUST for GreenGene based)
+## 6. Assign to KO and metaboic pathways 
+##    (use Tax4Fun for SILVA based, PICRUST for GreenGene based)
 *6.1 software installation*
 
 ```
