@@ -200,26 +200,20 @@ for(i in 1:length(file.names)){
 7.Run linear models
 ----------------
 
-**Loop testing 3 things: 
+**Loop testing 2 things: 
 1) Associations per drug with Age, Sex, BMI, Read Depth as co-variates
-2) Associations per drug with Age, Sex, BMI, Read Depth as co-variates and the interaction between drug and sex
-3) Associations considering all drugs together Age, Sex, BMI, Read Depth as co-variates**
+2) Associations considering all drugs together Age, Sex, BMI, Read Depth as co-variates**
 
 **Example for IBD associations**
 ```{R}
-library(gamlss)
-library(outliers)
-
-
-
 # Read files
-#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
+IBD=read.table("MIBS_filtered_taxonomy.txt", sep="\t", header = T, row.names = 1)
 #IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/MIBS_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
 #IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_taxonomy_pheno.txt", sep="\t", header = T, row.names = 1)
 # Pathways
 #IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/IBD_filtered_path_pheno.txt", sep="\t", header = T, row.names = 1)
 #IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/MIBS_filtered_path_pheno.txt", sep="\t", header = T, row.names = 1)
-IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_path_pheno.txt", sep="\t", header = T, row.names = 1)
+#IBD=read.table("~/Desktop/PPI_v2/00.With_new_data/6.Input_files/LLD_filtered_path_pheno.txt", sep="\t", header = T, row.names = 1)
 
 #Start flags and duplicate datasets with different names
 myOutliers=TRUE
@@ -228,13 +222,13 @@ IBD2=IBD
 IBD3=IBD2
 #Create an empty matrix, number of rows = number of bacteria to test, NUMBER 48 indicates the first column containing taxa information. 
 #Number of columns will depend on the number of test and the information that you want to keep in the output files
-results_IBD=matrix(,ncol = 16, nrow = length(colnames(IBD2)[48:ncol(IBD2)]))
+results_IBD=matrix(,ncol = 16, nrow = length(colnames(IBD2)[49:ncol(IBD2)]))
 # x= will indicate the number of row to write the results in each iteration
 x=0
 #d=4 <- Not used anymore
 #Change 48 for the first column containing taxa
 #Loop detecting outliers
-for (i in 48:ncol(IBD2)){
+for (i in 49:ncol(IBD2)){
   x=x+1
   #Get initial statistics of number of participants and non-0 values per taxa
   results_IBD[x,1]=length(IBD2[,i])
@@ -258,111 +252,93 @@ for (i in 48:ncol(IBD2)){
 }
 #Change 5:47 for the phenotypes to test (here 41 meds)
 #Loop per medication
-for (a in 5:47){
+for (a in 5:48){
   #Report the number of users and non-users
   results_IBD[,3]=sum(IBD2[,a]=="User")
   results_IBD[,4]=sum(IBD2[,a]!="User")
+  results_IBD[,5]=0
+  results_IBD[,6]=0
+  results_IBD[,7]=0
+  results_IBD[,8]=0
+  results_IBD[,9]=0
+  results_IBD[,10]=0
+  results_IBD[,11]=0
+  results_IBD[,12]=0
+  results_IBD[,13]=0
+  results_IBD[,14]=0
+  results_IBD[,15]=0
+  # Keep info about of the drug name
   drug=colnames(IBD2[a])
+  results_IBD[,16]=drug
   #results_IBD[,12]=drug
   z=0
   # Calculate frequency table of medication use per sex. 
-  temp=IBD2[,c(4,a)] 
-  test=table (temp)
-  # If there's not medication users, skip analyses. 
-  if ( ncol(test)<2){
-    results_IBD[,5]="No users"
-    results_IBD[,6]="No users"
-    results_IBD[,7]="No users"
-    results_IBD[,8]="No users"
-    results_IBD[,9]="No users"
-    results_IBD[,10]="No users"
-    results_IBD[,11]="No users"
-  } else if (sum (test[,2])==0 ){
-    results_IBD[,5]="No users"
-    results_IBD[,6]="No users"
-    results_IBD[,7]="No users"
-    results_IBD[,8]="No users"
-    results_IBD[,9]="No users"
-    results_IBD[,10]="No users"
-    results_IBD[,11]="No users"
-  }else {
+    # If there's not medication users, skip analyses. 
+  if (colnames(IBD2[a]) !="cohort"){
+   if (sum(IBD2[,a]=="User")>=4 ){
   #Loop per taxa / feature
   #d=d+1 <- Not used anymore
-  for (b in 48:ncol(IBD2)){
+    for (b in 49:ncol(IBD2)){
     z=z+1
     #Create a subset including Taxa, age, bmi, read-depth, sex, 1 medication
-    temp=IBD2[,c(b,1:4,a)] 
+    temp=IBD2[,c(b,1:4,a,18)] 
     # Use complete cases -> remove participant containing NAs
     df2<-temp[complete.cases(temp),]
     # Create frequency table medication ~ sex
-    test=table(df2[,6],df2$Sex )
+    #test=table(df2[,6],df2$Sex )
     # If there's no users, skip analysis, print NA
-    if (sum (test[2,])==0){
-      results_IBD[z,5]="NA"
-      results_IBD[z,6]="NA"
-      results_IBD[z,7]="NA"
-      results_IBD[z,8]="NA"
-      results_IBD[z,9]="NA"
-      results_IBD[z,10]="NA"
-      results_IBD[z,11]="NA"
-      } else {
+    if (sum(subset(df2,df2[,6]=="User")[,1]!=0)>2){
     # Perform an strict test, testing 1 taking into account age, bmi, read-depth, sex and all medication    
     ##CHECK HERE AS WELL: If variable less than 2 non-zero values will give an error      
-    #IBD/LLD
-        v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+    #LLD
+        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+    #IBD
+        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+ferrum+folic_acid+insulin+IUD_that_includes_hormones+K_saving_diuretic+laxatives+melatonine+mesalazines+metformin+methylphenidate+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+Ranitidine+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
     #MIBS
-        #v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+laxatives+mesalazines+metformin+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
+        v=lm(IBD2[,b]~Age+BMI+PFReads+Sex+ACE_inhibitor+alpha_blockers+angII_receptor_antagonist+anti_androgen_oral_contraceptive+anti_epileptics+anti_histamine+antibiotics_merged+benzodiazepine_derivatives_related+beta_blockers+beta_sympathomimetic_inhaler+bisphosphonates+ca_channel_blocker+calcium+cohort+laxatives+mesalazines+metformin+NSAID+opiat+oral_anti_diabetics+oral_contraceptive+oral_steroid+other_antidepressant+paracetamol+platelet_aggregation_inhibitor+PPI+SSRI_antidepressant+statin+steroid_inhaler+steroid_nose_spray+thiazide_diuretic+thyrax+tricyclic_antidepressant+triptans+vitamin_D+vitamin_K_antagonist, data = IBD2)
         vv=summary(v)
         bla=as.data.frame(vv$coefficients)
         selection_drug=try(bla[grep(drug, rownames(bla)), ])
         #Check numnber of users >1
-        if (nrow(selection_drug)==0){
-          results_IBD[z,13]="Only one user"
-          results_IBD[z,14]="Only one user"
-          results_IBD[z,15]="Only one user"
-        # Extract pvalues, coefficients and SE 
-        } else {
-          results_IBD[z,13]=selection_drug[nrow(selection_drug),4]
-          results_IBD[z,14]=selection_drug[nrow(selection_drug),1]
-          results_IBD[z,15]=selection_drug[nrow(selection_drug),2]
-        }
-        # Keep info about of the drug name
-        results_IBD[,16]=drug
+        results_IBD[z,13]=selection_drug[nrow(selection_drug),4]
+        results_IBD[z,14]=selection_drug[nrow(selection_drug),1]
+        results_IBD[z,15]=selection_drug[nrow(selection_drug),2]
+
         # Perform an less strict test, taxa ~ 1 Medication, Age, BMI, sequenced reads, sex
-        y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex, data = df2)
+        y=lm(df2[,1]~df2[,6]+Age+BMI+PFReads+Sex+cohort, data = df2)
         yy=summary(y)
         # Extract pvalues, coefficients and SE
         results_IBD[z,5]=yy$coefficients[2,1]
         results_IBD[z,6]=yy$coefficients[2,2]
         results_IBD[z,7]=yy$coefficients[2,4]
-        
-        #Perform sex~medication interaction analyses if there's enougth users from both biological sexs
-        if( sum (test[2,1]) == 0 | sum (test[2,2])==0){
-          results_IBD[z,9]="No sex-user"
-          results_IBD[z,10]="No sex-user"
-          results_IBD[z,11]="No sex-user"
-          results_IBD[z,12]="No sex-user"
-        } else{
-          w=lm(df2[,1]~df2[,6]*Sex+Age+BMI+PFReads, data = df2)
-          ww=summary(w)
-          results_IBD[z,9]=ww$coefficients[2,4]
-          results_IBD[z,10]=ww$coefficients[2,1]
-          results_IBD[z,11]=ww$coefficients[2,2]
-          results_IBD[z,12]=ww$coefficients[7,4]
-        }
+      } 
+      else {
+        results_IBD[z,5]=NA
+        results_IBD[z,6]=NA
+        results_IBD[z,7]=NA
+        results_IBD[z,8]=NA
+        results_IBD[z,9]=NA
+        results_IBD[z,10]=NA
+        results_IBD[z,11]=NA
+        results_IBD[z,12]=NA
+        results_IBD[z,13]=NA
+        results_IBD[z,14]=NA
+        results_IBD[z,15]=NA
       }
     }
-  }
+   }
+ }
   # Adjust the less strict test using fdr method and p.adjust function
   results_IBD[,8]=p.adjust( results_IBD[,7], method = "fdr")
   #define column names
   colnames(results_IBD)=c("N","non-zeros", "Users", "Non-users", "Coef", "StdError","pvalue", "qvalue","pval_drug_interact","coeff_drug_interact","SE.drug_interact", "pval_drug_sex_test", "pval_correcting_all", "coeff_correcting_all", "SE.correcting_all", "drug")
   #define rownames 
-  rownames(results_IBD)=colnames(IBD2)[48:ncol(IBD2)]
+  rownames(results_IBD)=colnames(IBD2)[49:ncol(IBD2)]
   ## CHANGE PREFIX OF THE RESULT FILE 
   #assign(paste('MIBS',drug , sep = '_'), results_IBD)
-  write.table(results_IBD, file=paste('LLD',drug , sep = '_'), sep="\t", quote=F)
+  write.table(results_IBD, file=paste('MIBS',drug , sep = '_'), sep="\t", quote=F)
 }
+
 
 ```
 
@@ -370,10 +346,11 @@ for (a in 5:47){
 --------------------------------------------
 
 ```{R}
-library (meta)
-setwd("./")
-#drug_list=c("ACE_inhibitor","NSAID","PPI","SSRI_antidepressant","angII_receptor_antagonist","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","metformin","statin")
-drug_list=c("ACE_inhibitor","alpha_blockers","angII_receptor_antagonist","anti_androgen_oral_contraceptive","anti_epileptics","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","beta_sympathomimetic_inhaler","bisphosphonates","ca_channel_blocker","calcium","laxatives","mesalazines","metformin","NSAID","opiat","oral_anti_diabetics","oral_contraceptiveZ","oral_steroid","other_antidepressant","paracetamol","platelet_aggregation_inhibitor","PPI","SSRI_antidepressant","statin","steroid_inhaler","steroid_nose_spray","thiazide_diuretic","thyrax","tricyclic_antidepressant","triptans","vitamin_D","vitamin_K_antagonist")
+#library (meta)
+#setwd("../paths/")
+#drug_list=c("laxatives")
+drug_list=c("ACE_inhibitor","alpha_blockers","angII_receptor_antagonist","anti_androgen_oral_contraceptive","anti_epileptics","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","beta_sympathomimetic_inhaler","bisphosphonates","ca_channel_blocker","calcium","laxatives","metformin","NSAID","opiat","oral_anti_diabetics","oral_contraceptiveZ","oral_steroid","other_antidepressant","paracetamol","platelet_aggregation_inhibitor","PPI","SSRI_antidepressant","statin","steroid_inhaler","steroid_nose_spray","thiazide_diuretic","thyrax","tricyclic_antidepressant","triptans","vitamin_D","vitamin_K_antagonist")
+#drug_list=c("ACE_inhibitor","angII_receptor_antagonist","anti_epileptics","anti_histamine","antibiotics_merged","benzodiazepine_derivatives_related","beta_blockers","beta_sympathomimetic_inhaler","ca_channel_blocker","calcium","laxatives","metformin","NSAID","opiat","oral_contraceptiveZ","oral_steroid","other_antidepressant","paracetamol","platelet_aggregation_inhibitor","PPI","SSRI_antidepressant","statin","steroid_inhaler","steroid_nose_spray","thiazide_diuretic","thyrax","tricyclic_antidepressant","triptans","vitamin_D","vitamin_K_antagonist")
 path="./"
 flag=1
 #Import and merge files
@@ -394,7 +371,152 @@ for (a in drug_list){
 	#CHANGE column names to add cohort of origin. 
 	#colnames(selection)=c("Taxa","Factor.IBD","Coef.IBD","N.IBD","N0.IBD","Pval.IBD","Qval.IBD","SE.IBD","NonUsers.IBD","Users.IBD","Neff.IBD","Ref.IBD","Alt.IBD","Factor.MIBS","Coef.MIBS","N.MIBS","N0.MIBS","Pval.MIBS","Qval.MIBS","SE.MIBS","NonUsers.MIBS","Users.MIBS","Neff.MIBS","Ref.MIBS","Alt.MIBS","Factor.LLD","Coef.LLD","N.LLD","N0.LLD","Pval.LLD","Qval.LLD","SE.LLD","NonUsers.LLD","Users.LLD","Neff.LLD","Ref.LLD","Alt.LLD")  
 	colnames(selection)=c("Taxa", "N.IBD","non-zeros.IBD", "Users.IBD", "Non-users.IBD", "Coef.IBD", "SE.IBD","Pval.IBD", "Qval.IBD","pval.drug.interact.IBD", "coeff.drug.interact.IBD","SE.drug.interact.IBD" ,"pval.sex.drug.IBD", "pval.correcting.all.IBD", "coeff.correcting.all.IBD","SE.correcting_all.IBD","drug.IBD","N.MIBS","non-zeros.MIBS", "Users.MIBS", "Non-users.MIBS", "Coef.MIBS", "SE.MIBS","Pval.MIBS", "Qval.MIBS","pval.drug.interact.MIBS", "coeff.drug.interact.MIBS","SE.drug.interact.MIBS" ,"pval.sex.drug.MIBS", "pval.correcting.all.MIBS", "coeff.correcting.all.MIBS","SE.correcting_all.MIBS","drug.MIBS","N.LLD","non-zeros.LLD", "Users.LLD", "Non-users.LLD", "Coef.LLD", "SE.LLD","Pval.LLD", "Qval.LLD","pval.drug.interact.LLD", "coeff.drug.interact.LLD","SE.drug.interact.LLD" ,"pval.sex.drug.LLD", "pval.correcting.all.LLD", "coeff.correcting.all.LLD","SE.correcting_all.LLD","drug.LLD")
+	if (sum(selection$SE.correcting_all.IBD,na.rm = T)==0){
+	#Calculate Inverse variance
+	#51
+	selection$inverse_var.mibs=1/selection$SE.MIBS^2
+	#52
+	selection$inverse_var.lld=1/selection$SE.LLD^2
+#	selection$inverse_var.mibs=1/selection$SE.correcting_all.MIBS^2
+#	selection$inverse_var.lld=1/selection$SE.correcting_all.LLD^2
+
+	#Calculate SE  #53
+	selection$se=sqrt(1/(selection$inverse_var.mibs+selection$inverse_var.lld))
+
+	#Calculate Beta #54
+	selection$beta=(selection$inverse_var.mibs*selection$Coef.MIBS+selection$inverse_var.lld*selection$Coef.LLD)/(selection$inverse_var.mibs+selection$inverse_var.lld)
+#	selection$beta=(selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.mibs+selection$inverse_var.lld)
 	
+	#Calculate Z-score #55
+	selection$Z=selection$beta/selection$se
+	
+	#Calculate meta p-value #56
+	selection$P=2*pnorm(-abs(selection$Z))
+	#Remove data only avalable in one cohort
+	selection=selection[complete.cases(selection$P), ]
+
+	#Adjust pvalue with FDR #57
+	selection$FDR=p.adjust(selection$P,method = "fdr")
+	
+	#Create empty columns
+	selection$Het.Q="NS" #58
+	selection$Het.I2="NS" #59
+	selection$Het.Pval="NS" #60
+	for (i in 1:length(rownames(selection))){
+		if (selection$FDR[i]<0.1){
+			#Select coefficients
+			TE=c( selection[i,22], selection[i,38])
+#			TE=c( selection[i,31], selection[i,47])
+			#Select Standart error
+			SE=c( selection[i,23], selection[i,39])
+#			SE=c( selection[i,32], selection[i,48])
+			het=metagen(TE,SE)
+			#Change the number here depending of the number of columns in your data, should match with column Het.I2
+			selection[i,59]=het$I2
+			#Match Het.Q column number
+			selection[i,58]=het$Q 
+			#Calculate p-value from Q calculation // Het.Pval
+			selection[i,60]=pchisq(het$Q,df=2,lower.tail=F)
+		}
+	}
+	} else if (sum(selection$SE.correcting_all.MIBS,na.rm = T)==0) {
+	#Calculate Inverse variance
+	#50
+	selection$inverse_var.ibd=1/selection$SE.IBD^2
+	#52
+	selection$inverse_var.lld=1/selection$SE.LLD^2
+
+#	selection$inverse_var.ibd=1/selection$SE.correcting_all.IBD^2
+#	selection$inverse_var.lld=1/selection$SE.correcting_all.LLD^2
+
+	#Calculate SE  #53
+	selection$se=sqrt(1/(selection$inverse_var.ibd+selection$inverse_var.lld))
+
+	#Calculate Beta #54
+	selection$beta=(selection$inverse_var.ibd*selection$Coef.IBD+selection$inverse_var.lld*selection$Coef.LLD)/(selection$inverse_var.ibd+selection$inverse_var.lld)
+#	selection$beta=(selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.ibd+selection$inverse_var.lld)
+	
+	#Calculate Z-score #55
+	selection$Z=selection$beta/selection$se
+	
+	#Calculate meta p-value #56
+	selection$P=2*pnorm(-abs(selection$Z))
+	#Remove data only avalable in one cohort
+	selection=selection[complete.cases(selection$P), ]
+
+	#Adjust pvalue with FDR #57
+	selection$FDR=p.adjust(selection$P,method = "fdr")
+	
+	#Create empty columns
+	selection$Het.Q="NS" #58
+	selection$Het.I2="NS" #59
+	selection$Het.Pval="NS" #60
+	
+	
+	#Heterogeneity using Cochran's Q-test for meta-FDR < 0.1
+	for (i in 1:length(rownames(selection))){
+		if (selection$FDR[i]<0.1){
+			#Select coefficients
+			TE=c( selection[i,6], selection[i,38])
+#			TE=c( selection[i,15], selection[i,47])
+			#Select Standart error
+			SE=c( selection[i,7], selection[i,39])
+#			SE=c( selection[i,16], selection[i,48])
+			het=metagen(TE,SE)
+			#Change the number here depending of the number of columns in your data, should match with column Het.I2
+			selection[i,59]=het$I2
+			#Match Het.Q column number
+			selection[i,58]=het$Q 
+			#Calculate p-value from Q calculation // Het.Pval
+			selection[i,60]=pchisq(het$Q,df=2,lower.tail=F)
+		}
+	}
+	} else if (sum(selection$SE.correcting_all.LLD,na.rm = T)==0) {
+
+	#Calculate Inverse variance
+	#50
+	selection$inverse_var.ibd=1/selection$SE.IBD^2
+	#51
+	selection$inverse_var.mibs=1/selection$SE.MIBS^2
+#	selection$inverse_var.ibd=1/selection$SE.correcting_all.IBD^2
+#	selection$inverse_var.mibs=1/selection$SE.correcting_all.MIBS^2
+	#Calculate SE  #53
+	selection$se=sqrt(1/(selection$inverse_var.ibd+selection$inverse_var.mibs))
+
+	#Calculate Beta #54
+	selection$beta=(selection$inverse_var.ibd*selection$Coef.IBD+selection$inverse_var.mibs*selection$Coef.MIBS)/(selection$inverse_var.ibd+selection$inverse_var.mibs)
+#	selection$beta=(selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS)/(selection$inverse_var.ibd+selection$inverse_var.mibs)
+	#Calculate Z-score #55
+	selection$Z=selection$beta/selection$se
+	#Calculate meta p-value #56
+	selection$P=2*pnorm(-abs(selection$Z))
+	#Remove data only avalable in one cohort
+	selection=selection[complete.cases(selection$P), ]
+	#Adjust pvalue with FDR #57
+	selection$FDR=p.adjust(selection$P,method = "fdr")
+	#Create empty columns
+	selection$Het.Q="NS" #58
+	selection$Het.I2="NS" #59
+	selection$Het.Pval="NS" #60
+	#Heterogeneity using Cochran's Q-test for meta-FDR < 0.1
+	for (i in 1:length(rownames(selection))){
+		if (selection$FDR[i]<0.1){
+			#Select coefficients
+			TE=c( selection[i,6], selection[i,22])
+#			TE=c( selection[i,15], selection[i,31])
+			#Select Standart error
+			SE=c( selection[i,7], selection[i,23])
+#			SE=c( selection[i,16], selection[i,32])
+			het=metagen(TE,SE)
+			#Change the number here depending of the number of columns in your data, should match with column Het.I2
+			selection[i,59]=het$I2
+			#Match Het.Q column number
+			selection[i,58]=het$Q 
+			#Calculate p-value from Q calculation // Het.Pval
+			selection[i,60]=pchisq(het$Q,df=2,lower.tail=F)
+		}
+	} 
+	}else {
 	#Calculate Inverse variance
 	#50
 	selection$inverse_var.ibd=1/selection$SE.IBD^2
@@ -412,14 +534,16 @@ for (a in drug_list){
 
 	#Calculate Beta #54
 	selection$beta=(selection$inverse_var.ibd*selection$Coef.IBD+selection$inverse_var.mibs*selection$Coef.MIBS+selection$inverse_var.lld*selection$Coef.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
-	#selection$beta=(selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
+#	selection$beta=(selection$inverse_var.ibd*selection$coeff.correcting.all.IBD+selection$inverse_var.mibs*selection$coeff.correcting.all.MIBS+selection$inverse_var.lld*selection$coeff.correcting.all.LLD)/(selection$inverse_var.ibd+selection$inverse_var.mibs+selection$inverse_var.lld)
 	
 	#Calculate Z-score #55
 	selection$Z=selection$beta/selection$se
 	
 	#Calculate meta p-value #56
 	selection$P=2*pnorm(-abs(selection$Z))
-	
+	#Remove data only avalable in one cohort
+	selection=selection[complete.cases(selection$P), ]
+
 	#Adjust pvalue with FDR #57
 	selection$FDR=p.adjust(selection$P,method = "fdr")
 	
@@ -427,7 +551,8 @@ for (a in drug_list){
 	selection$Het.Q="NS" #58
 	selection$Het.I2="NS" #59
 	selection$Het.Pval="NS" #60
-
+	
+	
 	#Heterogeneity using Cochran's Q-test for meta-FDR < 0.1
 	for (i in 1:length(rownames(selection))){
 		if (selection$FDR[i]<0.1){
@@ -446,8 +571,25 @@ for (a in drug_list){
 			selection[i,60]=pchisq(het$Q,df=2,lower.tail=F)
 		}
 	}
+	}
+	selection$qval.correcting.all.IBD=p.adjust( selection$pval.correcting.all.IBD, method = "fdr")
+	selection$qval.correcting.all.MIBS=p.adjust( selection$pval.correcting.all.MIBS, method = "fdr")
+	selection$qval.correcting.all.LLD=p.adjust( selection$pval.correcting.all.LLD, method = "fdr")
+	selection$pval.drug.interact.IBD=NULL
+	selection$coeff.drug.interact.IBD=NULL
+	selection$SE.drug.interact.IBD=NULL
+	selection$pval.sex.drug.IBD=NULL
+	selection$pval.drug.interact.MIBS=NULL
+	selection$coeff.drug.interact.MIBS=NULL
+	selection$SE.drug.interact.MIBS=NULL
+	selection$pval.sex.drug.MIBS=NULL
+	selection$pval.drug.interact.LLD=NULL
+	selection$coeff.drug.interact.LLD=NULL
+	selection$SE.drug.interact.LLD=NULL
+	selection$pval.sex.drug.LLD=NULL
 write.table(selection, file=paste(a, "_meta.txt", sep=""), sep="\t", quote=F)
 }
+
 
 ```
 
