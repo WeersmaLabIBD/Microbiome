@@ -1,5 +1,5 @@
 ---
-title: "MiBioGen 16s pipeline"
+title: "16s pipeline"
 author: "Alexander Kurilshikov"
 update: "Shixian"
 date: "April 09, 2019"
@@ -83,7 +83,8 @@ Rscript Taxa.R
 ```
 
 ## 6. Assign to KO and metaboic pathways 
-##    (use Tax4Fun for SILVA based, PICRUST for GreenGene based)
+##    (use Tax4Fun for SILVA based)
+
 *6.1 software installation*
 
 ```
@@ -147,4 +148,33 @@ KO_table = t(Tax4FunOutput$Tax4FunProfile)
 
 write.table("ID\t", file="KO_table_fct.txt",append = FALSE, quote = FALSE, sep="\t",eol = "", na = "NA", dec = ".", row.names = F,col.names = F)
 write.table(KO_table, file="KO_table_fct.txt",append = T, quote = FALSE, sep="\t",eol = "\n", na = "NA", dec = ".", row.names = TRUE,col.names = TRUE)
+```
+
+## 7. Assign to metaboic pathways 
+##    (use PICRUST for GreenGene based)
+
+*7.1 software installation*
+
+```
+conda create -n picrust1 -c bioconda -c conda-forge picrust
+conda activate picrust1
+ml numpy
+```
+
+*7.2 normalize data*
+
+```
+normalize_by_copy_number.py --gg_version 13_5 -i $table/$line.taxonomy/otu_table.biom -o $out/$line.normalized.biom
+```
+
+*7.3 metabolic predictions*
+
+```
+predict_metagenomes.py -i $out/$line.normalized.biom -o $out/$line.predictions.biom -a $out/$line.nsti.tab
+```
+
+*7.4 get KEGG terms*
+
+```
+categorize_by_function.py -f -i $out/$line.predictions.biom -c KEGG_Pathways -l 3 -o $out/$line.KEGG.txt
 ```
