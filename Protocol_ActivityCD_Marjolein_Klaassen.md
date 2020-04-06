@@ -203,7 +203,7 @@ write.table(TaxaInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names =
 
 MaAsLin requires the tsv/csv file, the name of the output file in which MaAsLin puts all the results, and the R-script which says which columns/rows he should analyze (i.e. file.read.config). Furthermore, I forced a zero inflated model (fZeroInlfated = T) and set a minimal abundance of the microbiome feature at 25% of samples. I also force correction of phenotypes.
 ```
-Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final Taxa Analysis 1',strInputConfig = '1.TaxaInFlare.read.config', fZeroInflated = T, strModelSelection = "none", dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 **Analyses 2: comparison in MaAsLin patients before and patients in an exacerbation**
@@ -255,7 +255,7 @@ write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 
 **MaAsLin analysis 2**
 ```
-Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 2',strInputConfig = '2.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 2',strInputConfig = '2.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 **Analysis MaAslin analysis 3: Categorical comparison of gut metagenome patients duringa flare with all patients after a flare**
@@ -308,7 +308,7 @@ write.table(InFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F)
 
 **MaAsLin analysis 3**
 ```
-Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final Taxonomy (species) analysis 3',strInputConfig = '3.TaxaInFlare.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 **Analysis MaAsLin 4: Linear analysis of patients who have their next flare <0.5 year - time until next flare**
@@ -373,7 +373,7 @@ write.table(TaxaCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = 
 
 **MaAsLin analysis 4**
 ```
-Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','nOud Taxonomy (species) analysis 4a',strInputConfig = '2a.Taxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 **Analysis 5: MaAsLin patients who had last flare <0.5 year with time since last flare**
@@ -441,7 +441,7 @@ write.table(LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names =
 
 **MaAsLin analysis 5:**
 ```
-Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinAfterin1Yr.tsv','nOud Taxonomy 2b (species) analyses 4b',strInputConfig = '2bTaxa.read.config', dMinSamp = 0.25, fZeroInflated = T, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -678,7 +678,7 @@ write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 1**
 ```
-Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 1',strInputConfig = '1.MetaCyc.read.config', fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 1',strInputConfig = '1.MetaCyc.read.config', fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -731,7 +731,7 @@ write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 2**
 ```
-Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 2',strInputConfig = '2.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 2',strInputConfig = '2.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -785,7 +785,7 @@ write.table(MCInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 3**
 ```
-Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 3',strInputConfig = '3.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('InFlareNot.tsv','nOud Final MetaCyc Analysis 3',strInputConfig = '3.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -845,7 +845,7 @@ write.table(MCCDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F)
 
 **MaAsLin run 4**
 ```
-Maaslin('LinBeforein1Yr.tsv','nOud Final MetaCyc analyses 4a',strInputConfig = '2a.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinBeforein1Yr.tsv','nOud Final MetaCyc analyses 4a',strInputConfig = '2a.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none", strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -904,7 +904,7 @@ write.table(MCLinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names
 
 **MaAsLin analysis 5**
 ```
-Maaslin('LinAfterin1Yr.tsv','nOud Final Metacyc Analysis 4b',strInputConfig = '2b.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
+Maaslin('LinAfterin1Yr.tsv','nOud Final Metacyc Analysis 4b',strInputConfig = '2b.MetaCyc.read.config', dMinSamp = 0.25, fZeroInflated = T, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'))
 ```
 
 
@@ -1104,7 +1104,7 @@ write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 1 (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('InFlareNot.tsv','nOud Final VF analysis 1',strInputConfig = '1.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('InFlareNot.tsv','nOud Final VF analysis 1',strInputConfig = '1.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1160,7 +1160,7 @@ write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 2: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('InFlareNot.tsv','nOud Final VF analysis 2',strInputConfig = '2.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('InFlareNot.tsv','nOud Final VF analysis 2',strInputConfig = '2.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1216,7 +1216,7 @@ write.table(VFInFlareNot, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F
 
 ## MaAsLin analysis 3: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('InFlareNot.tsv','nOud Final VF analysis 3',strInputConfig = '3.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('InFlareNot.tsv','nOud Final VF analysis 3',strInputConfig = '3.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1285,7 +1285,7 @@ write.table(VF_CDIIa, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F
 ```
 **MaAsLin analysis 4:(NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('LinBeforein1Yr.tsv','nOud Vir Fac analyses 4a',strInputConfig = '2a.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('LinBeforein1Yr.tsv','nOud Vir Fac analyses 4a',strInputConfig = '2a.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1348,7 +1348,7 @@ write.table(VF_LinAfterIIb, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.name
 **Analysis 5: (NOTE: for virulence factors - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
 
-Maaslin('LinAfterin1Yr.tsv','nOud Virulence fac analyses 4b',strInputConfig = '2b.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('LinAfterin1Yr.tsv','nOud Virulence fac analyses 4b',strInputConfig = '2b.VirFac.read.config', dMinSamp = 0.25, fZeroInflated = T, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1554,7 +1554,7 @@ write.table(GRFlare, "GRFlare.tsv", sep = "\t", quote = F, row.names = F)# MaAsL
 ```
 **MaAsLin analysis 1 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('GRFlare.tsv','nOud Final GR Analysis 1',strInputConfig = '1.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('GRFlare.tsv','nOud Final GR Analysis 1',strInputConfig = '1.GR.read.config', dMinSamp = 0.25, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 **Analysis 2: categorical comparison of growth rates of all patients before a flare with all patients during a flare**
@@ -1605,7 +1605,7 @@ write.table(GRFflare, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # 
 
 **MaAsLin analysis 2 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('InFlareNot.tsv','nOud Final GR analysis 2',strInputConfig = '2.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('InFlareNot.tsv','nOud Final GR analysis 2',strInputConfig = '2.GR.read.config', dMinSamp = 0.25, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1657,7 +1657,7 @@ write.table(GR_DA, "InFlareNot.tsv", sep = "\t", quote = F, row.names = F) # cre
 
 **MaAsLin analysis 3 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('InFlareNot.tsv','nOud Final GR analysis 3',strInputConfig = '3.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('InFlareNot.tsv','nOud Final GR analysis 3',strInputConfig = '3.GR.read.config', dMinSamp = 0.25,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ```
 
 
@@ -1716,7 +1716,7 @@ write.table(GRSixMoB, "LinBeforein1Yr.tsv", sep = "\t", quote = F, row.names = F
 
 **MaAsLin analysis 4 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('LinBeforein1Yr.tsv','nOud GR analyses 4a',strInputConfig = '2a.GR.read.config', dMinSamp = 0.25,strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('LinBeforein1Yr.tsv','nOud GR analyses 4a',strInputConfig = '2a.GR.read.config', dMinSamp = 0.25,strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 ``````
 
 
@@ -1776,7 +1776,7 @@ write.table(GRSixMoA, "LinAfterin1Yr.tsv", sep = "\t", quote = F, row.names = F)
 ```
 **MaAsLin analysis 5 (NOTE: for growth rates - since it is no relative data - turn strTransform = none, so it does not perform arcsine square root transformation)**
 ```
-Maaslin('LinAfterin1Yr.tsv','nOud GR analyses 4b',strInputConfig = '2b.GR.read.config', dMinSamp = 0.25, strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
+Maaslin('LinAfterin1Yr.tsv','nOud GR analyses 4b',strInputConfig = '2b.GR.read.config', dMinSamp = 0.25, strModelSelection = "none",strForcedPredictors = c('Sex', 'PFReads', 'AgeAtFecalSampling', 'BMI', 'DiseaseLocation', 'MedicationPPI', 'AntibioticsWithin3MonthsPriorToSampling'), strTransform = "none")
 
 
 
