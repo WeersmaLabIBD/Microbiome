@@ -475,8 +475,7 @@ for (a in food_list){                     #all in one folder
  
 **All results incl. non-significant meta-results**
 
-*Results that were significant in one cohort but not in the metaanalysis, are also important to check
-in order to spot differences between cohorts*
+*Also filter Results that were significant in one cohort but not in the metaanalysis to see differences between cohorts*
 
 ```
 cd /Users/laurabolte/Desktop/Data/Association\ Analyses/Taxonomy/meta 
