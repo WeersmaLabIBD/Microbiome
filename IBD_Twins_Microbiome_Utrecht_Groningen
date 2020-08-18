@@ -327,7 +327,64 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
 
 ```
 
-**2. MaAsLin2 analyes **
+**2. PCoA analyses**
+
+```
+library("vegan")
+Beta = vegdist(taxa_file, pwy_file, method="bray")
+PCoA=cmdscale(Beta, k = 5) # R uses cmdscale() to calculate classical multi-dimensional scaling, a synonym for principal coordinates analysis.
+
+ggplot(PCoA_taxa, PCoA_pwy, aes(x=V1,y=V2, geom= "blank", color=df$ColorsDots)) + geom_point()  + ggtitle("") + theme_classic() + geom_point (data=centroids2, size=8, alpha=0.9, col=centroids2$colors) + labs(x="PCoA1", y="PCoA2") +  scale_color_identity ("", breaks=c("green3", "black", "blue2", "orangered"), labels=c("healthy controls (n=495)", "healthy twins (n=38)", "IBD twins (n=61)", "IBD controls (n=99)"), guide="legend") 
+
+## p-values between Bray-Curtis distances per group 
+
+Microbiome_data_frame = dataframe[,c()]
+Phenotype_data_frame = dataframe[,c()]
+#
+my_results <- matrix(ncol = 3, nrow=ncol(Phenotype_data_frame))    
+my_results <- matrix(ncol = 3, nrow=ncol(Phenotype_data_frame))       
+#
+library(vegan)
+#For each column in Phenotype_data_frame (factor)  
+for (i in 1:ncol(Phenotype_dat)) {
+  #Create a table for complete cases
+  final_factor_table <- Phenotype_data_frame[complete.cases(Phenotype_data_frame[,i]),]
+  filter_tax_table <- Microbiome_data_frame[rownames(final_factor_table),]
+  ad <- adonis(formula = filter_tax_table ~ final_factor_table[,i] , data = final_factor_table, permutations = 10000, method = "bray")
+  aov_table <- ad$aov.tab
+  my_results[i,1]=aov_table[1,1]
+  my_results[i,2]=aov_table[1,5]
+  my_results[i,3]=aov_table[1,6]
+}
+#
+rownames(my_results) = colnames(Phenotype_dat)
+colnames(my_results) = c("Df", "R2", "Pr(>F)")
+#
+Adonis_my_results <- as.data.frame(my_results)
+
+# P-value correction
+library(stats)
+p_correction_fdr <- as.data.frame(p.adjust(Adonis_my_results$`Pr(>F)`, method = "fdr"))
+rownames(p_correction_fdr) <- rownames(Adonis_my_results)
+p_correction_bonferroni <- as.data.frame(p.adjust(Adonis_my_results$`Pr(>F)`, method = "bonferroni"))
+rownames(p_correction_bonferroni) <- rownames(Adonis_my_results)
+#Merge with adonis_results table
+final_adonis_results <- merge(Adonis_my_results, p_correction_fdr, by="row.names")
+rownames(final_adonis_results) <- final_adonis_results[,1]
+final_adonis_results <- final_adonis_results[,-1]
+final_adonis_results <- merge(final_adonis_results, p_correction_bonferroni, by="row.names")
+rownames(final_adonis_results) <- final_adonis_results[,1]
+final_adonis_results <- final_adonis_results[,-1]
+#
+colnames(final_adonis_results)[4] <- "FDR_p_value"
+colnames(final_adonis_results)[5] <- "Bonferroni_p_value"
+#
+
+```
+
+
+
+**3. MaAsLin2 analyes **
 
 ```
 ### Comparing gut microbiomes between twins_IBD and DAG3 controls 
