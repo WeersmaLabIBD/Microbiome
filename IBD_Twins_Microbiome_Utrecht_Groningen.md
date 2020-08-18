@@ -7,7 +7,7 @@ Healthy cotwins share gut microbiome signatures with their inflammatory bowel di
 
 --------------
 
-**1a. Filtering steps (taxa) ** 
+**1a. Filtering steps (taxa)** 
 
 ```
 # ================================================================================
@@ -193,9 +193,10 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=
 
 ```
 
-**1b. Filtering steps (pathways) ** 
+**1b. Filtering steps (pathways)** 
 
 ```
+
 filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.0,minSum=90.0, rescale=T,verbose=T,type='MetaCyc') {
   
   nonPWYpwys <- c("ARG+POLYAMINE-SYN: superpathway of arginine and polyamine biosynthesis",
@@ -330,6 +331,7 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
 **2. PCoA analyses**
 
 ```
+
 library("vegan")
 Beta = vegdist(taxa_file, pwy_file, method="bray")
 PCoA=cmdscale(Beta, k = 5) # R uses cmdscale() to calculate classical multi-dimensional scaling, a synonym for principal coordinates analysis.
@@ -385,6 +387,7 @@ colnames(final_adonis_results)[5] <- "Bonferroni_p_value"
 **3.Similarity in gut microbiome composition**
 
 ```
+
 ## When looking between twin pairs (intertwinpairs), we firstly had to create pairs that were not allowed to originate from the same twin pair
 
 library("vegan")
@@ -441,10 +444,10 @@ randomPairs <- sample(x=row.names(flatDM),size = 1000,replace = F)
 ```
 
 
-
-**4. MaAsLin2 analyses **
+**4. MaAsLin2 analyses**
 
 ```
+
 ### a. Comparing gut microbiomes between healthy twins and their IBD cotwins 
 library(Maaslin2)
 Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin a", fixed_effects = c("cohort","zygosity","IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
@@ -466,10 +469,3 @@ library(Maaslin2)
 Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin d", fixed_effects = c("cohort","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
 
 ```
-
-
-
-
-
-
-
