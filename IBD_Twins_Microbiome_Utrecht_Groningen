@@ -8,6 +8,7 @@ Healthy cotwins share gut microbiome signatures with their inflammatory bowel di
 --------------
 
 **1a. Filtering steps (taxa) ** 
+
 ```
 # ================================================================================
 # ================================================================================
@@ -189,9 +190,11 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=
   oDF
 }
 # ================================================================================
+
 ```
 
 **1b. Filtering steps (pathways) ** 
+
 ```
 filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.0,minSum=90.0, rescale=T,verbose=T,type='MetaCyc') {
   
