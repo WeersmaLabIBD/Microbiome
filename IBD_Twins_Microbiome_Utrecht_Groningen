@@ -326,3 +326,7 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
 }
 
 ```
+
+**2. MaAsLin2 analyes **
+
+
