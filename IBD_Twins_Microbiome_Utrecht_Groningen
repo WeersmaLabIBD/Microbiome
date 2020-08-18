@@ -329,4 +329,15 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
 
 **2. MaAsLin2 analyes **
 
+```
+### Comparing gut microbiomes between twins_IBD and DAG3 controls 
+
+Maaslin2(taxa_file, metadata_file, "species - twins_IBD/DAG3", fixed_effects = c("CohortXX","zyg_def", "IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+Maaslin2(pwy_file, metadata_file, "pwy - twins_IBD/DAG3", fixed_effects = c("CohortXX","zyg_def", "IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+
+### Comparing gut microbiomes between twins_healthy and DAG3 controls 
+
+Maaslin2(taxa_file, metadata_file, "species - healthy_IBD/DAG3", fixed_effects = c("CohortXX","zyg_def", "IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+Maaslin2(pwy_file, metadata_file, "pwy - healthy_IBD/DAG3", fixed_effects = c("CohortXX","zyg_def", "IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+```
 
