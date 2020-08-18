@@ -2,7 +2,9 @@ Healthy cotwins share gut microbiome signatures with their inflammatory bowel di
 --------------
 
 **Author of code: Marjolein A.Y. Klaassen, Ranko Gacesa, Eelco C. Brand**
+
 **Year: 2020**
+
 **Aim: Study gut microbiomes of IBD-discordant and -concordant twin pairs, which offers the unique opportunity to assess individuals at risk of developing IBD, namely healthy cotwins from IBD-discordant twin pairs.**
 
 --------------
