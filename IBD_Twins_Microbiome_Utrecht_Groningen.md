@@ -404,10 +404,9 @@ colnames(final_adonis_results)[4] <- "FDR_p_value"
 **3.Similarity in gut microbiome composition**
 
 ```
-
-## Random pairs of unrelated twins were created ensuring that both twins did not originate from the same twin pair.
-
 library("vegan")
+## 1. Firstly, we created a dataframe containing the Bray-Curtis distances between individuals from the same twin pair. 
+
 Beta = vegdist(db_twins, method="bray")
 betaMat <- as.matrix(Beta)
 PCoA=cmdscale(Beta, k = 5) # R uses cmdscale() to calculate classical multi-dimensional scaling, a synonym for principal coordinates analysis.
@@ -446,8 +445,7 @@ for (tID in unique(c(PCoA_df$Twin_pair_number)) ) {
   }
 }
 
-# When creating random pairs within the healthy controls, IBD controls and unrelated twin pairs, the following code was used:
-library("vegan")
+# 2. Secondly, we created random pairs of unrelated twins, ensuring that both twin individuals did not originate from the same twin pair. 
 Beta = vegdist(db_Twin_Beta, method="bray")
 betaMat <- as.matrix(Beta)
 library(reshape2)
@@ -456,7 +454,19 @@ betaMat2[lower.tri(betaMat2,diag = T)] <- 0
 flatDM <- subset(melt(betaMat2),value !=0)
 
 randomPairs <- sample(x=row.names(flatDM),size = 1000,replace = F)
+# In this dataframe, there were 2 columns containing information on to which twin pair, a twin individual belonged --> "Twin_1_pair", and "Twin_2_Pair". 
+# To delete real twins from this inter-twin dataframe, we removed the lines in the dataframe in which the twin individuals belonged to the same twin pair. 
+randomPairs_not_related =randomPairs[ !randomPairs$Twin_1_TwinPair==randomPairs$Twin_2_TwinPair,  ] # delete twin pairs 
 
+# 3. Lastly, we created random pairs within the healthy controls, IBD controls and unrelated twin pairs:
+Beta = vegdist(db_Twin_Beta, method="bray")
+betaMat <- as.matrix(Beta)
+library(reshape2)
+betaMat2 <- betaMat
+betaMat2[lower.tri(betaMat2,diag = T)] <- 0
+flatDM <- subset(melt(betaMat2),value !=0)
+
+randomPairs <- sample(x=row.names(flatDM),size = 1000,replace = F)
 
 ```
 
