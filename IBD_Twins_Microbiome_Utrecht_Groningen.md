@@ -472,7 +472,7 @@ Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin d", fixed_effects = c("coh
 
 ```
 
-**5. Figures **
+**5. Figures**
 
 ```
 ####Visualize the MaAsLin2 results in Venn-diagrams and balloon plots###
