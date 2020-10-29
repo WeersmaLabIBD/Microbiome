@@ -405,7 +405,7 @@ colnames(final_adonis_results)[4] <- "FDR_p_value"
 
 ```
 
-## When looking between twin pairs (intertwinpairs), we firstly had to create pairs that were not allowed to originate from the same twin pair
+## Random pairs of unrelated twins were created ensuring that both twins did not originate from the same twin pair.
 
 library("vegan")
 Beta = vegdist(db_twins, method="bray")
