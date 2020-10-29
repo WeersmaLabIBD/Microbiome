@@ -37,7 +37,6 @@ Healthy cotwins share gut microbiome signatures with their inflammatory bowel di
 # - keeps all except kingdoms
 # ================================================================================
 
-#TODO: implement keepDomains
 filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=0.0, rescaleTaxa=F,verbose=T,
                                keepDomains=c('Bacteria','Archaea'),
                                keepLevels=c('T','S','G','F','O','C','P')) {
@@ -191,6 +190,12 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=
   if (verbose) {print ('data processing done, returning Dataframe')}
   oDF
 }
+
+# Using the aforementioned function on our data 
+Taxa_filtered_twin <- filterMetaGenomeDF(Taxa_subset_for_filtering,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescaleTaxa = T,verbose = T,keepDomains = c("Bacteria"),keepLevels = c("S"))
+
+
+
 # ================================================================================
 
 ```
@@ -327,6 +332,11 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
   if (verbose) {print ('> DONE')}
   inDF
 }
+
+# Using the aforementioned function on our data
+pwy_filtered_twins = filterHumannDF(pwy_twins,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescale = T,minSum = 1,verbose = T)
+
+
 
 ```
 
