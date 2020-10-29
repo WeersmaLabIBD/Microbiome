@@ -401,7 +401,15 @@ colnames(final_adonis_results)[4] <- "FDR_p_value"
 
 ```
 
-**3.Similarity in gut microbiome composition**
+**3. Alpha-diversity and gene richness**
+```
+
+
+```
+
+
+
+**4.Similarity in gut microbiome composition**
 
 ```
 library("vegan")
@@ -473,7 +481,7 @@ ggplot(merged_dataframe ,aes(x=groups,y=value,col=coloring_column)) + geom_boxpl
 ```
 
 
-**4. MaAsLin2 analyses**
+**5. MaAsLin2 analyses**
 
 ```
 library(Maaslin2)
@@ -514,7 +522,7 @@ Maaslin2(paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_pwys.tsv'), paste0(da
          normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
 ```
 
-**5. Visualization of MaAsLin2 results**
+**6. Visualization of MaAsLin2 results**
 
 ```
 ####Visualize the MaAsLin2 results in Venn-diagrams and balloon plots###
