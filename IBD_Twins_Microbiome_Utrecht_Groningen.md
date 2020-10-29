@@ -474,3 +474,128 @@ Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin d", fixed_effects = c("coh
 
 **5. Figures **
 
+```
+####Visualize the MaAsLin2 results in Venn-diagrams and balloon plots###
+#Example code shown here is for the species analyses.
+#Graphs for pathways can be constructed in the same way.
+#The data file used is the all_results.tsv files from the MaAsLin2 run
+#The dataframe df.spec.all contains the outcomes of te MaAsLin2 run
+ 
+#Open libraries needed
+library("venn")
+library("ggplot2")
+library("ggpubr")
+ 
+##Select the associations of interest from the MaAsLin2 results
+#Select only Cohort comparison
+df.spec.all.sel <- subset(df.spec.all, metadata == "Cohort")
+head(df.spec.all.sel)
+ 
+##Make sure that both the species and the direction of the beta are considered for the Venn-diagrams
+#Add a variable describing whether the beta is "up" or "down" compared to HC
+df.spec.all.sel$direction <- with(df.spec.all.sel,ifelse(coef > 0,
+                                                                   "up",
+                                                                   ifelse(coef <0,
+                                                                          "down",
+                                                                          NA)))
+#Make a variable that combines the featurename and direction
+df.spec.all.sel$feature_direction <- paste(df.spec.all.sel$feature,df.spec.all.sel$direction,sep="_")
+ 
+#Select only the twin-IBD vs. HC comparison
+df.twinIBDvHC.spec.all.sel <- subset(df.spec.all.sel, value == "IBD_IBDTWINS_IBD")
+#Select only the Healthy cotwins vs. HC comparison
+df.twinHealthyvHC.spec.all.sel <- subset(df.spec.all.sel, value == "HC_IBDTWINS_HC")
+#Select only the unrelated IBD patients vs. HC comparison
+df.IBDCvHC.spec.all.sel <- subset(df.spec.all.sel, value == "IBD_DAG3_IBD")
+ 
+####Select only the features with an FDR < 0.10 than the threshold
+fdr.cutoff <- 0.10
+###IBD-twin vs HC
+df.twinIBDvHC.spec.all.sel.sign <- subset(df.twinIBDvHC.spec.all.sel, qval < fdr.cutoff)
+head(df.twinIBDvHC.spec.all.sel.sign)
+###Healthy twin vs HC
+df.twinHealthyvHC.spec.all.sel.sign <- subset(df.twinHealthyvHC.spec.all.sel, qval < fdr.cutoff)
+head(df.twinHealthyvHC.spec.all.sel.sign)
+###IBD control vs HC
+df.IBDCvHC.spec.all.sel.sign <- subset(df.IBDCvHC.spec.all.sel, qval < fdr.cutoff)
+head(df.IBDCvHC.spec.all.sel.sign)
+ 
+####Venn diagrams####
+#Make a venn diagram for the overlapping relatively abundant species with FDR<0.10
+#Make the venn object
+venn.spec <- list(df.twinIBDvHC.spec.all.sel.sign$feature,
+                  df.twinHealthyvHC.spec.all.sel.sign$feature,
+                  df.IBDCvHC.spec.all.sel.sign$feature)
+#Plot the venn diagram
+venn(venn.spec.0.10,ilabels = T,
+     snames=c("IBD-twins","Healthy\ncotwins","Unrelated IBD\npatients"),
+     zcolor = c("firebrick3","gold","dodgerblue3"),opacity=0.5, ilcs = 1.5,sncs=1.1,box=FALSE,ggplot=F)
+text(x=500,y=1025,paste("Differentially relative abundant species (FDR < ",format(fdr.cutoff,nsmall=2),")
+                        compared to healthy controls",sep=""),cex=1.3,font=2)
+ 
+####Combining the data for the significant associations
+#Add an extra variable to be able to specify which comparison is used
+df.twinIBDvHC.spec.all.sel.sign$group <- "IBD-twins"
+df.twinHealthyvHC.spec.all.sel.sign$group <- "Healthy cotwins"
+df.IBDCvHC.spec.all.sel.sign$group <- "Unrelated IBD patients"
+ 
+#Combine all dataframes into one
+df.spec.sign <- rbind(df.twinIBDvHC.spec.all.sel.sign,
+                      df.twinHealthyvHC.spec.all.sel.sign,
+                      df.IBDCvHC.spec.all.sel.sign)
+ 
+#Order the "group" variable in the way you want it to appear in the plot
+df.spec.sign$group <- factor(df.spec.sign$group,levels=c(
+  "Unrelated IBD patients","IBD-twins","Healthy cotwins"))
+ 
+#Make an extra short feature variable to make the y-axis readable
+#The feature variable contains the names of the species
+df.spec.sign$feature.extrashort <- paste(substring(df.spec.sign$feature, regexpr(".s__", df.spec.sign$feature) +4))
+ 
+#Order the species in the way you want them to appear in the plot
+#It is now ordered based on the mean coefficients over the 3 datasets 
+table.extrashort<-aggregate( coef ~ feature.extrashort, df.spec.sign, mean )
+table.extrashort<-table.extrashort[order(table.extrashort$coef),]
+order.feature.extrashort<-as.character(table.extrashort$feature.extrashort)
+df.spec.sign$feature.extrashort <- factor(df.spec.sign$feature.extrashort, levels=c(order.feature.extrashort))
+ 
+####Select only the overlapping relatively abundant species####
+#Check the count of each species
+spec.counts <- count(df.spec.sign$feature)
+#Only keep those with a count >1 (those are shared between at least 2 comparisons)
+spec.shared <- subset(spec.counts,freq > 1)
+#Select these species in the dataset
+df.spec.sign.shared <- df.spec.sign[df.spec.sign$feature%in%spec.shared$x,]
+ 
+####Balloonplot####
+#Plot the actual balloonplot
+####all differentially abundant species that are shared between at least 2 comparisons
+p.balloon.spec.shared <- ggballoonplot(data=df.spec.sign.shared, x = "group", 
+                                       y = "feature.extrashort", 
+                                       size = "qval",
+                                       fill = "coef",
+                                       ylab = "Species",
+                                       xlab = "Compared to healthy controls",
+                                       ggtheme = theme_bw())+
+  scale_fill_gradient2(low = "darkblue",
+                       mid = "white",
+                       high = "darkred",
+                       midpoint = 0,
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = "colourbar",
+                       aesthetics = "fill"
+  )+
+  scale_size(range = c(5,1)) + guides(size = guide_legend(reverse=TRUE)) +
+  labs(fill = "Beta coefficient",
+       size = "False discovery rate")+
+  ggtitle(label=paste("Shared differentially relative abundant species (FDR < ",format(fdr.cutoff,nsmall=2),")
+                      compared to healthy controls",sep=""))+
+  theme(plot.title=element_text(size=8,face="bold",hjust = 0.75),
+        axis.text.y=element_text(size=6),
+        legend.title=element_text(size=6,face="bold"),
+        legend.text=element_text(size=4))
+ 
+#The final balloonplot
+p.balloon.spec.shared
+```
