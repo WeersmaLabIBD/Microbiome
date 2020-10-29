@@ -194,7 +194,7 @@ filterMetaGenomeDF <- function(inDF,presPerc = 0.1,minMRelAb = 0.01,minMedRelAb=
 }
 
 # Using the aforementioned function on our data 
-Taxa_filtered_twin <- filterMetaGenomeDF(Taxa_subset_for_filtering,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescaleTaxa = T,verbose = T,keepDomains = c("Bacteria"),keepLevels = c("S"))
+Taxa_filtered_dataframe <- filterMetaGenomeDF(taxa_dataframe,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescaleTaxa = T,verbose = T,keepDomains = c("Bacteria"),keepLevels = c("S"))
 
 
 
@@ -340,7 +340,7 @@ filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.
 }
 
 # Using the aforementioned function on our data
-pwy_filtered_twins = filterHumannDF(pwy_twins,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescale = T,minSum = 1,verbose = T)
+pwy_filtered_dataframe = filterHumannDF(pwy_dataframe,presPerc = -1,minMRelAb = -1,minMedRelAb = -1,rescale = T,minSum = 1,verbose = T)
 
 
 
