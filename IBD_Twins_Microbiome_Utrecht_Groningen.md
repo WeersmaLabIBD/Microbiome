@@ -351,10 +351,18 @@ pwy_filtered_twins = filterHumannDF(pwy_twins,presPerc = -1,minMRelAb = -1,minMe
 ```
 
 library("vegan")
-Beta = vegdist(taxa_file, pwy_file, method="bray")
+library("ggplot2")
+
+# Calculating Bray-Curtis distances between samples 
+Beta = vegdist(taxa_file, pwy_file, method="bray") 
 PCoA=cmdscale(Beta, k = 5) # R uses cmdscale() to calculate classical multi-dimensional scaling, a synonym for principal coordinates analysis.
 
-ggplot(PCoA_taxa, PCoA_pwy, aes(x=V1,y=V2, geom= "blank", color=df$ColorsDots)) + geom_point()  + ggtitle("") + theme_classic() + geom_point (data=centroids2, size=8, alpha=0.9, col=centroids2$colors) + labs(x="PCoA1", y="PCoA2") +  scale_color_identity ("", breaks=c("green3", "black", "blue2", "orangered"), labels=c("healthy controls (n=495)", "healthy twins (n=38)", "IBD twins (n=61)", "IBD controls (n=99)"), guide="legend") 
+# PCoA_taxa/PCoA_pwy --> dataframes including Bray-Curtis distances and phenotypes based on respectively the taxonomic and functional composition.
+# Calculate centroids as the mean of the first principal components (v1 and v2) 
+centroids <- aggregate(cbind(PCoA_taxa/PCoA_pwy$V1,PCoA_taxa/PCoA_pwy$V2)~PCoA_taxa/PCoA_pwy$groups,PCoA_taxa/PCoA_pwy,mean)
+
+# Plotting PCoAs based on Bray_Curtis distances
+ggplot(PCoA_taxa/PCoA_pwy, aes(x=V1,y=V2, geom= "blank", color=PCoA_taxa/PCoA_pwy$ColorsDots)) + geom_point()  + ggtitle("") + theme_classic() + geom_point (data=centroids, size=8, alpha=0.9, col=centroids$colors) + labs(x="PCoA1", y="PCoA2") +  scale_color_identity ("", breaks=c("green3", "black", "blue2", "orangered"), labels=c("healthy controls (n=495)", "healthy twins (n=38)", "IBD twins (n=61)", "IBD controls (n=99)"), guide="legend") 
 
 ## p-values between Bray-Curtis distances per group 
 
