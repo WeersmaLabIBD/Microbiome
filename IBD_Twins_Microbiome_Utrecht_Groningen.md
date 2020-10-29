@@ -366,13 +366,10 @@ ggplot(PCoA_taxa/PCoA_pwy, aes(x=V1,y=V2, geom= "blank", color=PCoA_taxa/PCoA_pw
 
 ## p-values between Bray-Curtis distances per group 
 
-Microbiome_data_frame = dataframe[,c()]
-Phenotype_data_frame = dataframe[,c()]
+Microbiome_data_frame = dataframe[,c(columns_including_microbiome_features)]
+Phenotype_data_frame = dataframe[,c(columns_including_clinical_features)]
 #
-my_results <- matrix(ncol = 3, nrow=ncol(Phenotype_data_frame))    
 my_results <- matrix(ncol = 3, nrow=ncol(Phenotype_data_frame))       
-#
-library(vegan)
 #For each column in Phenotype_data_frame (factor)  
 for (i in 1:ncol(Phenotype_dat)) {
   #Create a table for complete cases
@@ -393,19 +390,13 @@ Adonis_my_results <- as.data.frame(my_results)
 # P-value correction
 library(stats)
 p_correction_fdr <- as.data.frame(p.adjust(Adonis_my_results$`Pr(>F)`, method = "fdr"))
-rownames(p_correction_fdr) <- rownames(Adonis_my_results)
-p_correction_bonferroni <- as.data.frame(p.adjust(Adonis_my_results$`Pr(>F)`, method = "bonferroni"))
 rownames(p_correction_bonferroni) <- rownames(Adonis_my_results)
 #Merge with adonis_results table
 final_adonis_results <- merge(Adonis_my_results, p_correction_fdr, by="row.names")
 rownames(final_adonis_results) <- final_adonis_results[,1]
 final_adonis_results <- final_adonis_results[,-1]
-final_adonis_results <- merge(final_adonis_results, p_correction_bonferroni, by="row.names")
-rownames(final_adonis_results) <- final_adonis_results[,1]
-final_adonis_results <- final_adonis_results[,-1]
 #
 colnames(final_adonis_results)[4] <- "FDR_p_value"
-colnames(final_adonis_results)[5] <- "Bonferroni_p_value"
 #
 
 ```
