@@ -208,7 +208,7 @@ Taxa_filtered_dataframe <- filterMetaGenomeDF(taxa_dataframe,presPerc = -1,minMR
 inDF = relative_abundance_data_frame
 
 # In MetaCyc, the names of most pathways start with "PWY_.....". However, part of the pathways do not start with this prefix, and could therefore be missed by our function. Therefore, we added "PWY_" to all pathways (resulting in some pathways having "PWY_PWY_" as prefix). 
-colnames(pwy_twins) = paste0('PWY_', colnames(pwy_twins))
+colnames(inDF) = paste0('PWY_', colnames(inDF))
 
 filterHumannDF <- function(inDF,presPerc = 0.05,minMRelAb = 0.001,minMedRelAb=0.0,minSum=90.0, rescale=T,verbose=T,type='MetaCyc') {
   
