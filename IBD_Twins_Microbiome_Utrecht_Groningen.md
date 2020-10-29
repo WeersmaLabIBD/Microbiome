@@ -429,8 +429,6 @@ for (tID in unique(c(PCoA_df$Twin_pair_number)) ) {
     diseaseTypeL <- unique(babyDF$Disease_status)
     if ("Ulcerative Colitis" %in% diseaseTypeL) {
       disT <- "UC"
-    } else if ("IBD unspecified" %in% diseaseTypeL) {
-      disT <- "IBDU"
     } else {
       disT <- "CD"
     }
@@ -467,6 +465,10 @@ betaMat2[lower.tri(betaMat2,diag = T)] <- 0
 flatDM <- subset(melt(betaMat2),value !=0)
 
 randomPairs <- sample(x=row.names(flatDM),size = 1000,replace = F)
+
+# 4. After merging these dataframes (leading to one big dissimilarity matrix including phenotypes), we plotted it. 
+ggplot(merged_dataframe ,aes(x=groups,y=value,col=coloring_column)) + geom_boxplot(size=1.5)  + geom_jitter(alpha=0.1) + scale_x_discrete(limits=c("dag3_NoIBD.NoIBD", "twin_NoIBD.NoIBD", "twin_NoIBD.UC", "twin_NoIBD.CD", "twin_UC.UC", "twin_CD.CD", "twin_CD.UC", "twin_concordant.Monozygous", "twin_disconcordant.Monozygous", "twin_concordant.Dizygous", "twin_disconcordant.Dizygous", "dag3_unrelated.IBD.controls)) + theme(axis.text.x = element_text(angle=90)) +  scale_color_identity ("", breaks=merged_dataframe$groups, labels=merged_dataframe$coloring_column, guide="legend")
+
 
 ```
 
