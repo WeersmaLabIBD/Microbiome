@@ -476,27 +476,42 @@ ggplot(merged_dataframe ,aes(x=groups,y=value,col=coloring_column)) + geom_boxpl
 **4. MaAsLin2 analyses**
 
 ```
-
-### a. Comparing gut microbiomes between healthy twins and their IBD cotwins 
 library(Maaslin2)
-Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin a", fixed_effects = c("cohort","zygosity","IBD_type_chart_review", "Signs_of_disease_activity", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), random_effects = c("Twin_pair_number"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
 
-### b. Comparing gut microbiomes between IBD twins and unrelated IBD controls 
-library(Maaslin2)
-Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin b", fixed_effects = c("cohort","zygosity","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+### 1. Comparing gut microbiomes between healthy twins and their IBD cotwins 
+#a. Taxa 
+Maaslin2(paste0(dataFolder,'/maaslin_input_twinsH_twinsIBD_taxa.tsv'), paste0(dataFolder,'/maaslin_input_twinsH_twinsIBD_metadata.tsv'),"res_rev1_v22_taxa_IBDtwins_vs_TwinsHC_prev10_rndeff",
+         fixed_effects = c("IBDorHC","IBD_type_chart_review","zyg_def","DiseaseLocation_UCCD","Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T,
+         random_effects=c("Twin_pair_number"))
+         
+#b. Pathways 
+Maaslin2(paste0(dataFolder,'/maaslin_input_twinsH_twinsIBD_pwys.tsv'), paste0(dataFolder,'/maaslin_input_twinsH_twinsIBD_metadata.tsv'),"res_rev1_v22_pwys_IBDtwins_vs_TwinsHC_prev10_rndeff",
+         fixed_effects = c("IBDorHC","IBD_type_chart_review","zyg_def","DiseaseLocation_UCCD", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, random_effects=c("Twin_pair_number"), plot_heatmap = T, plot_scatter = T)
+         
 
-### c. Comparing gut microbiomes between IBD twins and unrelated healthy controls
-library(Maaslin2)
-Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin c", fixed_effects = c("cohort","zygosity","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+### 2. Comparing gut microbiomes between healthy controls vs. unrelated IBD patients, the IBD-twins and the healthy cotwins. 
+#a. Taxa
+Maaslin2(paste0(dataFolder,'/maaslin_input_allCohorts_taxa.tsv'), paste0(dataFolder,'/maaslin_input_allCohorts_metadata.tsv'), "res_rev1_v22_allCohorts_taxa_prev10_norndeff",
+         fixed_effects = c("Cohort","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
+         
+#b. Pathways    
+Maaslin2(paste0(dataFolder,'/maaslin_input_allCohorts_pwys.tsv'), paste0(dataFolder,'/maaslin_input_allCohorts_metadata.tsv'), "res_rev1_v22_allCohorts_pwys_prev10_norndeff",
+         fixed_effects = c("Cohort","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
 
-### d. Comparing gut microbiomes between healthy twins and unrelated healthy controls
-library(Maaslin2)
-Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin d", fixed_effects = c("cohort","zygosity","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
+### 3. Comparing gut microbiomes between IBD twins and unrelated IBD controls 
+#a.  Taxa 
+Maaslin2(paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_taxa.tsv'), paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_metadata.tsv'),"res_rev1_v22_taxa_DAG3IBD_vs_TwinsIBD_prev10_norndeff",
+         fixed_effects = c("Cohort", "IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
 
-### e. Comparing gut microbiomes between healthy controls and unrelated healthy controls
-library(Maaslin2)
-Maaslin2(taxa_maas/pwy_maas, meta_taxa_maas, "MaAsLin d", fixed_effects = c("cohort","IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey", "DiseaseLocation_UCCD"), normalization = "NONE",transform = "AST", min_prevalence = 0.25)
-
+# b. Pathways
+Maaslin2(paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_pwys.tsv'), paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_metadata.tsv'),"res_rev1_v22_pwys_DAG3IBD_vs_TwinsIBD_prev10_norndeff",
+         fixed_effects = c("Cohort", "IBD_type_chart_review", "Sex", "Age_years_calculated", "Antibiotics_past_3_months", "PPI_current", "BMI_survey","READ.NR"), 
+         normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
 ```
 
 **5. Figures**
