@@ -514,7 +514,7 @@ Maaslin2(paste0(dataFolder,'/maaslin_input_dagIBD_twinsIBD_pwys.tsv'), paste0(da
          normalization = "NONE",transform = "AST", min_prevalence = 0.10, min_abundance = 0.0000001, plot_heatmap = T, plot_scatter = T)
 ```
 
-**5. Figures**
+**5. Visualization of MaAsLin2 results**
 
 ```
 ####Visualize the MaAsLin2 results in Venn-diagrams and balloon plots###
