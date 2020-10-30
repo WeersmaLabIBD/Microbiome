@@ -403,7 +403,13 @@ colnames(final_adonis_results)[4] <- "FDR_p_value"
 
 **3. Alpha-diversity and gene richness**
 ```
+library("vegan")
 
+# Calculating alpha-diversity (Shannon Index) of each sample 
+dataframe_taxa["ShannonIndex"] = diversity(dataframe_taxa, index = "shannon", MARGIN = 1)
+
+# Calculating the gene richess (ie number of genes) in each sample 
+dataframe_pwy["GeneRichness_persample"] = rowSums(dataframe_pwy > 0)
 
 ```
 
