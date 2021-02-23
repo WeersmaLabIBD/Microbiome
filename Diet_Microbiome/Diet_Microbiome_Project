@@ -215,17 +215,6 @@ path_rel=as.data.frame(path_rel) #safe as data frame
 write.table(path_rel,'../Metadata/Subsetted files/Pathways/Pathways_LLD_&_IBD_rel_abundance.txt',sep = '\t')
 View(path_rel)
 ```
-**2.4 Growth Rates**                                                                                                                    
-  ```
-setwd("~/Desktop/Data/Metadata")
-growth=read.table("../Metadata/selected_samples_growthrates_2.txt", header=T, sep='\t')
-rownames(growth)=growth$X
-growth$X=NULL
-growth=as.data.frame(t(growth))
-growth=growth[,-grep("_IBS", colnames(growth))] #delete Maastricht 
-growth=as.data.frame(t(growth))
-write.table(growth,'../Metadata/Subsetted Files/Growth Rates/Growth_Rates_LLD_&_IBD_not_rel.txt', sep='\t')
-```
 
 3.Merge Phenotypic and Microbial Abundance Files   
 -------------
