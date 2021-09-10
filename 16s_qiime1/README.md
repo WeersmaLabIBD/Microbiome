@@ -22,6 +22,13 @@ https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 install https://pypi.org/project/matplotlib/1.4.3/; 
 ml Python/2.7xxx; ml numpy; ml pandas; python setup.py build; python setup.py install
 Or: pip install matplotlib==1.4.3 --user
+Or: 
+conda create -n qiime1 python=2.7  # create conda environment "qiime1"  
+conda activate qiime1    # open "qiime1" environment
+pip install numpy        # install numpy (python)
+pip install qiime        # install qiime-1 (python)
+pip install h5py         # install h5py (python) for reading .biom files
+pip install matplotlib==1.4.3
 
 conda create -n qiime1 python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda
 
