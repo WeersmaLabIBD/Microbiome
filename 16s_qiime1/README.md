@@ -12,9 +12,12 @@ This is the pipeline for analysis of 16s based on qiime and silva database OTU-p
 ## 1. software install
 *1.1 qiime installation*
 ```
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-chmod a+x Miniconda3-latest-Linux-x86_64.sh
-bash ./Miniconda3-latest-Linux-x86_64.sh
+# wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+# chmod a+x Miniconda3-latest-Linux-x86_64.sh
+# bash ./Miniconda3-latest-Linux-x86_64.sh
+
+Note: Miniconda3 might have conflicts with qiime1, so try miniconda2:
+https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 conda create -n qiime1 python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda
 
 source activate qiime1
