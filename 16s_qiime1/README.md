@@ -19,7 +19,9 @@ This is the pipeline for analysis of 16s based on qiime and silva database OTU-p
 Note: Miniconda3 might have conflicts with qiime1, so try miniconda2:
 https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 
-install https://pypi.org/project/matplotlib/1.4.3/; ml Python/2.7xxx; ml numpy; python setup.py build; python setup.py install
+install https://pypi.org/project/matplotlib/1.4.3/; 
+ml Python/2.7xxx; ml numpy; ml pandas; python setup.py build; python setup.py install
+
 conda create -n qiime1 python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda
 
 source activate qiime1
